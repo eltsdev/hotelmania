@@ -39,7 +39,7 @@ public class AgSimpleHotel extends Agent {
 			int last = 0;
 			int i, j;
 
-			public void action()
+			public void action() 
 			{   
 				// Creates the description for the type of agent to be searched
 				DFAgentDescription dfd = new DFAgentDescription();
