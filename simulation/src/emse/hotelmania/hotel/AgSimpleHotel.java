@@ -8,16 +8,17 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 
-public class AgSimpleHotel extends Agent {
-
+public class AgSimpleHotel extends Agent 
+{
+	private static final long serialVersionUID = -5700066962738596576L;
 	protected static final String HOTELMANIA = "HOTELMANIA";
 	protected static final String REGISTER = "REGISTER";
 
 	boolean registered;
 	
 	@Override
-	protected void setup() {
-
+	protected void setup() 
+	{
 		System.out.println(getLocalName()+": HAS ENTERED");
 
 		registered = false;
