@@ -1,5 +1,6 @@
 package emse.hotelmania.simulation;
 
+import hotelmania.onto.Hotel;
 import hotelmania.onto.RegistrationRequest;
 import hotelmania.onto.SharedAgentsOntology;
 import jade.content.Concept;
@@ -23,7 +24,7 @@ public class AgHotelmania extends Agent
 {
 	static final long serialVersionUID = -7762674314086577059L;
 	static final String HOTELMANIA = "HOTELMANIA";
-	static final String REGISTER = "REGISTER";
+	static final String REGISTRATION = "Registration";
 
 	// Codec for the SL language used
     private Codec codec = new SLCodec();
@@ -56,15 +57,9 @@ public class AgHotelmania extends Agent
 			sd = null;
 			doWait(10000);
 
-			// --------------------------------------------------------
-			// BEHAVIOURS
-			// --------------------------------------------------------
-
 			addBehaviour(new RegisterHotelBehavior(this));
 
-			addBehaviour(new ProcessRejectionBehavior(this));
-
-			addBehaviour(new ProcessNotUnderstoodBehavior(this));
+			addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
 
 		} catch (FIPAException e) {
 			// TODO handle
@@ -72,6 +67,10 @@ public class AgHotelmania extends Agent
 		}
 
 	}
+
+	// --------------------------------------------------------
+	// BEHAVIOURS
+	// --------------------------------------------------------
 
 
 	/**
@@ -83,6 +82,10 @@ public class AgHotelmania extends Agent
 	private final class RegisterHotelBehavior extends CyclicBehaviour 
 	{
 		private static final long serialVersionUID = 8713963422079295068L;
+		
+		private static final int VALID_REQ = 0;
+		private static final int REJECT_REQ = -1;
+		private static final int NOT_UNDERSTOOD_REQ = 1;
 
 		private RegisterHotelBehavior(Agent a) {
 			super(a);
@@ -119,7 +122,40 @@ public class AgHotelmania extends Agent
 					// If the action is Registration Request...
 					if (conc instanceof RegistrationRequest)
 					{
-						answerRegistrationRequest(msg, (RegistrationRequest) conc);
+						//execute request
+						int answer = answerRegistrationRequest(msg, (RegistrationRequest) conc);
+						
+						//send reply
+						ACLMessage reply = msg.createReply();
+						String body = "";
+						switch (answer) 
+						{
+						case VALID_REQ:
+							body = Boolean.TRUE.toString();
+							reply.setContent(body);
+							//TODO define Agree or confirm?
+							reply.setPerformative(ACLMessage.CONFIRM); 
+							break;
+
+						case REJECT_REQ:
+							body = Boolean.FALSE.toString();
+							reply.setContent(body);
+							//TODO refuse ? disconfirm ?
+							reply.setPerformative(ACLMessage.DISCONFIRM);  
+							break;
+
+						case NOT_UNDERSTOOD_REQ:
+						default:
+							body = Boolean.FALSE.toString();
+							reply.setContent(body);
+							//TODO refuse ? disconfirm ?
+							reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);  
+							break;
+						}
+						
+						myAgent.send(reply);
+						
+						System.out.println(myAgent.getLocalName() + ": answer sent -> " + body);
 					}
 				}
 				
@@ -134,53 +170,39 @@ public class AgHotelmania extends Agent
 		 * Creates the response to registration request
 		 * @param msg
 		 * @param registrationRequestData 
+		 * @return Answer type
 		 */
-		private void answerRegistrationRequest(ACLMessage msg, RegistrationRequest registrationRequestData) {
-			System.out.println(myAgent.getLocalName()+": received Registration Request from "+(msg.getSender()).getLocalName());    
-			ACLMessage reply = msg.createReply();
-	
-			String response = Boolean.TRUE.toString();
-			reply.setContent(response);
-			reply.setPerformative(ACLMessage.AGREE);  //TODO define
-			myAgent.send(reply);
-			System.out.println(myAgent.getLocalName()
-					+ ": answer sent -> " + reply.getContent());
+		private int answerRegistrationRequest(ACLMessage msg, RegistrationRequest registrationRequestData) 
+		{
+			System.out.println(myAgent.getLocalName()+": received Registration Request from "+(msg.getSender()).getLocalName());
+
+			if (registrationRequestData != null && registrationRequestData.getHotel() != null ) {
+				if(registerNewHotel(registrationRequestData.getHotel()))
+				{
+					return 	VALID_REQ;
+				}else {
+					return REJECT_REQ;
+				}
+			}else {
+				return NOT_UNDERSTOOD_REQ;
+				
+			}
 		}
+
+		private boolean registerNewHotel(Hotel hotel) {
+			// TODO complete...
+			return true;
+		}
+
+		
 	}
 
 
-	private final class ProcessRejectionBehavior extends CyclicBehaviour 
+	private final class ReceiveNotUnderstoodMsgBehavior extends CyclicBehaviour 
 	{
 		private static final long serialVersionUID =1L;
 	
-		private ProcessRejectionBehavior(Agent a) {
-			super(a);
-		}
-	
-		public void action()
-		{
-			// Waits for estimation rejections
-			ACLMessage msg = receive(MessageTemplate.MatchPerformative(ACLMessage.REJECT_PROPOSAL)); //TODO refuse?
-			if (msg != null)
-			{
-				// If a rejection arrives...
-				System.out.println(myAgent.getLocalName()+": received work rejection from "+(msg.getSender()).getLocalName());
-			}
-			else
-			{
-				// If no message arrives
-				block();
-			}
-	
-		}
-	}
-
-
-
-	private final class ProcessNotUnderstoodBehavior extends CyclicBehaviour {
-		private static final long serialVersionUID =1L;
-	
-		private ProcessNotUnderstoodBehavior(Agent a) {
+		private ReceiveNotUnderstoodMsgBehavior(Agent a) {
 			super(a);
 		}
 	

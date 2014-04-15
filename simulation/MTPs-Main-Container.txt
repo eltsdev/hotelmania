@@ -1,1 +1,1 @@
-http://eltspc:7778/acc
+http://192.168.1.44:7778/acc
