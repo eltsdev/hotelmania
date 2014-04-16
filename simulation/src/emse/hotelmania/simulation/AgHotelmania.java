@@ -23,7 +23,6 @@ import jade.lang.acl.MessageTemplate;
 public class AgHotelmania extends Agent 
 {
 	static final long serialVersionUID = -7762674314086577059L;
-	static final String HOTELMANIA = "HOTELMANIA";
 	static final String REGISTRATION = "Registration";
 
 	// Codec for the SL language used
@@ -46,7 +45,7 @@ public class AgHotelmania extends Agent
 		DFAgentDescription dfd = new DFAgentDescription();
 		ServiceDescription sd = new ServiceDescription();
 		sd.setName(this.getName());
-		sd.setType(HOTELMANIA);
+		sd.setType(REGISTRATION);
 		dfd.addServices(sd);
 		
 		try {	
@@ -99,7 +98,7 @@ public class AgHotelmania extends Agent
 							MessageTemplate.and(
 									MessageTemplate.MatchLanguage(codec.getName()), 
 									MessageTemplate.MatchOntology(ontology.getName())),
-									MessageTemplate.MatchPerformative(ACLMessage.QUERY_IF))
+									MessageTemplate.MatchPerformative(ACLMessage.REQUEST))
 					);
 	
 			// If no message arrives
@@ -126,36 +125,31 @@ public class AgHotelmania extends Agent
 						int answer = answerRegistrationRequest(msg, (RegistrationRequest) conc);
 						
 						//send reply
+						//TODO: use request template, because now there is a mix of performatives.
 						ACLMessage reply = msg.createReply();
-						String body = "";
+						String log = "";
 						switch (answer) 
 						{
 						case VALID_REQ:
-							body = Boolean.TRUE.toString();
-							reply.setContent(body);
-							//TODO define Agree or confirm?
-							reply.setPerformative(ACLMessage.CONFIRM); 
+							reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
+							log = "ACCEPT_PROPOSAL";
 							break;
 
 						case REJECT_REQ:
-							body = Boolean.FALSE.toString();
-							reply.setContent(body);
-							//TODO refuse ? disconfirm ?
-							reply.setPerformative(ACLMessage.DISCONFIRM);  
+							reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
+							log = "REJECT_PROPOSAL";
 							break;
 
 						case NOT_UNDERSTOOD_REQ:
 						default:
-							body = Boolean.FALSE.toString();
-							reply.setContent(body);
-							//TODO refuse ? disconfirm ?
-							reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);  
+							reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+							log = "NOT_UNDERSTOOD";
 							break;
 						}
 						
 						myAgent.send(reply);
 						
-						System.out.println(myAgent.getLocalName() + ": answer sent -> " + body);
+						System.out.println(myAgent.getLocalName() + ": answer sent -> " + log );
 					}
 				}
 				

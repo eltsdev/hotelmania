@@ -23,8 +23,8 @@ public class AgHotelWithOntology extends Agent
 {
 	private static final long serialVersionUID = 2893904717857535232L;
 	
-	static final String HOTELMANIA = "HOTELMANIA";
-
+	static final String REGISTRATION = "Registration";
+	
 	// Codec for the SL language used
 	private Codec codec = new SLCodec();
 
@@ -86,8 +86,7 @@ public class AgHotelWithOntology extends Agent
 		}
 
 		private void registerHotel() {
-			ACLMessage msg = new ACLMessage(ACLMessage.QUERY_IF); // TODO define
-																	// pre.
+			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
 			msg.addReceiver(agHotelmania);
 			msg.setLanguage(codec.getName());
 			msg.setOntology(ontology.getName());
@@ -120,7 +119,7 @@ public class AgHotelWithOntology extends Agent
 		private AID locateHotelmaniaAgent() {
 			DFAgentDescription dfd = new DFAgentDescription();
 			ServiceDescription sd = new ServiceDescription();
-			sd.setType(HOTELMANIA);// TODO define common type.
+			sd.setType(REGISTRATION);
 			dfd.addServices(sd);
 
 			try {
