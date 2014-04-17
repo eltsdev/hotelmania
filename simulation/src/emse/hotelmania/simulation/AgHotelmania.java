@@ -59,6 +59,10 @@ public class AgHotelmania extends Agent
 			addBehaviour(new RegisterHotelBehavior(this));
 
 			addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
+			
+			addBehaviour(new UpdateHotelRatingBehavior(this));
+			
+			addBehaviour(new ProvideHotelInfoBehavior(this));
 
 		} catch (FIPAException e) {
 			// TODO handle
@@ -217,4 +221,44 @@ public class AgHotelmania extends Agent
 	
 		}
 	}
+	private final class ProvideHotelInfoBehavior extends CyclicBehaviour 
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 2449653047078980935L;
+
+		public ProvideHotelInfoBehavior(AgHotelmania agHotelmania) {
+			super(agHotelmania);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			
+		}
+	}
+	private final class UpdateHotelRatingBehavior extends CyclicBehaviour 
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 4349694244014786606L;
+
+		public UpdateHotelRatingBehavior(AgHotelmania agHotelmania) {
+			super(agHotelmania);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			
+		}
+	}
+	
+	
 }

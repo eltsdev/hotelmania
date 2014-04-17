@@ -19,12 +19,11 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-public class AgHotelWithOntology extends Agent
-{
+public class AgHotelWithOntology extends Agent {
 	private static final long serialVersionUID = 2893904717857535232L;
-	
+
 	static final String REGISTRATION = "Registration";
-	
+
 	// Codec for the SL language used
 	private Codec codec = new SLCodec();
 
@@ -38,17 +37,14 @@ public class AgHotelWithOntology extends Agent
 	boolean registered;
 
 	@Override
-	protected void setup() 
-	{
+	protected void setup() {
 		System.out.println(getLocalName() + ": HAS ENTERED");
 
 		// Register codec and ontology in ContentManager
 		getContentManager().registerLanguage(codec);
 		getContentManager().registerOntology(ontology);
 
-		// Registration in hotelmania
 		addBehaviour(new RegisterInHotelmaniaBehavior(this));
-
 		// Process acceptance messages
 		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
 
@@ -56,14 +52,19 @@ public class AgHotelWithOntology extends Agent
 		addBehaviour(new ReceiveRejectionMsgBehavior(this));
 
 		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
+		
+		addBehaviour(new HireDailyStaffBehavior(this));
+		
+		addBehaviour(new MakeRoomBookingBehavior(this));
+		
+		addBehaviour(new ProvideRoomBehavior(this));
 	}
 
 	// --------------------------------------------------------
 	// BEHAVIOURS
 	// --------------------------------------------------------
 
-	private final class RegisterInHotelmaniaBehavior extends SimpleBehaviour 
-	{
+	private final class RegisterInHotelmaniaBehavior extends SimpleBehaviour {
 		private static final long serialVersionUID = 1256090117313507535L;
 		private boolean hotelmaniaFound = false;
 
@@ -130,7 +131,8 @@ public class AgHotelWithOntology extends Agent
 
 					for (DFAgentDescription description : agents) {
 						hotelmaniaFound = true;
-						return (AID) description.getName(); // only expects 1 agent...
+						return (AID) description.getName(); // only expects 1
+															// agent...
 					}
 				}
 			} catch (Exception e) {
@@ -149,18 +151,19 @@ public class AgHotelWithOntology extends Agent
 		}
 	}
 
-	private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour 
-	{
+	private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour {
 		private static final long serialVersionUID = -4878774871721189228L;
-	
+
 		private ReceiveAcceptanceMsgBehavior(Agent a) {
 			super(a);
 		}
-	
+
 		public void action() {
 			// Waits for acceptance messages
 			ACLMessage msg = receive(MessageTemplate
-					.MatchPerformative(ACLMessage.CONFIRM)); //TODO confirm agree accept proposal
+					.MatchPerformative(ACLMessage.CONFIRM)); // TODO confirm
+																// agree accept
+																// proposal
 			if (msg != null) {
 				// If an acceptance arrives...
 				registered = true;
@@ -185,7 +188,8 @@ public class AgHotelWithOntology extends Agent
 		public void action() {
 			// Waits for rejection message
 			ACLMessage msg = receive(MessageTemplate
-					.MatchPerformative(ACLMessage.REFUSE)); // TODO refuse? or reject proposal?
+					.MatchPerformative(ACLMessage.REFUSE)); // TODO refuse? or
+															// reject proposal?
 			if (msg != null) {
 				// If a rejection arrives...
 				System.out.println(myAgent.getLocalName()
@@ -223,4 +227,65 @@ public class AgHotelWithOntology extends Agent
 		}
 	}
 
+	private final class HireDailyStaffBehavior extends CyclicBehaviour {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -8769912917130729651L;
+
+		public HireDailyStaffBehavior(AgHotelWithOntology agHotelWithOntology) {
+			// TODO Auto-generated constructor stub
+			super(agHotelWithOntology);
+		}
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			
+		}
+
+	}
+	
+	private final class MakeRoomBookingBehavior extends CyclicBehaviour {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -390060690778340930L;
+
+		public MakeRoomBookingBehavior(AgHotelWithOntology agHotelWithOntology) {
+			// TODO Auto-generated constructor stub
+			super(agHotelWithOntology);
+		}
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			
+		}
+
+	}
+	
+	private final class ProvideRoomBehavior extends CyclicBehaviour {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1955222376582492939L;
+
+		public ProvideRoomBehavior(AgHotelWithOntology agHotelWithOntology) {
+			// TODO Auto-generated constructor stub
+			super(agHotelWithOntology);
+		}
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			
+		}
+
+	
+	}
+	
 }
