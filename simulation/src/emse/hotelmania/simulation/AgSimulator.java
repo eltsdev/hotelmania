@@ -40,7 +40,7 @@ public class AgSimulator extends Agent
 		// Behaviors
 		
 		addBehaviour(new SetTimeSpeedBehavior(this));
-		addBehaviour(new ControlTimeBehavior(this));
+		addBehaviour(new ControlDaysBehavior(this));
 		addBehaviour(new GeneratePlatformAgentsBehavior(this));
 		addBehaviour(new GenerateClientsBehavior(this));
 	}
@@ -63,11 +63,11 @@ public class AgSimulator extends Agent
 		}
 	}
 	
-	private final class ControlTimeBehavior extends CyclicBehaviour 
+	private final class ControlDaysBehavior extends CyclicBehaviour 
 	{
 		private static final long serialVersionUID = -9078033789982364796L;
 
-		private ControlTimeBehavior(Agent a) {
+		private ControlDaysBehavior(Agent a) {
 			super(a);
 		}
 

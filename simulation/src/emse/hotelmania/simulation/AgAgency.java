@@ -9,7 +9,8 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 
-public class AgAgencyWithOntology extends Agent {
+public class AgAgency extends Agent 
+{
 	private static final long serialVersionUID = 2893904717857535232L;
 
 	static final String REGISTRATION = "Registration";
@@ -34,10 +35,10 @@ public class AgAgencyWithOntology extends Agent {
 		getContentManager().registerLanguage(codec);
 		getContentManager().registerOntology(ontology);
 
-		// Registration in hotelmania
 		addBehaviour(new SignStaffContractWithHotelBehavior(this));
+		
+		//TODO charge hotel account
 
-		// Process acceptance messages
 		addBehaviour(new ProvideHotelStaffInfoToClientBehavior(this));
 
 	}
@@ -46,15 +47,12 @@ public class AgAgencyWithOntology extends Agent {
 	// BEHAVIOURS
 	// --------------------------------------------------------
 
-	private final class SignStaffContractWithHotelBehavior extends SimpleBehaviour {
-
-		/**
-		 * 
-		 */
+	private final class SignStaffContractWithHotelBehavior extends SimpleBehaviour 
+	{
 		private static final long serialVersionUID = 7390814510706022198L;
 
 		public SignStaffContractWithHotelBehavior(
-				AgAgencyWithOntology agBankWithOntology) {
+				AgAgency agBankWithOntology) {
 			super(agBankWithOntology);
 		}
 
@@ -72,15 +70,12 @@ public class AgAgencyWithOntology extends Agent {
 	}
 
 	private final class ProvideHotelStaffInfoToClientBehavior extends
-			CyclicBehaviour {
-
-		/**
-		 * 
-		 */
+			CyclicBehaviour 
+	{
 		private static final long serialVersionUID = -4414753731149819352L;
 
 		public ProvideHotelStaffInfoToClientBehavior(
-				AgAgencyWithOntology agBankWithOntology) {
+				AgAgency agBankWithOntology) {
 			super(agBankWithOntology);
 		}
 

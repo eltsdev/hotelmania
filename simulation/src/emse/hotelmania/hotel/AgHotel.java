@@ -19,7 +19,7 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-public class AgHotelWithOntology extends Agent {
+public class AgHotel extends Agent {
 	private static final long serialVersionUID = 2893904717857535232L;
 
 	static final String REGISTRATION = "Registration";
@@ -43,21 +43,24 @@ public class AgHotelWithOntology extends Agent {
 		// Register codec and ontology in ContentManager
 		getContentManager().registerLanguage(codec);
 		getContentManager().registerOntology(ontology);
+		
 
+		//TODO Subscribe to day event
+		
 		addBehaviour(new RegisterInHotelmaniaBehavior(this));
-		// Process acceptance messages
 		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
-
-		// Process other standard messages
 		addBehaviour(new ReceiveRejectionMsgBehavior(this));
-
 		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
+		
+		//TODO create bank account
 		
 		addBehaviour(new HireDailyStaffBehavior(this));
 		
 		addBehaviour(new MakeRoomBookingBehavior(this));
 		
-		addBehaviour(new ProvideRoomBehavior(this));
+		addBehaviour(new ProvideRoomInfoBehavior(this));
+		
+		//TODO Consult account status
 	}
 
 	// --------------------------------------------------------
@@ -161,9 +164,8 @@ public class AgHotelWithOntology extends Agent {
 		public void action() {
 			// Waits for acceptance messages
 			ACLMessage msg = receive(MessageTemplate
-					.MatchPerformative(ACLMessage.CONFIRM)); // TODO confirm
-																// agree accept
-																// proposal
+					.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL));
+
 			if (msg != null) {
 				// If an acceptance arrives...
 				registered = true;
@@ -188,8 +190,8 @@ public class AgHotelWithOntology extends Agent {
 		public void action() {
 			// Waits for rejection message
 			ACLMessage msg = receive(MessageTemplate
-					.MatchPerformative(ACLMessage.REFUSE)); // TODO refuse? or
-															// reject proposal?
+					.MatchPerformative(ACLMessage.REJECT_PROPOSAL));
+
 			if (msg != null) {
 				// If a rejection arrives...
 				System.out.println(myAgent.getLocalName()
@@ -234,7 +236,7 @@ public class AgHotelWithOntology extends Agent {
 		 */
 		private static final long serialVersionUID = -8769912917130729651L;
 
-		public HireDailyStaffBehavior(AgHotelWithOntology agHotelWithOntology) {
+		public HireDailyStaffBehavior(AgHotel agHotelWithOntology) {
 			// TODO Auto-generated constructor stub
 			super(agHotelWithOntology);
 		}
@@ -254,7 +256,7 @@ public class AgHotelWithOntology extends Agent {
 		 */
 		private static final long serialVersionUID = -390060690778340930L;
 
-		public MakeRoomBookingBehavior(AgHotelWithOntology agHotelWithOntology) {
+		public MakeRoomBookingBehavior(AgHotel agHotelWithOntology) {
 			// TODO Auto-generated constructor stub
 			super(agHotelWithOntology);
 		}
@@ -267,14 +269,14 @@ public class AgHotelWithOntology extends Agent {
 
 	}
 	
-	private final class ProvideRoomBehavior extends CyclicBehaviour {
+	private final class ProvideRoomInfoBehavior extends CyclicBehaviour {
 
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1955222376582492939L;
 
-		public ProvideRoomBehavior(AgHotelWithOntology agHotelWithOntology) {
+		public ProvideRoomInfoBehavior(AgHotel agHotelWithOntology) {
 			// TODO Auto-generated constructor stub
 			super(agHotelWithOntology);
 		}

@@ -56,18 +56,22 @@ public class AgHotelmania extends Agent
 			sd = null;
 			doWait(10000);
 
-			addBehaviour(new RegisterHotelBehavior(this));
-
-			addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
-			
-			addBehaviour(new UpdateHotelRatingBehavior(this));
-			
-			addBehaviour(new ProvideHotelInfoBehavior(this));
-
 		} catch (FIPAException e) {
 			// TODO handle
 			e.printStackTrace();
 		}
+		
+		// Behaviors
+
+		addBehaviour(new ReceiveRegisterRequestBehavior(this));
+		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
+
+		addBehaviour(new UpdateHotelRatingBehavior(this));
+
+		addBehaviour(new ProvideHotelInfoBehavior(this));
+		
+		//TODO addBehaviour(new ReceiveHotelRatingBehavior(this));
+
 
 	}
 
@@ -75,14 +79,13 @@ public class AgHotelmania extends Agent
 	// BEHAVIOURS
 	// --------------------------------------------------------
 
-
 	/**
 	 * Adds a behavior to answer REGISTER requests
 	 * Waits for a request and, when it arrives, answers with
 	 * the ACCEPT/REJECT response and waits again.
 	 * @author elts
 	 */
-	private final class RegisterHotelBehavior extends CyclicBehaviour 
+	private final class ReceiveRegisterRequestBehavior extends CyclicBehaviour 
 	{
 		private static final long serialVersionUID = 8713963422079295068L;
 		
@@ -90,7 +93,7 @@ public class AgHotelmania extends Agent
 		private static final int REJECT_REQ = -1;
 		private static final int NOT_UNDERSTOOD_REQ = 1;
 
-		private RegisterHotelBehavior(Agent a) {
+		private ReceiveRegisterRequestBehavior(Agent a) {
 			super(a);
 		}
 	
@@ -223,10 +226,6 @@ public class AgHotelmania extends Agent
 	}
 	private final class ProvideHotelInfoBehavior extends CyclicBehaviour 
 	{
-
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 2449653047078980935L;
 
 		public ProvideHotelInfoBehavior(AgHotelmania agHotelmania) {
@@ -242,11 +241,7 @@ public class AgHotelmania extends Agent
 	}
 	private final class UpdateHotelRatingBehavior extends CyclicBehaviour 
 	{
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 4349694244014786606L;
+		private static final long serialVersionUID = 7586132058023771627L;
 
 		public UpdateHotelRatingBehavior(AgHotelmania agHotelmania) {
 			super(agHotelmania);
@@ -259,6 +254,4 @@ public class AgHotelmania extends Agent
 			
 		}
 	}
-	
-	
 }

@@ -7,8 +7,6 @@ import jade.content.onto.Ontology;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
-import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
 
 public class AgClient extends Agent
 {
@@ -42,8 +40,13 @@ public class AgClient extends Agent
 		getContentManager().registerOntology(ontology);
 
 		// Behaviors
-		
+
+		//TODO subscribe day event
+	
 		addBehaviour(new RequestBookingInHotelBehavior(this));
+				
+		//TODO refuse offer
+
 	}
 		
 	// --------------------------------------------------------
@@ -60,14 +63,17 @@ public class AgClient extends Agent
 
 		public void action() 
 		{
-			// Ask room prices
-
-			// Choose best room for booking
-
-			// Pay stay in hotel bank account
-
-			// Rate hotel
-
+			//TODO request hotel info
+			
+			//TODO ask room price *
+			
+			//TODO book room
+			
+			//TODO pay bank account
+			
+			//TODO rate hotel
+			
+			
 			// If no message arrives
 			block();
 		}

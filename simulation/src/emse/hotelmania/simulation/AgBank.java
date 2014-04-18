@@ -9,7 +9,7 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 
-public class AgBankWithOntology extends Agent {
+public class AgBank extends Agent {
 	private static final long serialVersionUID = 2893904717857535232L;
 
 	static final String REGISTRATION = "Registration";
@@ -28,7 +28,8 @@ public class AgBankWithOntology extends Agent {
 	AID agReporter;
 
 	@Override
-	protected void setup() {
+	protected void setup() 
+	{
 		System.out.println(getLocalName() + ": HAS ENTERED");
 
 		// Register codec and ontology in ContentManager
@@ -38,14 +39,14 @@ public class AgBankWithOntology extends Agent {
 		// Create hotel account
 		addBehaviour(new CreateAccountBehavior(this));
 
-		// Provide info account to hotel
-		addBehaviour(new ProvideHotelAccountInfoBehavior(this));
-
-		// Process 
-		addBehaviour(new MakeDepositBehavior(this));
-		
 		//Charge Staff services in hotel account
 		addBehaviour(new ChargeAccountBehavior(this));
+
+		// Used by clients to pay to hotels
+		addBehaviour(new MakeDepositBehavior(this));
+		
+		// Provide info account to hotel
+		addBehaviour(new ProvideHotelAccountInfoBehavior(this));
 
 	}
 
@@ -53,16 +54,11 @@ public class AgBankWithOntology extends Agent {
 	// BEHAVIOURS
 	// --------------------------------------------------------
 
-	private final class CreateAccountBehavior extends SimpleBehaviour {
-
-
-		/**
-		 * 
-		 */
+	private final class CreateAccountBehavior extends SimpleBehaviour 
+	{
 		private static final long serialVersionUID = 7390814510706022198L;
 		
-
-		public CreateAccountBehavior(AgBankWithOntology agBankWithOntology) {
+		public CreateAccountBehavior(AgBank agBankWithOntology) {
 			super(agBankWithOntology);
 			// TODO Auto-generated constructor stub
 		}
@@ -80,14 +76,11 @@ public class AgBankWithOntology extends Agent {
 		}
 	}
 
-	private final class ProvideHotelAccountInfoBehavior extends CyclicBehaviour {
-
-		/**
-		 * 
-		 */
+	private final class ProvideHotelAccountInfoBehavior extends CyclicBehaviour 
+	{
 		private static final long serialVersionUID = -4414753731149819352L;
 
-		public ProvideHotelAccountInfoBehavior(AgBankWithOntology agBankWithOntology) {
+		public ProvideHotelAccountInfoBehavior(AgBank agBankWithOntology) {
 			super(agBankWithOntology);
 			// TODO Auto-generated constructor stub
 		}
@@ -100,14 +93,11 @@ public class AgBankWithOntology extends Agent {
 
 	}
 
-	private final class ChargeAccountBehavior extends CyclicBehaviour {
-
-		/**
-		 * 
-		 */
+	private final class ChargeAccountBehavior extends CyclicBehaviour 
+	{
 		private static final long serialVersionUID = 5591566038041266929L;
 
-		public ChargeAccountBehavior(AgBankWithOntology agBankWithOntology) {
+		public ChargeAccountBehavior(AgBank agBankWithOntology) {
 			super(agBankWithOntology);
 			// TODO Auto-generated constructor stub
 		}
@@ -120,14 +110,11 @@ public class AgBankWithOntology extends Agent {
 
 	}
 	
-	private final class MakeDepositBehavior extends CyclicBehaviour {
-
-		/**
-		 * 
-		 */
+	private final class MakeDepositBehavior extends CyclicBehaviour 
+	{
 		private static final long serialVersionUID = 5591566038041266929L;
 
-		public MakeDepositBehavior(AgBankWithOntology agBankWithOntology) {
+		public MakeDepositBehavior(AgBank agBankWithOntology) {
 			super(agBankWithOntology);
 			// TODO Auto-generated constructor stub
 		}
