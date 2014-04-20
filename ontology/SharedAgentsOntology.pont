@@ -1,4 +1,4 @@
-; Sun Apr 20 19:20:10 CEST 2014
+; Sun Apr 20 19:30:16 CEST 2014
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -16,13 +16,13 @@
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot total_rating
+		(type FLOAT)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
 	(single-slot hotel_rated
 		(type INSTANCE)
 ;+		(allowed-classes Hotel)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(single-slot total_rating
-		(type FLOAT)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot cost
@@ -34,17 +34,13 @@
 ;+		(allowed-classes Hotel)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot hotel_contract
-		(type INSTANCE)
-;+		(allowed-classes Hotel)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
 	(single-slot staff_rating
 		(type STRING)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
-	(single-slot room_staff_rating
-		(type FLOAT)
+	(single-slot hotel_contract
+		(type INSTANCE)
+;+		(allowed-classes Hotel)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot %3AJADE-PROPERTIES-GENERATE-BEANS
@@ -52,6 +48,10 @@
 		(allowed-values FALSE TRUE)
 		(default TRUE)
 ;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot room_staff_rating
+		(type FLOAT)
+;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(multislot hotels
 		(type INSTANCE)
@@ -62,12 +62,12 @@
 		(type SYMBOL)
 ;+		(allowed-parents AID)
 		(create-accessor read-write))
-	(single-slot cookers_raring
-		(type FLOAT)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
 	(single-slot hotel_name
 		(type STRING)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot cookers_raring
+		(type FLOAT)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot %3ALOCATION
@@ -83,15 +83,15 @@
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot quantity
-		(type INTEGER)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
 	(single-slot %3AJADE-UNNAMED-SLOT
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
 ;+		(cardinality 1 1)
 ;+		(associated-facet SimpleJADEAbstractOntology_00016)
+		(create-accessor read-write))
+	(single-slot quantity
+		(type INTEGER)
+;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot days
 		(type INTEGER)
@@ -158,17 +158,17 @@
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot ratings
-		(type INSTANCE)
-;+		(allowed-classes Rating)
+	(single-slot day
+		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot %3AJADE-PROPERTIES-NAME
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot day
-		(type STRING)
+	(single-slot ratings
+		(type INSTANCE)
+;+		(allowed-classes Rating)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(multislot cookerStaff
@@ -190,22 +190,22 @@
 		(default Classes)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot money
+		(type FLOAT)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(single-slot %3AONTOLOGYNAME
 ;+		(comment "name of the ontology")
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot money
-		(type FLOAT)
-;+		(cardinality 0 1)
+	(single-slot category
+		(type STRING)
+;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot roomsAvailable
 		(type INTEGER)
 ;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot category
-		(type STRING)
-;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot %3AJADE-NAME
 		(type STRING)
@@ -410,14 +410,14 @@
 (defclass SignContract
 	(is-a AgentAction)
 	(role concrete)
+	(multislot cookerStaff
+		(type INSTANCE)
+;+		(allowed-classes Contract)
+		(create-accessor read-write))
 	(single-slot hotel
 		(type INSTANCE)
 ;+		(allowed-classes Hotel)
 ;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(multislot cookerStaff
-		(type INSTANCE)
-;+		(allowed-classes Contract)
 		(create-accessor read-write))
 	(multislot recepcionistStaff
 		(type INSTANCE)
@@ -501,14 +501,14 @@
 (defclass HotelStaffInfo
 	(is-a Concept)
 	(role concrete)
+	(multislot cookerStaff
+		(type INSTANCE)
+;+		(allowed-classes Contract)
+		(create-accessor read-write))
 	(single-slot hotel
 		(type INSTANCE)
 ;+		(allowed-classes Hotel)
 ;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(multislot cookerStaff
-		(type INSTANCE)
-;+		(allowed-classes Contract)
 		(create-accessor read-write))
 	(multislot recepcionistStaff
 		(type INSTANCE)
