@@ -19,10 +19,11 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-public class AgHotel extends Agent {
+public class AgHotel extends Agent 
+{
 	private static final long serialVersionUID = 2893904717857535232L;
 
-	static final String REGISTRATION = "Registration";
+	static final String REGISTRATION_REQUEST = "REGISTRATION_REQUEST";
 
 	// Codec for the SL language used
 	private Codec codec = new SLCodec();
@@ -123,7 +124,7 @@ public class AgHotel extends Agent {
 		private AID locateHotelmaniaAgent() {
 			DFAgentDescription dfd = new DFAgentDescription();
 			ServiceDescription sd = new ServiceDescription();
-			sd.setType(REGISTRATION);
+			sd.setType(REGISTRATION_REQUEST);
 			dfd.addServices(sd);
 
 			try {

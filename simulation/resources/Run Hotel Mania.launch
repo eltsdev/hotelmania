@@ -8,6 +8,6 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.debug.ui.INCLUDE_EXTERNAL_JARS" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="jade.Boot"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-gui hotelmania:emse.hotelmania.simulation.AgHotelmania;hotel1:emse.hotelmania.hotel.AgSimpleHotel;hotel2:emse.hotelmania.hotel.AgHotelWithOntology"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-gui hotelmania:emse.hotelmania.simulation.AgHotelmania;hotel:emse.hotelmania.hotel.AgHotel"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="simulation"/>
 </launchConfiguration>

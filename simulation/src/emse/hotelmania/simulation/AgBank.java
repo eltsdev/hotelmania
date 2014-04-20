@@ -9,10 +9,9 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 
-public class AgBank extends Agent {
+public class AgBank extends Agent 
+{
 	private static final long serialVersionUID = 2893904717857535232L;
-
-	static final String REGISTRATION = "Registration";
 
 	// Codec for the SL language used
 	private Codec codec = new SLCodec();

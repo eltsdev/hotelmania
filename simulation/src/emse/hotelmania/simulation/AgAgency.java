@@ -13,8 +13,6 @@ public class AgAgency extends Agent
 {
 	private static final long serialVersionUID = 2893904717857535232L;
 
-	static final String REGISTRATION = "Registration";
-
 	// Codec for the SL language used
 	private Codec codec = new SLCodec();
 
