@@ -1,37 +1,41 @@
 package hotelmania.onto;
 
-
 import jade.content.*;
 import jade.util.leap.*;
 import jade.core.*;
 
 /**
-* Protege name: RateHotel
-* @author ontology bean generator
-* @version 2014/04/20, 19:30:10
-*/
+ * Protege name: RateHotel
+ * 
+ * @author ontology bean generator
+ * @version 2014/04/20, 19:30:10
+ */
 public class RateHotel implements AgentAction {
 
-   /**
-* Protege name: ratings
-   */
-   private Rating ratings;
-   public void setRatings(Rating value) { 
-    this.ratings=value;
-   }
-   public Rating getRatings() {
-     return this.ratings;
-   }
+	/**
+	 * Protege name: ratings
+	 */
+	private Rating ratings;
 
-   /**
-* Protege name: hotel
-   */
-   private Hotel hotel;
-   public void setHotel(Hotel value) { 
-    this.hotel=value;
-   }
-   public Hotel getHotel() {
-     return this.hotel;
-   }
+	public void setRatings(Rating value) {
+		this.ratings = value;
+	}
+
+	public Rating getRatings() {
+		return this.ratings;
+	}
+
+	/**
+	 * Protege name: hotel
+	 */
+	private Hotel hotel;
+
+	public void setHotel(Hotel value) {
+		this.hotel = value;
+	}
+
+	public Hotel getHotel() {
+		return this.hotel;
+	}
 
 }
