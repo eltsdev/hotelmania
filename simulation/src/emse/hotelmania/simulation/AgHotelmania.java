@@ -23,7 +23,7 @@ import jade.lang.acl.MessageTemplate;
 public class AgHotelmania extends Agent 
 {
 	static final long serialVersionUID = -7762674314086577059L;
-	static final String REGISTRATION = "Registration";
+	static final String REGISTRATION_REQUEST = "Registration";
 
 	// Codec for the SL language used
     private Codec codec = new SLCodec();
@@ -45,7 +45,7 @@ public class AgHotelmania extends Agent
 		DFAgentDescription dfd = new DFAgentDescription();
 		ServiceDescription sd = new ServiceDescription();
 		sd.setName(this.getName());
-		sd.setType(REGISTRATION);
+		sd.setType(REGISTRATION_REQUEST);
 		dfd.addServices(sd);
 		
 		try {	

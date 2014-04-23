@@ -9,7 +9,7 @@ import jade.core.CaseInsensitiveString;
 
 /** file: SharedAgentsOntology.java
  * @author ontology bean generator
- * @version 2014/04/11, 20:07:01
+ * @version 2014/04/23, 09:30:57
  */
 public class SharedAgentsOntology extends jade.content.onto.Ontology  {
   //NAME
@@ -23,8 +23,66 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
 
 
    // VOCABULARY
+    public static final String BOOKROOM_BOOKING="booking";
+    public static final String BOOKROOM="BookRoom";
+    public static final String SIGNCONTRACT_CONTRACT="contract";
+    public static final String SIGNCONTRACT_HOTEL="hotel";
+    public static final String SIGNCONTRACT="SignContract";
     public static final String REGISTRATIONREQUEST_HOTEL="hotel";
     public static final String REGISTRATIONREQUEST="RegistrationRequest";
+    public static final String CONSULTHOTELSINFO="ConsultHotelsInfo";
+    public static final String MAKEDEPOSIT_HOTEL="hotel";
+    public static final String MAKEDEPOSIT_MONEY="money";
+    public static final String MAKEDEPOSIT="MakeDeposit";
+    public static final String CONSULTROOMPRICE_DAYS="days";
+    public static final String CONSULTROOMPRICE_STARTDAY="startDay";
+    public static final String CONSULTROOMPRICE="ConsultRoomPrice";
+    public static final String RATEHOTEL_HOTEL="hotel";
+    public static final String RATEHOTEL_RATINGS="ratings";
+    public static final String RATEHOTEL="RateHotel";
+    public static final String CHARGEACCOUNT_HOTEL="hotel";
+    public static final String CHARGEACCOUNT_MONEY="money";
+    public static final String CHARGEACCOUNT="ChargeAccount";
+    public static final String CONSULTHOTELSTAFF_HOTEL="hotel";
+    public static final String CONSULTHOTELSTAFF="ConsultHotelStaff";
+    public static final String HOTELSINFOREQUEST="HotelsInfoRequest";
+    public static final String CONSULTACCOUNTSTATUS_HOTEL="hotel";
+    public static final String CONSULTACCOUNTSTATUS="ConsultAccountStatus";
+    public static final String SUBSCRIBEDAYEVENT="SubscribeDayEvent";
+    public static final String CREATEACCOUNT_HOTEL="hotel";
+    public static final String CREATEACCOUNT_BALANCE="balance";
+    public static final String CREATEACCOUNT="CreateAccount";
+    public static final String BOOKING_DAYS="days";
+    public static final String BOOKING_STARTDAY="startDay";
+    public static final String BOOKING="Booking";
+    public static final String HOTELINFO_HOTEL="hotel";
+    public static final String HOTELINFO_RATING="rating";
+    public static final String HOTELINFO="HotelInfo";
+    public static final String HOTELSTAFFINFO_CONTRACT="contract";
+    public static final String HOTELSTAFFINFO_HOTEL="hotel";
+    public static final String HOTELSTAFFINFO_COOKERSTAFF="cookerStaff";
+    public static final String HOTELSTAFFINFO="HotelStaffInfo";
+    public static final String RATING_COOKERS_RARING="cookers_raring";
+    public static final String RATING_ROOM_STAFF_RATING="room_staff_rating";
+    public static final String RATING_CLEANLINESS_RATING="cleanliness_rating";
+    public static final String RATING_PRICE_RATING="price_rating";
+    public static final String RATING="Rating";
+    public static final String ROOMHOTELINFO_ROOMSAVAILABLE="roomsAvailable";
+    public static final String ROOMHOTELINFO_COST="cost";
+    public static final String ROOMHOTELINFO="RoomHotelInfo";
+    public static final String DAYEVENT_DAY="day";
+    public static final String DAYEVENT="DayEvent";
+    public static final String ACCOUNTSTATUS_BALANCE="balance";
+    public static final String ACCOUNTSTATUS="AccountStatus";
+    public static final String CONTRACT_RECEPCIONIST_NOVICE="recepcionist_novice";
+    public static final String CONTRACT_COOKER_1STARS="cooker_1stars";
+    public static final String CONTRACT_COOKER_2STARS="cooker_2stars";
+    public static final String CONTRACT_COOKER_3STARS="cooker_3stars";
+    public static final String CONTRACT_ROOM_SERVICE_STAFF="room_service_staff";
+    public static final String CONTRACT_RECEPCIONIST_EXPERIENCED="recepcionist_experienced";
+    public static final String CONTRACT="Contract";
+    public static final String HOTELINFOLIST_HOTELS="hotels";
+    public static final String HOTELINFOLIST="HotelInfoList";
     public static final String HOTEL_HOTEL_NAME="hotel_name";
     public static final String HOTEL="Hotel";
 
@@ -38,10 +96,52 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     // adding Concept(s)
     ConceptSchema hotelSchema = new ConceptSchema(HOTEL);
     add(hotelSchema, hotelmania.onto.Hotel.class);
+    ConceptSchema hotelInfoListSchema = new ConceptSchema(HOTELINFOLIST);
+    add(hotelInfoListSchema, hotelmania.onto.HotelInfoList.class);
+    ConceptSchema contractSchema = new ConceptSchema(CONTRACT);
+    add(contractSchema, hotelmania.onto.Contract.class);
+    ConceptSchema accountStatusSchema = new ConceptSchema(ACCOUNTSTATUS);
+    add(accountStatusSchema, hotelmania.onto.AccountStatus.class);
+    ConceptSchema dayEventSchema = new ConceptSchema(DAYEVENT);
+    add(dayEventSchema, hotelmania.onto.DayEvent.class);
+    ConceptSchema roomHotelInfoSchema = new ConceptSchema(ROOMHOTELINFO);
+    add(roomHotelInfoSchema, hotelmania.onto.RoomHotelInfo.class);
+    ConceptSchema ratingSchema = new ConceptSchema(RATING);
+    add(ratingSchema, hotelmania.onto.Rating.class);
+    ConceptSchema hotelStaffInfoSchema = new ConceptSchema(HOTELSTAFFINFO);
+    add(hotelStaffInfoSchema, hotelmania.onto.HotelStaffInfo.class);
+    ConceptSchema hotelInfoSchema = new ConceptSchema(HOTELINFO);
+    add(hotelInfoSchema, hotelmania.onto.HotelInfo.class);
+    ConceptSchema bookingSchema = new ConceptSchema(BOOKING);
+    add(bookingSchema, hotelmania.onto.Booking.class);
 
     // adding AgentAction(s)
+    AgentActionSchema createAccountSchema = new AgentActionSchema(CREATEACCOUNT);
+    add(createAccountSchema, hotelmania.onto.CreateAccount.class);
+    AgentActionSchema subscribeDayEventSchema = new AgentActionSchema(SUBSCRIBEDAYEVENT);
+    add(subscribeDayEventSchema, hotelmania.onto.SubscribeDayEvent.class);
+    AgentActionSchema consultAccountStatusSchema = new AgentActionSchema(CONSULTACCOUNTSTATUS);
+    add(consultAccountStatusSchema, hotelmania.onto.ConsultAccountStatus.class);
+    AgentActionSchema hotelsInfoRequestSchema = new AgentActionSchema(HOTELSINFOREQUEST);
+    add(hotelsInfoRequestSchema, hotelmania.onto.HotelsInfoRequest.class);
+    AgentActionSchema consultHotelStaffSchema = new AgentActionSchema(CONSULTHOTELSTAFF);
+    add(consultHotelStaffSchema, hotelmania.onto.ConsultHotelStaff.class);
+    AgentActionSchema chargeAccountSchema = new AgentActionSchema(CHARGEACCOUNT);
+    add(chargeAccountSchema, hotelmania.onto.ChargeAccount.class);
+    AgentActionSchema rateHotelSchema = new AgentActionSchema(RATEHOTEL);
+    add(rateHotelSchema, hotelmania.onto.RateHotel.class);
+    AgentActionSchema consultRoomPriceSchema = new AgentActionSchema(CONSULTROOMPRICE);
+    add(consultRoomPriceSchema, hotelmania.onto.ConsultRoomPrice.class);
+    AgentActionSchema makeDepositSchema = new AgentActionSchema(MAKEDEPOSIT);
+    add(makeDepositSchema, hotelmania.onto.MakeDeposit.class);
+    AgentActionSchema consultHotelsInfoSchema = new AgentActionSchema(CONSULTHOTELSINFO);
+    add(consultHotelsInfoSchema, hotelmania.onto.ConsultHotelsInfo.class);
     AgentActionSchema registrationRequestSchema = new AgentActionSchema(REGISTRATIONREQUEST);
     add(registrationRequestSchema, hotelmania.onto.RegistrationRequest.class);
+    AgentActionSchema signContractSchema = new AgentActionSchema(SIGNCONTRACT);
+    add(signContractSchema, hotelmania.onto.SignContract.class);
+    AgentActionSchema bookRoomSchema = new AgentActionSchema(BOOKROOM);
+    add(bookRoomSchema, hotelmania.onto.BookRoom.class);
 
     // adding AID(s)
 
@@ -50,7 +150,44 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
 
     // adding fields
     hotelSchema.add(HOTEL_HOTEL_NAME, (TermSchema)getSchema(BasicOntology.STRING), ObjectSchema.MANDATORY);
+    hotelInfoListSchema.add(HOTELINFOLIST_HOTELS, hotelInfoSchema, 1, ObjectSchema.UNLIMITED);
+    contractSchema.add(CONTRACT_RECEPCIONIST_EXPERIENCED, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.MANDATORY);
+    contractSchema.add(CONTRACT_ROOM_SERVICE_STAFF, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.MANDATORY);
+    contractSchema.add(CONTRACT_COOKER_3STARS, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.MANDATORY);
+    contractSchema.add(CONTRACT_COOKER_2STARS, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.MANDATORY);
+    contractSchema.add(CONTRACT_COOKER_1STARS, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.MANDATORY);
+    contractSchema.add(CONTRACT_RECEPCIONIST_NOVICE, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.MANDATORY);
+    accountStatusSchema.add(ACCOUNTSTATUS_BALANCE, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
+    dayEventSchema.add(DAYEVENT_DAY, (TermSchema)getSchema(BasicOntology.STRING), ObjectSchema.OPTIONAL);
+    roomHotelInfoSchema.add(ROOMHOTELINFO_COST, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
+    roomHotelInfoSchema.add(ROOMHOTELINFO_ROOMSAVAILABLE, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
+    ratingSchema.add(RATING_PRICE_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
+    ratingSchema.add(RATING_CLEANLINESS_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
+    ratingSchema.add(RATING_ROOM_STAFF_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
+    ratingSchema.add(RATING_COOKERS_RARING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
+    hotelStaffInfoSchema.add(HOTELSTAFFINFO_COOKERSTAFF, contractSchema, 0, ObjectSchema.UNLIMITED);
+    hotelStaffInfoSchema.add(HOTELSTAFFINFO_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
+    hotelStaffInfoSchema.add(HOTELSTAFFINFO_CONTRACT, contractSchema, ObjectSchema.MANDATORY);
+    hotelInfoSchema.add(HOTELINFO_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
+    hotelInfoSchema.add(HOTELINFO_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
+    bookingSchema.add(BOOKING_STARTDAY, (TermSchema)getSchema(BasicOntology.STRING), ObjectSchema.OPTIONAL);
+    bookingSchema.add(BOOKING_DAYS, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
+    createAccountSchema.add(CREATEACCOUNT_BALANCE, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
+    createAccountSchema.add(CREATEACCOUNT_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
+    consultAccountStatusSchema.add(CONSULTACCOUNTSTATUS_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
+    consultHotelStaffSchema.add(CONSULTHOTELSTAFF_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
+    chargeAccountSchema.add(CHARGEACCOUNT_MONEY, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
+    chargeAccountSchema.add(CHARGEACCOUNT_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
+    rateHotelSchema.add(RATEHOTEL_RATINGS, ratingSchema, ObjectSchema.OPTIONAL);
+    rateHotelSchema.add(RATEHOTEL_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
+    consultRoomPriceSchema.add(CONSULTROOMPRICE_STARTDAY, (TermSchema)getSchema(BasicOntology.STRING), ObjectSchema.OPTIONAL);
+    consultRoomPriceSchema.add(CONSULTROOMPRICE_DAYS, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
+    makeDepositSchema.add(MAKEDEPOSIT_MONEY, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
+    makeDepositSchema.add(MAKEDEPOSIT_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     registrationRequestSchema.add(REGISTRATIONREQUEST_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
+    signContractSchema.add(SIGNCONTRACT_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
+    signContractSchema.add(SIGNCONTRACT_CONTRACT, contractSchema, ObjectSchema.MANDATORY);
+    bookRoomSchema.add(BOOKROOM_BOOKING, bookingSchema, ObjectSchema.OPTIONAL);
 
     // adding name mappings
 

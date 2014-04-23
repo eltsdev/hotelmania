@@ -6,11 +6,22 @@ import jade.util.leap.*;
 import jade.core.*;
 
 /**
-* Protege name: RegistrationRequest
+* Protege name: MakeDeposit
 * @author ontology bean generator
 * @version 2014/04/23, 09:30:58
 */
-public class RegistrationRequest implements AgentAction {
+public class MakeDeposit implements AgentAction {
+
+   /**
+* Protege name: money
+   */
+   private float money;
+   public void setMoney(float value) { 
+    this.money=value;
+   }
+   public float getMoney() {
+     return this.money;
+   }
 
    /**
 * Protege name: hotel

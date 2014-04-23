@@ -6,11 +6,11 @@ import jade.util.leap.*;
 import jade.core.*;
 
 /**
-* Protege name: RegistrationRequest
+* Protege name: ConsultAccountStatus
 * @author ontology bean generator
 * @version 2014/04/23, 09:30:58
 */
-public class RegistrationRequest implements AgentAction {
+public class ConsultAccountStatus implements AgentAction {
 
    /**
 * Protege name: hotel
