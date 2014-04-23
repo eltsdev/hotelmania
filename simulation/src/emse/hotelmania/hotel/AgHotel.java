@@ -1,8 +1,10 @@
 package emse.hotelmania.hotel;
 
+import hotelmania.onto.Contract;
 import hotelmania.onto.Hotel;
 import hotelmania.onto.RegistrationRequest;
 import hotelmania.onto.SharedAgentsOntology;
+import hotelmania.onto.SignContract;
 import jade.content.lang.Codec;
 import jade.content.lang.Codec.CodecException;
 import jade.content.lang.sl.SLCodec;
@@ -19,12 +21,19 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 public class AgHotel extends Agent 
 {
 	private static final long serialVersionUID = 2893904717857535232L;
 
-	static final String REGISTRATION_REQUEST = "REGISTRATION_REQUEST";
+	static final String REGISTRATION_REQUEST = "Registration";
+	
+	static final String SIGNCONTRACT_REQUEST = "SIGNCONTRACT_REQUEST";
 
+	
 	// Codec for the SL language used
 	private Codec codec = new SLCodec();
 
@@ -34,8 +43,22 @@ public class AgHotel extends Agent
 	// Agent Attributes
 
 	String name;
+	
+	/**
+	 * hotelmania reference
+	 */
 	AID agHotelmania;
 	boolean registered;
+
+	/**
+	 * agency reference
+	 */
+	private AID agAgency;
+	private boolean agencyFound;
+
+	public boolean newDay;
+
+
 
 	@Override
 	protected void setup() {
@@ -144,7 +167,26 @@ public class AgHotel extends Agent
 			}
 			return null;
 		}
-
+		
+		/*
+		CREATE SUBSCRIPTION MESSAGE
+		 DFAgentDescription template = // fill the template
+ Behaviour b = new SubscriptionInitiator(
+ this, 
+ DFService.createSubscriptionMessage(this, getDefaultDF(), template, null)) 
+ {
+ protected void handleInform(ACLMessage inform) {
+ try {
+ DFAgentDescription[] dfds = DFService.decodeNotification(inform.getContent());
+ // do something
+  }
+  catch (FIPAException fe) {
+  fe.printStackTrace();
+  }
+  }
+  };
+  addBehaviour(b);
+		*/
 		@Override
 		public boolean done() {
 			return hotelmaniaFound;
@@ -170,8 +212,9 @@ public class AgHotel extends Agent
 			if (msg != null) {
 				// If an acceptance arrives...
 				registered = true;
+				String request = "*Request*" ;
 				System.out.println(myAgent.getLocalName()
-						+ ": received registration acceptance from "
+						+ ": received "+request +" acceptance from "
 						+ (msg.getSender()).getLocalName());
 			} else {
 				// If no message arrives
@@ -236,16 +279,97 @@ public class AgHotel extends Agent
 		 * 
 		 */
 		private static final long serialVersionUID = -8769912917130729651L;
-
-		public HireDailyStaffBehavior(AgHotel agHotelWithOntology) {
-			// TODO Auto-generated constructor stub
-			super(agHotelWithOntology);
+		
+		public HireDailyStaffBehavior(AgHotel agHotel) {
+			super(agHotel);
 		}
 
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
+			// Search agency agent
+			if (!agencyFound) {
+				agAgency = locateAgencyAgent();
+			}
+		}
+
+		/**
+		 * Locate the Agency agent with the Directory Facilitator
+		 * 
+		 * @return agency AID
+		 */
+		private AID locateAgencyAgent() {
+			DFAgentDescription agentDescription = new DFAgentDescription();
+			ServiceDescription service = new ServiceDescription();
+			service.setType(SIGNCONTRACT_REQUEST);
+			agentDescription.addServices(service);
+
+			try {
+				// It finds agents of the required type
+				DFAgentDescription[] agents = DFService.search(myAgent, agentDescription);
+
+				if (agents != null && agents.length > 0) {
+
+					for (DFAgentDescription description : agents) {
+						agencyFound = true;
+						return (AID) description.getName(); // only expects 1 agent
+					}
+				}
+			} catch (Exception e) {
+				agencyFound = false;
+			}
+			return null;
+		}
+
+		/**
+		 * This is invoked on a NewDay event.
+		 * 
+		 * @param currentDate "today" date given by simulator.
+		 */
+		private void hireDailyStaff(Date currentDate) 
+		{
+//			// Ensure I can contact agency
+//			if (!agencyFound) {
+//				return false;
+//			}
+//			
+			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+			msg.addReceiver(agAgency);
+			msg.setLanguage(codec.getName());
+			msg.setOntology(ontology.getName());
+
+			SignContract request = new SignContract();
 			
+			Hotel hotel = new Hotel();
+			hotel.setHotel_name(name);
+			request.setHotel(hotel);
+			
+			request.setContract(getInitialContract());
+			
+			
+			// As it is an action and the encoding language the SL,
+			// it must be wrapped into an Action
+			Action agAction = new Action(agHotelmania, request);
+			try {
+				// The ContentManager transforms the java objects into strings
+				getContentManager().fillContent(msg, agAction);
+				send(msg);
+				System.out.println(getLocalName() + ": REQUESTS "+ request.getClass().getSimpleName());
+			} catch (CodecException ce) {
+				ce.printStackTrace();
+			} catch (OntologyException oe) {
+				oe.printStackTrace();
+			}
+		}
+
+		private Contract getInitialContract() {
+			Contract c = new Contract();
+			c.setCooker_1stars(5);
+			c.setCooker_2stars(5);
+			c.setCooker_3stars(5);
+			c.setRecepcionist_experienced(2);
+			c.setRecepcionist_novice(2);
+			c.setRoom_service_staff(30);
+			return c ;
 		}
 
 	}

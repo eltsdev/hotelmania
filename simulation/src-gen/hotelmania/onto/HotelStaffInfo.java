@@ -8,20 +8,9 @@ import jade.core.*;
 /**
 * Protege name: HotelStaffInfo
 * @author ontology bean generator
-* @version 2014/04/20, 19:30:10
+* @version 2014/04/23, 09:30:58
 */
 public class HotelStaffInfo implements Concept {
-
-   /**
-* Protege name: hotel
-   */
-   private Hotel hotel;
-   public void setHotel(Hotel value) { 
-    this.hotel=value;
-   }
-   public Hotel getHotel() {
-     return this.hotel;
-   }
 
    /**
 * Protege name: cookerStaff
@@ -45,35 +34,25 @@ public class HotelStaffInfo implements Concept {
    public void setCookerStaff(List l) {cookerStaff = l; }
 
    /**
-* Protege name: recepcionistStaff
+* Protege name: hotel
    */
-   private List recepcionistStaff = new ArrayList();
-   public void addRecepcionistStaff(Contract elem) { 
-     List oldList = this.recepcionistStaff;
-     recepcionistStaff.add(elem);
+   private Hotel hotel;
+   public void setHotel(Hotel value) { 
+    this.hotel=value;
    }
-   public boolean removeRecepcionistStaff(Contract elem) {
-     List oldList = this.recepcionistStaff;
-     boolean result = recepcionistStaff.remove(elem);
-     return result;
+   public Hotel getHotel() {
+     return this.hotel;
    }
-   public void clearAllRecepcionistStaff() {
-     List oldList = this.recepcionistStaff;
-     recepcionistStaff.clear();
-   }
-   public Iterator getAllRecepcionistStaff() {return recepcionistStaff.iterator(); }
-   public List getRecepcionistStaff() {return recepcionistStaff; }
-   public void setRecepcionistStaff(List l) {recepcionistStaff = l; }
 
    /**
-* Protege name: roomStaff
+* Protege name: contract
    */
-   private Contract roomStaff;
-   public void setRoomStaff(Contract value) { 
-    this.roomStaff=value;
+   private Contract contract;
+   public void setContract(Contract value) { 
+    this.contract=value;
    }
-   public Contract getRoomStaff() {
-     return this.roomStaff;
+   public Contract getContract() {
+     return this.contract;
    }
 
 }

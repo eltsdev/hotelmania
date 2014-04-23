@@ -1,4 +1,4 @@
-; Sun Apr 20 19:30:16 CEST 2014
+; Tue Apr 22 10:01:43 CEST 2014
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -60,10 +60,6 @@
 	(%3AJADE-IGNORE FALSE))
 
 ([DayEvent] of  %3AJADE-CLASS
-
-	(%3AJADE-IGNORE FALSE))
-
-([HireDailyStaff] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE FALSE))
 

@@ -8,7 +8,7 @@ import jade.core.*;
 /**
 * Protege name: ConsultRoomPrice
 * @author ontology bean generator
-* @version 2014/04/20, 19:30:10
+* @version 2014/04/23, 09:30:58
 */
 public class ConsultRoomPrice implements AgentAction {
 
