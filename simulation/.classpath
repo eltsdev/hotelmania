@@ -5,6 +5,6 @@
 	<classpathentry kind="src" path="src-gen"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="var" path="JADE_INSTALL/jade.jar" sourcepath="/JADE_SRC"/>
+	<classpathentry kind="lib" path="/Users/lorenzov/Desktop/JADE-all-4.3.2/jade/lib/jade.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
