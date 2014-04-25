@@ -3,8 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="src" path="src-gen"/>
+	<classpathentry exported="true" kind="var" path="JADE_SRC"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="/Users/lorenzov/Desktop/JADE-all-4.3.2/jade/lib/jade.jar"/>
+	<classpathentry kind="lib" path="lib/jade.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
