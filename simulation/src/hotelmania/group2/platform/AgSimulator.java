@@ -72,6 +72,8 @@ public class AgSimulator extends Agent
 		}
 
 		public void action() {
+			
+			//SubscribeDayEvent
 			// If no message arrives
 			block();
 		}

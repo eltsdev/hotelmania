@@ -30,7 +30,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public class AgHotel extends Agent {
+public class AgHotel2 extends Agent {
 	private static final long serialVersionUID = 2893904717857535232L;
 
 	static final String REGISTRATION_REQUEST = "Registration";
@@ -299,7 +299,7 @@ public class AgHotel extends Agent {
 		 */
 		private static final long serialVersionUID = -8769912917130729651L;
 
-		public HireDailyStaffBehavior(AgHotel agHotel) {
+		public HireDailyStaffBehavior(AgHotel2 agHotel) {
 			super(agHotel);
 		}
 
@@ -405,7 +405,7 @@ public class AgHotel extends Agent {
 
 		// private boolean clientFound = false;
 
-		public MakeRoomBookingBehavior(AgHotel agHotel) {
+		public MakeRoomBookingBehavior(AgHotel2 agHotel) {
 			
 			super(agHotel);
 		}
@@ -547,7 +547,7 @@ public class AgHotel extends Agent {
 		 */
 		private static final long serialVersionUID = 1955222376582492939L;
 
-		public ProvideRoomInfoBehavior(AgHotel agHotelWithOntology) {
+		public ProvideRoomInfoBehavior(AgHotel2 agHotelWithOntology) {
 			// TODO Auto-generated constructor stub
 			super(agHotelWithOntology);
 		}
@@ -575,7 +575,7 @@ public class AgHotel extends Agent {
 		/**
 		 * @param agHotelWithOntology
 		 */
-		public CreateBankAccountBehavior(AgHotel agHotelWithOntology) {
+		public CreateBankAccountBehavior(AgHotel2 agHotelWithOntology) {
 			super(agHotelWithOntology);
 		}
 
