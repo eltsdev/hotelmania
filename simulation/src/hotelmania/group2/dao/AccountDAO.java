@@ -10,11 +10,7 @@ import java.util.ArrayList;
  *
  */
 public class AccountDAO {
-	
-	
-	
-	
-	
+
 	private ArrayList<Account> listAccount;
 
 	public AccountDAO() {
@@ -36,9 +32,39 @@ public class AccountDAO {
 		listAccount.add(new Account(hotel, balance));
 		return true;
 	}
-	
-	
-	
-	
+
+	/**
+	 * @param hotel_name
+	 * @param money
+	 * @return
+	 */
+	public boolean registerNewDeposit(String hotel_name, float money) {
+		for (int i = 0; i < listAccount.size(); i++) {
+			if (listAccount.get(i).getHotel().equals(hotel_name)) {
+				listAccount.get(i).setBalance(
+						listAccount.get(i).getBalance() + money);
+				return true;
+			}
+
+		}
+		return false;
+	}
+
+	/**
+	 * @param hotel_name
+	 * @param money
+	 * @return
+	 */
+	public boolean chargeMoney(String hotel_name, float money) {
+		for (int i = 0; i < listAccount.size(); i++) {
+			if (listAccount.get(i).getHotel().equals(hotel_name)) {
+				listAccount.get(i).setBalance(
+						listAccount.get(i).getBalance() - money);
+				return true;
+			}
+
+		}
+		return false;
+	}
 
 }

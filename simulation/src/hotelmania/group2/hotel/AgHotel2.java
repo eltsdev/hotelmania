@@ -26,11 +26,9 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
-public class AgHotel extends Agent {
+public class AgHotel2 extends Agent {
 	private static final long serialVersionUID = 2893904717857535232L;
 
 	static final String REGISTRATION_REQUEST = "Registration";
@@ -299,7 +297,7 @@ public class AgHotel extends Agent {
 		 */
 		private static final long serialVersionUID = -8769912917130729651L;
 
-		public HireDailyStaffBehavior(AgHotel agHotel) {
+		public HireDailyStaffBehavior(AgHotel2 agHotel) {
 			super(agHotel);
 		}
 
@@ -405,7 +403,7 @@ public class AgHotel extends Agent {
 
 		// private boolean clientFound = false;
 
-		public MakeRoomBookingBehavior(AgHotel agHotel) {
+		public MakeRoomBookingBehavior(AgHotel2 agHotel) {
 			
 			super(agHotel);
 		}
@@ -473,7 +471,7 @@ public class AgHotel extends Agent {
 				}
 
 			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 			}
 
@@ -547,9 +545,8 @@ public class AgHotel extends Agent {
 		 */
 		private static final long serialVersionUID = 1955222376582492939L;
 
-		public ProvideRoomInfoBehavior(AgHotel agHotelWithOntology) {
-			// TODO Auto-generated constructor stub
-			super(agHotelWithOntology);
+		public ProvideRoomInfoBehavior(AgHotel2 agHotel) {
+			super(agHotel);
 		}
 
 		@Override
@@ -573,10 +570,10 @@ public class AgHotel extends Agent {
 		private boolean bankFound = false;
 
 		/**
-		 * @param agHotelWithOntology
+		 * @param agHotel
 		 */
-		public CreateBankAccountBehavior(AgHotel agHotelWithOntology) {
-			super(agHotelWithOntology);
+		public CreateBankAccountBehavior(AgHotel2 agHotel) {
+			super(agHotel);
 		}
 
 		/*
@@ -608,6 +605,7 @@ public class AgHotel extends Agent {
 			msg.setLanguage(codec.getName());
 			msg.setOntology(ontology.getName());
 
+			//Config a suppose Account message
 			CreateAccount action_account = new CreateAccount();
 			Hotel hotel = new Hotel();
 			hotel.setHotel_name(name);

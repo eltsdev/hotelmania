@@ -1,9 +1,7 @@
 package hotelmania.ontology;
 
 
-import jade.content.*;
-import jade.util.leap.*;
-import jade.core.*;
+import jade.content.AgentAction;
 
 /**
 * Protege name: MakeDeposit
@@ -13,6 +11,10 @@ import jade.core.*;
 public class MakeDeposit implements AgentAction {
 
    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4429644524563706390L;
+/**
 * Protege name: money
    */
    private float money;
