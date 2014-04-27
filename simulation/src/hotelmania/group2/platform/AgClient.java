@@ -7,6 +7,7 @@ import hotelmania.ontology.MakeDeposit;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;
 import hotelmania.ontology.SharedAgentsOntology;
+import jade.content.Concept;
 import jade.content.lang.Codec;
 import jade.content.lang.Codec.CodecException;
 import jade.content.lang.sl.SLCodec;
@@ -74,7 +75,7 @@ public class AgClient extends Agent {
 	// --------------------------------------------------------
 	// Behaviors
 	// --------------------------------------------------------
-	
+
 	private final class RequestBookingInHotelBehavior extends CyclicBehaviour {
 		private static final long serialVersionUID = -1417563883440156372L;
 
@@ -87,10 +88,10 @@ public class AgClient extends Agent {
 			// LocateHotel
 			agHotel = locateHotel();
 			//TODO usar agentsFinder
-			/*AID hotel = agentsFinder.locateAgent(BOOKROOM, myAgent);
+			/*AID hotel = agentsFinder.locateAgent(SharedAgentsOntology.BOOKROOM, myAgent);
 			if (hotel != null) {//hotel found
 				// TODO ask room price *
-				bookRoom();
+				bookRoom(hotel);
 			}*/
 			if (hotelFound) {
 				// TODO ask room price *
@@ -196,7 +197,7 @@ public class AgClient extends Agent {
 					for (DFAgentDescription description : agents) {
 						hotelManiaFound = true;
 						return (AID) description.getName(); // only expects 1
-															// agent...
+						// agent...
 					}
 				}
 			} catch (Exception e) {
@@ -204,6 +205,19 @@ public class AgClient extends Agent {
 			}
 			return null;
 
+		}
+
+		private void bookRoom(AID hotel) {
+
+			BookRoom action_booking = new BookRoom();
+
+			// This part must be dynamic
+			Booking booking = new Booking();
+			booking.setDays(10);
+			booking.setStartDay("10/04/2014");
+
+			agentsFinder.sendRequest(this.getAgent(), hotel, action_booking, codec, ontology);
+			System.out.println(getLocalName() + ": REQUESTS MAKE BOOKING");
 		}
 
 		/**
@@ -319,7 +333,7 @@ public class AgClient extends Agent {
 		}
 	}
 	private final class ConsultHotelInfoBehavior extends SimpleBehaviour {
-		private static final long serialVersionUID = -1417563883440156372L;
+		private static final long serialVersionUID = 1L;
 
 		private ConsultHotelInfoBehavior(Agent a) {
 			super(a);
@@ -327,17 +341,26 @@ public class AgClient extends Agent {
 
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
+			AID hotelmania = agentsFinder.locateAgent(SharedAgentsOntology.CONSULTHOTELSINFO, myAgent);
+			if (hotelmania != null) {//hotel found
+				this.consultHotelInfo(hotelmania);
+			}
 		}
+		
+		private void consultHotelInfo (AID hotelmania) {
+			agentsFinder.sendRequest(this.getAgent(), hotelmania, null, codec, ontology);
+			System.out.println(getLocalName() + ": REQUESTS INFORMATION ABOUT HOTELS TO HOTELMANIA");
+		}
+
+
 
 		@Override
 		public boolean done() {
-			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
 
 
-		
+
 	}
 
 }
