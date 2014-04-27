@@ -16,6 +16,7 @@ import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.SimpleBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
@@ -46,6 +47,7 @@ public class AgClient extends Agent {
 	private boolean hotelFound;
 	private boolean hotelManiaFound;
 	private boolean bankFound;
+	private AgentsFinder agentsFinder = AgentsFinder.getInstance();
 
 	// -------------------------------------------------
 	// Setup
@@ -64,7 +66,7 @@ public class AgClient extends Agent {
 		// TODO subscribe day event
 
 		addBehaviour(new RequestBookingInHotelBehavior(this));
-
+		addBehaviour(new ConsultHotelInfoBehavior(this));
 		// TODO refuse offer
 
 	}
@@ -72,7 +74,7 @@ public class AgClient extends Agent {
 	// --------------------------------------------------------
 	// Behaviors
 	// --------------------------------------------------------
-
+	
 	private final class RequestBookingInHotelBehavior extends CyclicBehaviour {
 		private static final long serialVersionUID = -1417563883440156372L;
 
@@ -84,7 +86,12 @@ public class AgClient extends Agent {
 			// TODO Esto tendria que hacerse?
 			// LocateHotel
 			agHotel = locateHotel();
-
+			//TODO usar agentsFinder
+			/*AID hotel = agentsFinder.locateAgent(BOOKROOM, myAgent);
+			if (hotel != null) {//hotel found
+				// TODO ask room price *
+				bookRoom();
+			}*/
 			if (hotelFound) {
 				// TODO ask room price *
 				bookRoom();
@@ -311,4 +318,26 @@ public class AgClient extends Agent {
 
 		}
 	}
+	private final class ConsultHotelInfoBehavior extends SimpleBehaviour {
+		private static final long serialVersionUID = -1417563883440156372L;
+
+		private ConsultHotelInfoBehavior(Agent a) {
+			super(a);
+		}
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public boolean done() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+
+		
+	}
+
 }
