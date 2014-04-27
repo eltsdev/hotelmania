@@ -26,7 +26,9 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class AgHotel2 extends Agent {
 	private static final long serialVersionUID = 2893904717857535232L;
@@ -471,7 +473,7 @@ public class AgHotel2 extends Agent {
 				}
 
 			} catch (CodecException | OntologyException e) {
-				
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -545,8 +547,9 @@ public class AgHotel2 extends Agent {
 		 */
 		private static final long serialVersionUID = 1955222376582492939L;
 
-		public ProvideRoomInfoBehavior(AgHotel2 agHotel) {
-			super(agHotel);
+		public ProvideRoomInfoBehavior(AgHotel2 agHotelWithOntology) {
+			// TODO Auto-generated constructor stub
+			super(agHotelWithOntology);
 		}
 
 		@Override
@@ -570,10 +573,10 @@ public class AgHotel2 extends Agent {
 		private boolean bankFound = false;
 
 		/**
-		 * @param agHotel
+		 * @param agHotelWithOntology
 		 */
-		public CreateBankAccountBehavior(AgHotel2 agHotel) {
-			super(agHotel);
+		public CreateBankAccountBehavior(AgHotel2 agHotelWithOntology) {
+			super(agHotelWithOntology);
 		}
 
 		/*
@@ -605,7 +608,6 @@ public class AgHotel2 extends Agent {
 			msg.setLanguage(codec.getName());
 			msg.setOntology(ontology.getName());
 
-			//Config a suppose Account message
 			CreateAccount action_account = new CreateAccount();
 			Hotel hotel = new Hotel();
 			hotel.setHotel_name(name);
