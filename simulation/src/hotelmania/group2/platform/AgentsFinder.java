@@ -1,7 +1,5 @@
 package hotelmania.group2.platform;
 
-import javax.media.j3d.Behavior;
-
 import jade.content.Concept;
 import jade.content.lang.Codec;
 import jade.content.lang.Codec.CodecException;
@@ -10,7 +8,6 @@ import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.SimpleBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
