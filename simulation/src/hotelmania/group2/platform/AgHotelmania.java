@@ -156,10 +156,14 @@ public class AgHotelmania extends Agent {
 						case VALID_REQ:
 							reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
 							log = "ACCEPT_PROPOSAL";
+							reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL); //TODO ACLMessage.AGREE);
+							log = "ACCEPT_PROPOSAL";
 							break;
 
 						case REJECT_REQ:
 							reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
+							log = "REJECT_PROPOSAL";
+							reply.setPerformative(ACLMessage.REJECT_PROPOSAL); //TODO ACLMessage.REFUSE);
 							log = "REJECT_PROPOSAL";
 							break;
 

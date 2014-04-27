@@ -20,17 +20,17 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
+import jade.core.messaging.TopicManagementHelper;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
-public class AgHotel2 extends Agent {
+public class AgHotel2 extends Agent 
+{
 	private static final long serialVersionUID = 2893904717857535232L;
 
 	static final String REGISTRATION_REQUEST = "Registration";
@@ -88,8 +88,7 @@ public class AgHotel2 extends Agent {
 		getContentManager().registerLanguage(codec);
 		getContentManager().registerOntology(ontology);
 
-		// TODO Subscribe to day event
-
+		addBehaviour(new SubscribeToDayEventBehavior(this));
 		addBehaviour(new RegisterInHotelmaniaBehavior(this));
 		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
 		addBehaviour(new ReceiveRejectionMsgBehavior(this));
@@ -109,6 +108,48 @@ public class AgHotel2 extends Agent {
 	// --------------------------------------------------------
 	// BEHAVIOURS
 	// --------------------------------------------------------
+
+	/**
+	 * Add a behaviour collecting messages about topic "newDay"
+	 * @author elts
+	 */
+	private final class SubscribeToDayEventBehavior extends CyclicBehaviour 
+	{
+		private static final long serialVersionUID = -6297452856295671220L;
+		
+		private static final String NEW_DAY_TOPIC = "newDay";
+
+		private AID topic;
+		
+
+		public SubscribeToDayEventBehavior(Agent a) 
+		{
+			super(a);
+			
+			// Subscribe to topic "newDay"
+			try {
+				TopicManagementHelper topicHelper = (TopicManagementHelper) getHelper(TopicManagementHelper.SERVICE_NAME);
+				topic = topicHelper.createTopic(NEW_DAY_TOPIC);
+				topicHelper.register(topic);
+			}
+			catch (Exception e) {
+				System.err.println("Agent "+getLocalName()+": ERROR registering to topic \"JADE\"");
+				e.printStackTrace();
+			}
+		}
+
+		public void action() 
+		{
+			ACLMessage msg = myAgent.receive(MessageTemplate.MatchTopic(topic));
+			if (msg != null) {
+				System.out.println("Agent "+myAgent.getLocalName()+": Message about topic "+topic.getLocalName()+" received. Content is "+msg.getContent());
+			}
+			else {
+				block();
+			}
+		}
+		
+	}
 
 	private final class RegisterInHotelmaniaBehavior extends SimpleBehaviour {
 		private static final long serialVersionUID = 1256090117313507535L;
