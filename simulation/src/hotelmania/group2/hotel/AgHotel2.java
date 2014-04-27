@@ -212,7 +212,7 @@ public class AgHotel2 extends Agent {
 		}
 
 		private String getName() {
-			return "HOTEL-" + (int) (Math.random() * 10);
+			return "Hotel2";
 		}
 	}
 
