@@ -1,4 +1,5 @@
 package hotelmania.group2.platform;
+
 import jade.content.Concept;
 import jade.content.lang.Codec;
 import jade.content.lang.Codec.CodecException;
@@ -13,15 +14,16 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 
 public class AgentsFinder {
-	
-	private static AgentsFinder INSTANCE = new AgentsFinder();
-	
-	private AgentsFinder() {}
 
-	public static AgentsFinder getInstance () {
+	private static AgentsFinder INSTANCE = new AgentsFinder();
+
+	private AgentsFinder() {
+	}
+
+	public static AgentsFinder getInstance() {
 		return INSTANCE;
 	}
-	
+
 	public AID locateAgent(String type, Agent myAgent) {
 		DFAgentDescription dfd = new DFAgentDescription();
 		ServiceDescription sd = new ServiceDescription();
@@ -44,12 +46,16 @@ public class AgentsFinder {
 		}
 		return null;
 	}
-	
-	public void sendRequest (Agent sender, AID receiver, Concept concept, Codec codec, Ontology ontology) {
-		ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+
+	public void sendRequest(Agent sender, AID receiver, Concept concept,
+			Codec codec, Ontology ontology, String protocol, int messageType) {
+		ACLMessage msg = new ACLMessage(messageType);
 		msg.addReceiver(receiver);
 		msg.setLanguage(codec.getName());
 		msg.setOntology(ontology.getName());
+		// Falta configurar el tema de Protocolo;
+		msg.setProtocol(protocol);
+
 		// As it is an action and the encoding language the SL,
 		// it must be wrapped into an Action
 		Action agAction = new Action(receiver, concept);

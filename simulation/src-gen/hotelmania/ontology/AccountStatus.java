@@ -1,9 +1,7 @@
 package hotelmania.ontology;
 
 
-import jade.content.*;
-import jade.util.leap.*;
-import jade.core.*;
+import jade.content.Concept;
 
 /**
 * Protege name: AccountStatus
@@ -13,9 +11,14 @@ import jade.core.*;
 public class AccountStatus implements Concept {
 
    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1805036929737451355L;
+/**
 * Protege name: balance
    */
    private float balance;
+   
    public void setBalance(float value) { 
     this.balance=value;
    }

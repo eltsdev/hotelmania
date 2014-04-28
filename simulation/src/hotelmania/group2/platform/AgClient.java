@@ -7,20 +7,13 @@ import hotelmania.ontology.MakeDeposit;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;
 import hotelmania.ontology.SharedAgentsOntology;
-import jade.content.Concept;
 import jade.content.lang.Codec;
-import jade.content.lang.Codec.CodecException;
 import jade.content.lang.sl.SLCodec;
 import jade.content.onto.Ontology;
-import jade.content.onto.OntologyException;
-import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
-import jade.domain.DFService;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 
 public class AgClient extends Agent {
@@ -45,9 +38,6 @@ public class AgClient extends Agent {
 	AID agBank;
 	boolean bookingDone;
 	String actualHotel;
-	private boolean hotelFound;
-	private boolean hotelManiaFound;
-	private boolean bankFound;
 	private AgentsFinder agentsFinder = AgentsFinder.getInstance();
 
 	// -------------------------------------------------
@@ -68,6 +58,7 @@ public class AgClient extends Agent {
 
 		addBehaviour(new RequestBookingInHotelBehavior(this));
 		addBehaviour(new ConsultHotelInfoBehavior(this));
+		
 		// TODO refuse offer
 
 	}
@@ -78,133 +69,41 @@ public class AgClient extends Agent {
 
 	private final class RequestBookingInHotelBehavior extends CyclicBehaviour {
 		private static final long serialVersionUID = -1417563883440156372L;
-
+		private int messageType;
 		private RequestBookingInHotelBehavior(Agent a) {
 			super(a);
 		}
 
 		public void action() {
-			// TODO Esto tendria que hacerse?
 			// LocateHotel
-			agHotel = locateHotel();
-			//TODO usar agentsFinder
-			/*AID hotel = agentsFinder.locateAgent(SharedAgentsOntology.BOOKROOM, myAgent);
-			if (hotel != null) {//hotel found
-				// TODO ask room price *
-				bookRoom(hotel);
-			}*/
-			if (hotelFound) {
-				// TODO ask room price *
-				bookRoom();
+			agHotel = agentsFinder.locateAgent(SharedAgentsOntology.BOOKROOM,
+					myAgent);
+			if (agHotel != null) {// hotel found
+				// TODO verify is working or not
+				bookRoom(agHotel);
 			}
 
 			// LocateHotelMania
-			agHotelMania = locateHotelMania();
+			agHotelMania = agentsFinder.locateAgent(
+					SharedAgentsOntology.RATEHOTEL, myAgent);
 
-			if (hotelManiaFound) {
-
-				// TODO rate hotel
-				rateHotel();
+			if (agHotelMania != null) {// hotel found
+				// TODO verify is working or not
+				rateHotel(agHotelMania);
 			}
 			// TODO request hotel info
 
-			// TODO pay bank account
 			// Locate the Bank
-			agBank = locateBank();
+			agBank = agentsFinder.locateAgent(SharedAgentsOntology.MAKEDEPOSIT,
+					myAgent);
 
-			if (bankFound) {
-				// Deposit money in the hotel account
-				makeDeposit();
-
+			if (agBank != null) {// hotel found
+				// TODO verify is working or not
+				makeDeposit(agBank);
 			}
+
 			// If no message arrives
 			block();
-		}
-
-		/**
-		 * 
-		 */
-		private AID locateBank() {
-			DFAgentDescription dfd = new DFAgentDescription();
-			ServiceDescription sd = new ServiceDescription();
-			sd.setType(MAKEDEPOSIT);
-			dfd.addServices(sd);
-
-			try {
-				// It finds agents of the required type
-				DFAgentDescription[] agents = DFService.search(myAgent, dfd);
-
-				if (agents != null && agents.length > 0) {
-
-					for (DFAgentDescription description : agents) {
-						bankFound = true;
-						return (AID) description.getName(); // only expects 1
-						// agent...
-					}
-				}
-			} catch (Exception e) {
-				bankFound = false;
-			}
-			return null;
-
-		}
-
-		/**
-		 * @return
-		 * 
-		 * 
-		 */
-		private AID locateHotel() {
-			DFAgentDescription dfd = new DFAgentDescription();
-			ServiceDescription sd = new ServiceDescription();
-			sd.setType(BOOKROOM);
-			dfd.addServices(sd);
-
-			try {
-				// It finds agents of the required type
-				DFAgentDescription[] agents = DFService.search(myAgent, dfd);
-
-				if (agents != null && agents.length > 0) {
-
-					for (DFAgentDescription description : agents) {
-						hotelFound = true;
-						return (AID) description.getName(); // only expects 1
-						// agent...
-					}
-				}
-			} catch (Exception e) {
-				hotelFound = false;
-			}
-			return null;
-
-		}
-
-		/**
-		 * @return
-		 */
-		private AID locateHotelMania() {
-			DFAgentDescription dfd = new DFAgentDescription();
-			ServiceDescription sd = new ServiceDescription();
-			sd.setType(RATEHOTEL);
-			dfd.addServices(sd);
-
-			try {
-				// It finds agents of the required type
-				DFAgentDescription[] agents = DFService.search(myAgent, dfd);
-
-				if (agents != null && agents.length > 0) {
-
-					for (DFAgentDescription description : agents) {
-						hotelManiaFound = true;
-						return (AID) description.getName(); // only expects 1
-						// agent...
-					}
-				}
-			} catch (Exception e) {
-				hotelManiaFound = false;
-			}
-			return null;
-
 		}
 
 		private void bookRoom(AID hotel) {
@@ -216,63 +115,24 @@ public class AgClient extends Agent {
 			booking.setDays(10);
 			booking.setStartDay("10/04/2014");
 
-			agentsFinder.sendRequest(this.getAgent(), hotel, action_booking, codec, ontology);
+			// TODO AGREGAR PROTOCOLO
+			agentsFinder.sendRequest(this.getAgent(), hotel, action_booking,
+					codec, ontology,"",ACLMessage.REQUEST);
 			System.out.println(getLocalName() + ": REQUESTS MAKE BOOKING");
 		}
 
 		/**
-		 * 
+		 * @param agHotelMania
 		 */
-		private void bookRoom() {
-
-			// TODO book room (Review everything)
-			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-			msg.addReceiver(agHotel);
-			msg.setLanguage(codec.getName());
-			msg.setOntology(ontology.getName());
-
-			BookRoom action_booking = new BookRoom();
-
-			// This part must be dynamic
-			Booking booking = new Booking();
-			booking.setDays(10);
-			booking.setStartDay("10/04/2014");
-
-			actualHotel = "HOTEL-1"; // TODO getHotelName()
-
-			// As it is an action and the encoding language the SL,
-			// it must be wrapped into an Action
-			Action agAction = new Action(agHotel, action_booking);
-			try {
-				// The ContentManager transforms the java objects into strings
-				getContentManager().fillContent(msg, agAction);
-				send(msg);
-				System.out.println(getLocalName() + ": REQUESTS MAKE BOOKING");
-			} catch (CodecException ce) {
-				ce.printStackTrace();
-			} catch (OntologyException oe) {
-				oe.printStackTrace();
-			}
-
-		}
-
-		/**
-		 * 
-		 */
-		private void rateHotel() {
-			// TODO Auto-generated method stub
-			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-			msg.addReceiver(agHotelMania);
-			msg.setLanguage(codec.getName());
-			msg.setOntology(ontology.getName());
-
+		private void rateHotel(AID hotelMania) {
 			RateHotel action_rating = new RateHotel();
 
 			// Hotel
 			Hotel hotel = new Hotel();
-			hotel.setHotel_name(actualHotel);
+			// hotel.setHotel_name(actualHotel);
+			hotel.setHotel_name(agHotel.getName());
 
-			// This part must be dynamic
+			// TODO This part must be dynamic
 			Rating rating = new Rating();
 			rating.setCleanliness_rating(10);
 			rating.setCookers_rating(10);
@@ -281,57 +141,37 @@ public class AgClient extends Agent {
 			action_rating.setHotel(hotel);
 			action_rating.setRatings(rating);
 
-			// As it is an action and the encoding language the SL,
-			// it must be wrapped into an Action
-			Action agAction = new Action(agHotelMania, action_rating);
-			try {
-				// The ContentManager transforms the java objects into strings
-				getContentManager().fillContent(msg, agAction);
-				send(msg);
-				System.out.println(getLocalName() + ": REQUESTS RATE HOTEL");
-			} catch (CodecException ce) {
-				ce.printStackTrace();
-			} catch (OntologyException oe) {
-				oe.printStackTrace();
-			}
+			// TODO AGREGAR PROTOCOLO
+			agentsFinder.sendRequest(this.getAgent(), hotelMania,
+					action_rating, codec, ontology,"",ACLMessage.REQUEST);
+			System.out.println(getLocalName() + ": REQUESTS RATE HOTEL");
 
 		}
 
 		/**
-		 * 
+		 * @param agBank
 		 */
-		private void makeDeposit() {
-			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-			msg.addReceiver(agBank);
-			msg.setLanguage(codec.getName());
-			msg.setOntology(ontology.getName());
+		private void makeDeposit(AID bank) {
 
 			// Hotel
 			Hotel hotel = new Hotel();
 			hotel.setHotel_name(actualHotel);
 
-			// This part must be dynamic
+			// TODO This part must be dynamic
 			MakeDeposit action_deposit = new MakeDeposit();
 			action_deposit.setHotel(hotel);
 			action_deposit.setMoney(2000);
-
-			// As it is an action and the encoding language the SL,
-			// it must be wrapped into an Action
-			Action agAction = new Action(agBank, action_deposit);
-			try {
-				// The ContentManager transforms the java objects into strings
-				getContentManager().fillContent(msg, agAction);
-				send(msg);
-				System.out.println(getLocalName()
-						+ ": REQUESTS PAY SERVICES TO HOTEL ACCOUNT");
-			} catch (CodecException ce) {
-				ce.printStackTrace();
-			} catch (OntologyException oe) {
-				oe.printStackTrace();
-			}
+			messageType = ACLMessage.REQUEST;
+			
+			// TODO AGREGAR PROTOCOLO
+			agentsFinder.sendRequest(this.getAgent(), bank, action_deposit,
+					codec, ontology,"",messageType);
+			System.out.println(getLocalName()
+					+ ": REQUESTS PAY SERVICES TO HOTEL ACCOUNT " + messageType);
 
 		}
 	}
+
 	private final class ConsultHotelInfoBehavior extends SimpleBehaviour {
 		private static final long serialVersionUID = 1L;
 
@@ -341,25 +181,26 @@ public class AgClient extends Agent {
 
 		@Override
 		public void action() {
-			AID hotelmania = agentsFinder.locateAgent(SharedAgentsOntology.CONSULTHOTELSINFO, myAgent);
-			if (hotelmania != null) {//hotel found
+			AID hotelmania = agentsFinder.locateAgent(
+					SharedAgentsOntology.CONSULTHOTELSINFO, myAgent);
+			if (hotelmania != null) {// hotel found
 				this.consultHotelInfo(hotelmania);
 			}
 		}
-		
-		private void consultHotelInfo (AID hotelmania) {
-			agentsFinder.sendRequest(this.getAgent(), hotelmania, null, codec, ontology);
-			System.out.println(getLocalName() + ": REQUESTS INFORMATION ABOUT HOTELS TO HOTELMANIA");
+
+		private void consultHotelInfo(AID hotelmania) {
+			
+			// TODO AGREGAR PROTOCOLO
+			agentsFinder.sendRequest(this.getAgent(), hotelmania, null, codec,
+					ontology,"",ACLMessage.QUERY_REF);
+			System.out.println(getLocalName()
+					+ ": REQUESTS INFORMATION ABOUT HOTELS TO HOTELMANIA");
 		}
-
-
 
 		@Override
 		public boolean done() {
 			return true;
 		}
-
-
 
 	}
 
