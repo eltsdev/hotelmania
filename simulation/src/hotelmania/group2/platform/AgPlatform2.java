@@ -17,7 +17,7 @@ import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 
-public class AgSimulator extends Agent
+public class AgPlatform2 extends Agent
 {
 	private static final long serialVersionUID = -4208905954219155107L;
 
