@@ -178,6 +178,7 @@ public class AgHotel2 extends Agent
 			msg.addReceiver(agHotelmania);
 			msg.setLanguage(codec.getName());
 			msg.setOntology(ontology.getName());
+			msg.setProtocol(REGISTRATION_REQUEST);
 
 			RegistrationRequest register = new RegistrationRequest();
 			Hotel hotel = new Hotel();
@@ -434,6 +435,10 @@ public class AgHotel2 extends Agent
 
 	}
 
+	/**
+	 * @author user
+	 *
+	 */
 	private final class MakeRoomBookingBehavior extends CyclicBehaviour {
 
 		/**
@@ -446,6 +451,9 @@ public class AgHotel2 extends Agent
 
 		// private boolean clientFound = false;
 
+		/**
+		 * @param agHotel
+		 */
 		public MakeRoomBookingBehavior(AgHotel2 agHotel) {
 			
 			super(agHotel);

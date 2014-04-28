@@ -7,5 +7,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/jade.jar"/>
+	<classpathentry kind="lib" path="lib/jade.jar" sourcepath="C:/Users/user/Desktop/EMSE 2013-2015/EMSE-Madrid 13-14/2nd Semester/Agent Based Software Development/Project/JADE resources/jade/src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

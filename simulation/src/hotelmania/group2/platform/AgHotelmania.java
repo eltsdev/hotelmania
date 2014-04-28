@@ -119,9 +119,10 @@ public class AgHotelmania extends Agent {
 			/*
 			 * Look for messages
 			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 					MessageTemplate.MatchLanguage(codec.getName()),
 					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(REGISTRATION_REQUEST)),
 					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*

@@ -1,5 +1,4 @@
 package hotelmania.group2.platform;
-
 import jade.content.Concept;
 import jade.content.lang.Codec;
 import jade.content.lang.Codec.CodecException;
