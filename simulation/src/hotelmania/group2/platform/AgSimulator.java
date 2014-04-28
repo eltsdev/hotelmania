@@ -47,37 +47,37 @@ public class AgSimulator extends Agent
 		getContentManager().registerOntology(ontology);
 
 		// Behaviors
+		/*		
 		addBehaviour(new SetTimeSpeedBehavior(this));
-		
 		final String NEW_DAY_TOPIC = "newDay";
 
 		final AID topic;
 		
 
-			try {
-				// Periodically send messages about topic "JADE"
-				TopicManagementHelper topicHelper = (TopicManagementHelper) getHelper(TopicManagementHelper.SERVICE_NAME);
-				topic = topicHelper.createTopic(NEW_DAY_TOPIC);
-				addBehaviour(new TickerBehaviour(this, 10000) {
-					public void onTick() {
-						System.out.println("Agent "+myAgent.getLocalName()+": Sending message about topic "+topic.getLocalName());
-						ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-						msg.addReceiver(topic);
-						msg.setContent(String.valueOf(getTickCount()));
-						myAgent.send(msg);
-					}
-				} );
-			}
-			catch (Exception e) {
-				System.err.println("Agent "+getLocalName()+": ERROR creating topic \"JADE\"");
-				e.printStackTrace();
-			}
+		try {
+			// Periodically send messages about topic "JADE"
+			TopicManagementHelper topicHelper = (TopicManagementHelper) getHelper(TopicManagementHelper.SERVICE_NAME);
+			topic = topicHelper.createTopic(NEW_DAY_TOPIC);
+			addBehaviour(new TickerBehaviour(this, 10000) {
+				public void onTick() {
+					System.out.println("Agent "+myAgent.getLocalName()+": Sending message about topic "+topic.getLocalName());
+					ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+					msg.addReceiver(topic);
+					msg.setContent(String.valueOf(getTickCount()));
+					myAgent.send(msg);
+				}
+			} );
+		}
+		catch (Exception e) {
+			System.err.println("Agent "+getLocalName()+": ERROR creating topic \"JADE\"");
+			e.printStackTrace();
+		}
 		
-		
-//		MessageTemplate messageTemplate = null; //FIXME
-//		addBehaviour(new ControlDaysBehavior(this, messageTemplate));
+		MessageTemplate messageTemplate = null; //FIXME
+		addBehaviour(new ControlDaysBehavior(this, messageTemplate));
+ */		
 		addBehaviour(new GeneratePlatformAgentsBehavior(this));
-		addBehaviour(new GenerateClientsBehavior(this));
+//		addBehaviour(new GenerateClientsBehavior(this));
 	}
 		
 	// --------------------------------------------------------
@@ -122,19 +122,19 @@ public class AgSimulator extends Agent
 
 		public void action() {
 
-			//TODO
+			//TODO Complete
 			ContainerController cc = getContainerController();
 			AgentController ac;
 			try {
-				ac = cc.createNewAgent("hotelmania", "AgHotelmania", null);
+				ac = cc.createNewAgent("hotelmania", "hotelmania.group2.platform.AgHotelmania", null);
 				ac.start();
 
 			} catch (StaleProxyException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+//				done = false;
+//				block();
 			}
-			
-			block();
+			done = true;
 		}
 
 		@Override

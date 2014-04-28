@@ -88,7 +88,7 @@ public class AgHotel2 extends Agent
 		getContentManager().registerLanguage(codec);
 		getContentManager().registerOntology(ontology);
 
-		addBehaviour(new SubscribeToDayEventBehavior(this));
+//		addBehaviour(new SubscribeToDayEventBehavior(this));
 		addBehaviour(new RegisterInHotelmaniaBehavior(this));
 		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
 		addBehaviour(new ReceiveRejectionMsgBehavior(this));
