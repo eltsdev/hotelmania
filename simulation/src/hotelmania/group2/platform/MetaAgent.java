@@ -84,5 +84,15 @@ public class MetaAgent extends Agent {
 		}
 
 	}
+	
+	public void registerServices(String [] services) {
+		DFAgentDescription dfd = new DFAgentDescription();
+		for (int i = 0; i < services.length; i++) {
+			ServiceDescription registrationService = new ServiceDescription();
+			registrationService.setName(this.getName());
+			registrationService.setType(services[i]);
+			dfd.addServices(registrationService);
+		}
+	}
 
 }
