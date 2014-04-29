@@ -16,12 +16,13 @@ public class Constants {
 	static final String BOOKROOM_ACTION = "BOOKROOM";
 	static final String RATEHOTEL_ACTION = "RATEHOTEL";
 	static final String MAKEDEPOSIT_ACTION = "MAKEDEPOSIT";
+	
+	
+	// Query-ref Actions
 	static final String CONSULTHOTELSINFO_ACTION = "CONSULTHOTELSINFO";
 	static final String CONSULTHOTELSSTAFF_ACTION = "CONSULTHOTELSSTAFF";
 	static final String CONSULTROOMPRICES_ACTION = "CONSULTROOMPRICES";
 	static final String CONSULTACCOUNTSTATUS_ACTION = "CONSULTACCOUNTSTATUS";
-	
-	// Query-ref Actions
 	
 	// Subscribe Actions
 }
