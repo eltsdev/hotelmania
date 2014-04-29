@@ -268,7 +268,7 @@ public class AgHotel2 extends Agent
 		public void action() {
 			// Waits for acceptance messages
 			ACLMessage msg = receive(MessageTemplate
-					.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL));
+					.MatchPerformative(ACLMessage.AGREE));
 
 			if (msg != null) {
 				// If an acceptance arrives...
@@ -295,7 +295,7 @@ public class AgHotel2 extends Agent
 		public void action() {
 			// Waits for rejection message
 			ACLMessage msg = receive(MessageTemplate
-					.MatchPerformative(ACLMessage.REJECT_PROPOSAL));
+					.MatchPerformative(ACLMessage.REFUSE));
 
 			if (msg != null) {
 				// If a rejection arrives...
