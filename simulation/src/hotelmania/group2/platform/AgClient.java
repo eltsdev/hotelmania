@@ -171,8 +171,6 @@ public class AgClient extends MetaAgent {
 		}
 
 		private void consultHotelInfo(AID hotelmania) {
-			
-			// TODO AGREGAR PROTOCOLO
 			sendRequest(this.getAgent(), hotelmania, null, codec, ontology,Constants.CONSULTHOTELSINFO_PROTOCOL,ACLMessage.QUERY_REF);
 			System.out.println(getLocalName() + ": REQUESTS INFORMATION ABOUT HOTELS TO HOTELMANIA");
 		}
