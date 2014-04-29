@@ -24,6 +24,7 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
+//TODO REFACTOR LT
 public class AgAgency extends Agent 
 {
 	private static final long serialVersionUID = 2893904717857535232L;

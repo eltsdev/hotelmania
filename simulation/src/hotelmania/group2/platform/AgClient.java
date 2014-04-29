@@ -7,51 +7,35 @@ import hotelmania.ontology.MakeDeposit;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;
 import hotelmania.ontology.SharedAgentsOntology;
-import jade.content.lang.Codec;
-import jade.content.lang.sl.SLCodec;
-import jade.content.onto.Ontology;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 
-public class AgClient extends Agent {
+public class AgClient extends MetaAgent {
+	
 	private static final long serialVersionUID = 6748170421157254696L;
-	static final String BOOKROOM = "BOOKROOM";
-	static final String RATEHOTEL = "RATEHOTEL";
-	static final String MAKEDEPOSIT = "MAKEDEPOSIT";
-
-	// Codec for the SL language used
-	private Codec codec = new SLCodec();
-
-	// External communication protocol's ontology
-	private Ontology ontology = SharedAgentsOntology.getInstance();
 
 	// -------------------------------------------------
 	// Agent Attributes
 	// -------------------------------------------------
 
-	String name;
-	AID agHotelMania;
-	AID agHotel;
-	AID agBank;
-	boolean bookingDone;
-	String actualHotel;
-	private AgentsFinder agentsFinder = AgentsFinder.getInstance();
+	private String name;
+	private AID agHotelMania;
+	private AID agHotel;
+	private AID agBank;
+	private boolean bookingDone;
+	private String actualHotel;
 
 	// -------------------------------------------------
 	// Setup
 	// -------------------------------------------------
-
+	
 	@Override
 	protected void setup() {
-		System.out.println(getLocalName() + ": HAS ENTERED");
-
-		// Register codec and ontology in ContentManager
-		getContentManager().registerLanguage(codec);
-		getContentManager().registerOntology(ontology);
-
+		super.setup();
+		
 		// Behaviors
 
 		// TODO subscribe day event
@@ -60,7 +44,6 @@ public class AgClient extends Agent {
 		addBehaviour(new ConsultHotelInfoBehavior(this));
 		
 		// TODO refuse offer
-
 	}
 
 	// --------------------------------------------------------
@@ -68,24 +51,24 @@ public class AgClient extends Agent {
 	// --------------------------------------------------------
 
 	private final class RequestBookingInHotelBehavior extends CyclicBehaviour {
+		
 		private static final long serialVersionUID = -1417563883440156372L;
 		private int messageType;
+		
 		private RequestBookingInHotelBehavior(Agent a) {
 			super(a);
 		}
 
 		public void action() {
 			// LocateHotel
-			agHotel = agentsFinder.locateAgent(SharedAgentsOntology.BOOKROOM,
-					myAgent);
+			agHotel = locateAgent(Constants.BOOKROOM_ACTION, myAgent);
 			if (agHotel != null) {// hotel found
 				// TODO verify is working or not
 				bookRoom(agHotel);
 			}
 
 			// LocateHotelMania
-			agHotelMania = agentsFinder.locateAgent(
-					SharedAgentsOntology.RATEHOTEL, myAgent);
+			agHotelMania = locateAgent(Constants.RATEHOTEL_ACTION, myAgent);
 
 			if (agHotelMania != null) {// hotel found
 				// TODO verify is working or not
@@ -94,16 +77,16 @@ public class AgClient extends Agent {
 			// TODO request hotel info
 
 			// Locate the Bank
-			agBank = agentsFinder.locateAgent(SharedAgentsOntology.MAKEDEPOSIT,
-					myAgent);
+			agBank = locateAgent(Constants.MAKEDEPOSIT_ACTION, myAgent);
 
 			if (agBank != null) {// hotel found
 				// TODO verify is working or not
 				makeDeposit(agBank);
 			}
 
+			//TODO: FIX
 			// If no message arrives
-			block();
+//			block();
 		}
 
 		private void bookRoom(AID hotel) {
@@ -116,8 +99,8 @@ public class AgClient extends Agent {
 			booking.setStartDay("10/04/2014");
 
 			// TODO AGREGAR PROTOCOLO
-			agentsFinder.sendRequest(this.getAgent(), hotel, action_booking,
-					codec, ontology,"",ACLMessage.REQUEST);
+			sendRequest(this.getAgent(), hotel, action_booking,
+					codec, ontology, Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
 			System.out.println(getLocalName() + ": REQUESTS MAKE BOOKING");
 		}
 
@@ -142,8 +125,8 @@ public class AgClient extends Agent {
 			action_rating.setRatings(rating);
 
 			// TODO AGREGAR PROTOCOLO
-			agentsFinder.sendRequest(this.getAgent(), hotelMania,
-					action_rating, codec, ontology,"",ACLMessage.REQUEST);
+			sendRequest(this.getAgent(), hotelMania,
+					action_rating, codec, ontology, Constants.RATEHOTEL_PROTOCOL,ACLMessage.REQUEST);
 			System.out.println(getLocalName() + ": REQUESTS RATE HOTEL");
 
 		}
@@ -164,8 +147,8 @@ public class AgClient extends Agent {
 			messageType = ACLMessage.REQUEST;
 			
 			// TODO AGREGAR PROTOCOLO
-			agentsFinder.sendRequest(this.getAgent(), bank, action_deposit,
-					codec, ontology,"",messageType);
+			sendRequest(this.getAgent(), bank, action_deposit,
+					codec, ontology,Constants.MAKEDEPOSIT_PROTOCOL,messageType);
 			System.out.println(getLocalName()
 					+ ": REQUESTS PAY SERVICES TO HOTEL ACCOUNT " + messageType);
 
@@ -181,7 +164,7 @@ public class AgClient extends Agent {
 
 		@Override
 		public void action() {
-			AID hotelmania = agentsFinder.locateAgent(
+			AID hotelmania = locateAgent(
 					SharedAgentsOntology.CONSULTHOTELSINFO, myAgent);
 			if (hotelmania != null) {// hotel found
 				this.consultHotelInfo(hotelmania);
@@ -191,7 +174,7 @@ public class AgClient extends Agent {
 		private void consultHotelInfo(AID hotelmania) {
 			
 			// TODO AGREGAR PROTOCOLO
-			agentsFinder.sendRequest(this.getAgent(), hotelmania, null, codec,
+			sendRequest(this.getAgent(), hotelmania, null, codec,
 					ontology,"",ACLMessage.QUERY_REF);
 			System.out.println(getLocalName()
 					+ ": REQUESTS INFORMATION ABOUT HOTELS TO HOTELMANIA");
