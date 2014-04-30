@@ -1,7 +1,7 @@
-; Wed Apr 23 11:00:27 CEST 2014
+; Wed Apr 30 09:45:52 CEST 2014
 ; 
-;+ (version "3.5")
-;+ (build "Build 663")
+;+ (version "3.4.8")
+;+ (build "Build 629")
 
 
 (defclass %3ACLIPS_TOP_LEVEL_SLOT_CLASS "Fake class to save top-level slot information"
@@ -15,13 +15,13 @@
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot cooker_3stars
-		(type INTEGER)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
 	(single-slot contract
 		(type INSTANCE)
 ;+		(allowed-classes Contract)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot chef_2stars
+		(type INTEGER)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot %3APACKAGE
@@ -29,13 +29,13 @@
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot total_rating
-		(type FLOAT)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
 	(single-slot hotel_rated
 		(type INSTANCE)
 ;+		(allowed-classes Hotel)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot total_rating
+		(type FLOAT)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot cost
@@ -47,13 +47,17 @@
 ;+		(allowed-classes Hotel)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot hotel_contract
+		(type INSTANCE)
+;+		(allowed-classes Hotel)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
 	(single-slot staff_rating
 		(type STRING)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
-	(single-slot hotel_contract
-		(type INSTANCE)
-;+		(allowed-classes Hotel)
+	(single-slot room_staff_rating
+		(type FLOAT)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot %3AJADE-PROPERTIES-GENERATE-BEANS
@@ -62,18 +66,10 @@
 		(default TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot room_staff_rating
-		(type FLOAT)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
 	(multislot hotels
 		(type INSTANCE)
 ;+		(allowed-classes HotelInfo)
 		(cardinality 1 ?VARIABLE)
-		(create-accessor read-write))
-	(single-slot cooker_2stars
-		(type INTEGER)
-;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(multislot resolvers
 		(type SYMBOL)
@@ -106,13 +102,13 @@
 ;+		(cardinality 1 1)
 ;+		(associated-facet SimpleJADEAbstractOntology_00016)
 		(create-accessor read-write))
-	(single-slot recepcionist_novice
-		(type INTEGER)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
 	(single-slot days
 		(type INTEGER)
 ;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot recepcionist_novice
+		(type INTEGER)
+;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot price_rating
 		(type FLOAT)
@@ -141,9 +137,17 @@
 		(type INSTANCE)
 ;+		(allowed-classes)
 		(create-accessor read-write))
+	(single-slot chef_1stars
+		(type INTEGER)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
 	(single-slot %3AJADE-PROPERTIES-PACKAGE
 		(type STRING)
 ;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot chef_3stars
+		(type INTEGER)
+;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot cookers_rating
 		(type FLOAT)
@@ -175,17 +179,17 @@
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot day
-		(type STRING)
+	(single-slot ratings
+		(type INSTANCE)
+;+		(allowed-classes Rating)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot %3AJADE-PROPERTIES-NAME
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot ratings
-		(type INSTANCE)
-;+		(allowed-classes Rating)
+	(single-slot day
+		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(multislot cookerStaff
@@ -202,22 +206,18 @@
 		(default Classes)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot money
-		(type FLOAT)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
 	(single-slot %3AONTOLOGYNAME
 ;+		(comment "name of the ontology")
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot money
+		(type FLOAT)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(single-slot roomsAvailable
 		(type INTEGER)
 ;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot cooker_1stars
-		(type INTEGER)
-;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot %3AJADE-NAME
 		(type STRING)
@@ -429,7 +429,7 @@
 ;+		(cardinality 1 1)
 		(create-accessor read-write)))
 
-(defclass SubscribeDayEvent
+(defclass SubscribeToDayEvent
 	(is-a AgentAction)
 	(role concrete))
 
@@ -476,6 +476,10 @@
 (defclass Contract "Describes the total employees to be hired (or actually hired) of each staff category."
 	(is-a Concept)
 	(role concrete)
+	(single-slot chef_3stars
+		(type INTEGER)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
 	(single-slot recepcionist_experienced
 		(type INTEGER)
 ;+		(cardinality 1 1)
@@ -484,15 +488,11 @@
 		(type INTEGER)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
-	(single-slot cooker_3stars
+	(single-slot chef_2stars
 		(type INTEGER)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
-	(single-slot cooker_1stars
-		(type INTEGER)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(single-slot cooker_2stars
+	(single-slot chef_1stars
 		(type INTEGER)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
@@ -517,14 +517,14 @@
 (defclass HotelStaffInfo
 	(is-a Concept)
 	(role concrete)
+	(multislot cookerStaff
+		(type INSTANCE)
+;+		(allowed-classes Contract)
+		(create-accessor read-write))
 	(single-slot hotel
 		(type INSTANCE)
 ;+		(allowed-classes Hotel)
 ;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(multislot cookerStaff
-		(type INSTANCE)
-;+		(allowed-classes Contract)
 		(create-accessor read-write))
 	(single-slot contract
 		(type INSTANCE)

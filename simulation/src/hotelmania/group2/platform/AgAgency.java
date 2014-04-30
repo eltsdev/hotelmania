@@ -1,45 +1,26 @@
 package hotelmania.group2.platform;
 
+import hotelmania.ontology.SignContract;
+import jade.content.Concept;
+import jade.content.ContentElement;
+import jade.content.lang.Codec.CodecException;
+import jade.content.onto.OntologyException;
+import jade.content.onto.basic.Action;
+import jade.core.AID;
+import jade.core.behaviours.CyclicBehaviour;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import hotelmania.ontology.SharedAgentsOntology;
-import hotelmania.ontology.SignContract;
-import jade.content.Concept;
-import jade.content.ContentElement;
-import jade.content.lang.Codec;
-import jade.content.lang.Codec.CodecException;
-import jade.content.lang.sl.SLCodec;
-import jade.content.onto.Ontology;
-import jade.content.onto.OntologyException;
-import jade.content.onto.basic.Action;
-import jade.core.AID;
-import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
-import jade.domain.DFService;
-import jade.domain.FIPAException;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
-import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
-
-//TODO REFACTOR LT
-public class AgAgency extends Agent 
+public class AgAgency extends MetaAgent 
 {
 	private static final long serialVersionUID = 2893904717857535232L;
 	
-	static final String SIGNCONTRACT_REQUEST = "SIGNCONTRACT_REQUEST";
-
-
-	// Codec for the SL language used
-	private Codec codec = new SLCodec();
-
-	// External communication protocol's ontology
-	private Ontology ontology = SharedAgentsOntology.getInstance();
-
 	// Agent Attributes
-
+	
 	String name;
 	AID agHotel;
 	AID agReporter;
@@ -48,32 +29,11 @@ public class AgAgency extends Agent
 	
 	@Override
 	protected void setup() {
-		System.out.println(getLocalName() + ": HAS ENTERED");
-
-		// Register codec and ontology in ContentManager
-		getContentManager().registerLanguage(codec);
-		getContentManager().registerOntology(ontology);
+		super.setup();
 
 		// Creates its own description
-		DFAgentDescription agentDesc = new DFAgentDescription();
-		ServiceDescription signContractService = new ServiceDescription();
-		signContractService.setName(this.getName());
-		signContractService.setType(SIGNCONTRACT_REQUEST);
-		agentDesc.addServices(signContractService);
-		
-		try {	
-			// Registers its description in the DF
-			DFService.register(this, agentDesc);
-			System.out.println(getLocalName() + ": registered in the DF");
-			agentDesc = null;
-			signContractService = null;
-			doWait(10000);
-
-		} catch (FIPAException e) {
-			// TODO handle
-			e.printStackTrace();
-		}
-		
+		registerServices(Constants.SIGNCONTRACT_REQUEST);
+				
 		// Behaviors
 
 		addBehaviour(new SignStaffContractWithHotelBehavior(this));

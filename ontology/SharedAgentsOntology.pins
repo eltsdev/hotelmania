@@ -1,7 +1,7 @@
-; Wed Apr 23 11:00:27 CEST 2014
+; Wed Apr 30 09:45:52 CEST 2014
 ; 
-;+ (version "3.5")
-;+ (build "Build 663")
+;+ (version "3.4.8")
+;+ (build "Build 629")
 
 ([AccountStatus] of  %3AJADE-CLASS
 
@@ -137,6 +137,6 @@
 
 	(%3AASSOCIATED-SLOT [%3AJADE-UNNAMED-SLOT]))
 
-([SubscribeDayEvent] of  %3AJADE-CLASS
+([SubscribeToDayEvent] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE FALSE))
