@@ -1,4 +1,4 @@
-; Wed Apr 30 07:54:56 CEST 2014
+; Wed Apr 30 09:45:52 CEST 2014
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -429,7 +429,7 @@
 ;+		(cardinality 1 1)
 		(create-accessor read-write)))
 
-(defclass SubscribeDayEvent
+(defclass SubscribeToDayEvent
 	(is-a AgentAction)
 	(role concrete))
 
