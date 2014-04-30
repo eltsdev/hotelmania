@@ -23,72 +23,24 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-public class AgHotelmania extends Agent {
+public class AgHotelmania extends MetaAgent {
 	static final long serialVersionUID = -7762674314086577059L;
-	static final String REGISTRATION_REQUEST = "Registration";
-	static final String RATEHOTEL = "RATEHOTEL";
 	private HotelDAO hotelDAO;
 	private RateDAO rateDAO;
 
-	/*
-	 * Codec for the SL language used
-	 */
-	private Codec codec = new SLCodec();
-
-	/*
-	 * External communication protocol's ontology
-	 */
-	private Ontology ontology = SharedAgentsOntology.getInstance();
-
 	@Override
 	protected void setup() {
-		System.out.println(getLocalName() + ": HAS ENTERED");
+		super.setup();
 		hotelDAO = new HotelDAO();
 		rateDAO = new RateDAO();
+		
+		//Register the services
+		String[] services = {Constants.REGISTRATION_ACTION,Constants.RATEHOTEL_ACTION};
+		this.registerServices(services);
 
-		/*
-		 * Register of codec and ontology in the ContentManager
-		 */
-		getContentManager().registerLanguage(codec);
-		getContentManager().registerOntology(ontology);
-
-		/*
-		 * Creates its own description
-		 */
-		DFAgentDescription dfd = new DFAgentDescription();
-		ServiceDescription registrationService = new ServiceDescription();
-		registrationService.setName(this.getName());
-		registrationService.setType(REGISTRATION_REQUEST);
-		dfd.addServices(registrationService);
-
-		 ServiceDescription ratingService = new ServiceDescription();
-		 ratingService.setName(this.getName());
-		 ratingService.setType(RATEHOTEL);
-		 dfd.addServices(ratingService);
-
-		try {
-			// Registers its description in the DF
-			DFService.register(this, dfd);
-			System.out.println(getLocalName() + ": registered in the DF");
-			dfd = null;
-			registrationService = null;
-			// ratingService = null;
-			doWait(10000);
-
-		} catch (FIPAException e) {
-			// TODO handle
-			e.printStackTrace();
-		}
-
-		/*
-		 * Behaviors
-		 */
-
+		//add the behaviours
 		addBehaviour(new ReceiveRegisterRequestBehavior(this));
 		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
-
-//		addBehaviour(new UpdateHotelRatingBehavior(this));
-
 		addBehaviour(new ProvideHotelInfoBehavior(this));
 
 		// TODO addBehaviour(new ReceiveHotelRatingBehavior(this));
@@ -104,14 +56,14 @@ public class AgHotelmania extends Agent {
 	 * 
 	 * @author elts
 	 */
-	private final class ReceiveRegisterRequestBehavior extends CyclicBehaviour {
+	private final class ReceiveRegisterRequestBehavior extends MetaCyclicBehaviour {
 		private static final long serialVersionUID = 8713963422079295068L;
 
 		private static final int VALID_REQ = 0;
 		private static final int REJECT_REQ = -1;
 		private static final int NOT_UNDERSTOOD_REQ = 1;
 
-		private ReceiveRegisterRequestBehavior(Agent a) {
+		public ReceiveRegisterRequestBehavior(Agent a) {
 			super(a);
 		}
 
@@ -122,7 +74,7 @@ public class AgHotelmania extends Agent {
 			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 					MessageTemplate.MatchLanguage(codec.getName()),
 					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(REGISTRATION_REQUEST)),
+					MessageTemplate.MatchProtocol(Constants.REGISTRATION_PROTOCOL)),
 					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
@@ -153,23 +105,7 @@ public class AgHotelmania extends Agent {
 						// send reply
 						ACLMessage reply = msg.createReply();
 						String log = "";
-						switch (answer) {
-						case VALID_REQ:
-							reply.setPerformative(ACLMessage.AGREE); //TODO ACLMessage.AGREE);
-							log = "AGREE";
-							break;
-
-						case REJECT_REQ:
-							reply.setPerformative(ACLMessage.REFUSE); //TODO ACLMessage.REFUSE);
-							log = "REFUSE";
-							break;
-
-						case NOT_UNDERSTOOD_REQ:
-						default:
-							reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-							log = "NOT_UNDERSTOOD";
-							break;
-						}
+						this.treatReply(reply, log, answer);
 
 						myAgent.send(reply);
 
@@ -216,7 +152,7 @@ public class AgHotelmania extends Agent {
 		}
 	}
 
-	private final class ReceiveNotUnderstoodMsgBehavior extends CyclicBehaviour {
+	private final class ReceiveNotUnderstoodMsgBehavior extends MetaCyclicBehaviour {
 		private static final long serialVersionUID = 1L;
 
 		private ReceiveNotUnderstoodMsgBehavior(Agent a) {
@@ -240,7 +176,7 @@ public class AgHotelmania extends Agent {
 		}
 	}
 
-	private final class ProvideHotelInfoBehavior extends CyclicBehaviour {
+	private final class ProvideHotelInfoBehavior extends MetaCyclicBehaviour {
 		private static final long serialVersionUID = 2449653047078980935L;
 
 		public ProvideHotelInfoBehavior(AgHotelmania agHotelmania) {
@@ -259,7 +195,7 @@ public class AgHotelmania extends Agent {
 	 * @author user
 	 *
 	 */
-	private final class UpdateHotelRatingBehavior extends CyclicBehaviour {
+	private final class UpdateHotelRatingBehavior extends MetaCyclicBehaviour {
 		private static final long serialVersionUID = 7586132058023771627L;
 
 		private static final int VALID_REQ = 0;
@@ -316,23 +252,7 @@ public class AgHotelmania extends Agent {
 						// send reply
 						ACLMessage reply = msg.createReply();
 						String log = "";
-						switch (answer) {
-						case VALID_REQ:
-							reply.setPerformative(ACLMessage.AGREE);
-							log = "AGREE";
-							break;
-
-						case REJECT_REQ:
-							reply.setPerformative(ACLMessage.REFUSE);
-							log = "REFUSE";
-							break;
-
-						case NOT_UNDERSTOOD_REQ:
-						default:
-							reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-							log = "NOT_UNDERSTOOD";
-							break;
-						}
+						this.treatReply(reply, log, answer);
 
 						myAgent.send(reply);
 

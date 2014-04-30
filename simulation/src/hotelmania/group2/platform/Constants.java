@@ -28,4 +28,10 @@ public class Constants {
 	public static final String CONSULTACCOUNTSTATUS_ACTION = "CONSULTACCOUNTSTATUS";
 	
 	// Subscribe Actions
+	
+	// constants
+	public static final int VALID_REQ = 0;
+	public static final int REJECT_REQ = -1;
+	public static final int NOT_UNDERSTOOD_REQ = 1;
+	
 }
