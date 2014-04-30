@@ -11,6 +11,7 @@ import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
+import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
@@ -85,7 +86,7 @@ public class MetaAgent extends Agent {
 
 	}
 	
-	public void registerServices(String [] services) {
+	public void registerServices(String...services) {
 		DFAgentDescription dfd = new DFAgentDescription();
 		for (int i = 0; i < services.length; i++) {
 			ServiceDescription registrationService = new ServiceDescription();
@@ -93,6 +94,22 @@ public class MetaAgent extends Agent {
 			registrationService.setType(services[i]);
 			dfd.addServices(registrationService);
 		}
+
+		try {	
+			// Registers its description in the DF
+			DFService.register(this, dfd);
+			System.out.println(getLocalName() + ": registered in the DF");
+			dfd = null;
+			
+			// TODO handle
+			doWait(10000);
+
+		} catch (FIPAException e) {
+			// TODO handle
+			e.printStackTrace();
+		}
+		
+
 	}
 
 }
