@@ -17,8 +17,8 @@ public class Constants {
 	public static final String BOOKROOM_ACTION = "BOOKROOM";
 	public static final String RATEHOTEL_ACTION = "RATEHOTEL";
 	public static final String MAKEDEPOSIT_ACTION = "MAKEDEPOSIT";
-	public static final String SIGNCONTRACT_REQUEST = "SIGNCONTRACT_REQUEST";
-	public static final String REGISTRATION_REQUEST = "Registration";
+	public static final String SIGNCONTRACT_ACTION = "SIGNCONTRACT_REQUEST";
+	public static final String REGISTRATION_ACTION = "Registration";
 	
 	
 	// Query-ref Actions
