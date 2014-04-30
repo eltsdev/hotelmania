@@ -10,6 +10,7 @@ public class Constants {
 	public static final String CONSULTHOTELSSTAFF_PROTOCOL = "CONSULTHOTELSSTAFF";
 	public static final String CONSULTROOMPRICES_PROTOCOL = "CONSULTROOMPRICES";
 	public static final String CONSULTACCOUNTSTATUS_PROTOCOL = "CONSULTACCOUNTSTATUS";
+	public static final String REGISTRATION_PROTOCOL = "Registration";
 	
 
 	// Request Actions
@@ -17,6 +18,7 @@ public class Constants {
 	public static final String RATEHOTEL_ACTION = "RATEHOTEL";
 	public static final String MAKEDEPOSIT_ACTION = "MAKEDEPOSIT";
 	public static final String SIGNCONTRACT_REQUEST = "SIGNCONTRACT_REQUEST";
+	public static final String REGISTRATION_REQUEST = "Registration";
 	
 	
 	// Query-ref Actions
