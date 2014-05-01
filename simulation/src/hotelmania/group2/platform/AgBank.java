@@ -26,11 +26,9 @@ import jade.lang.acl.MessageTemplate;
 
 import java.util.ArrayList;
 
-public class AgBank extends Agent {
+public class AgBank extends MetaAgent {
 	private static final long serialVersionUID = 2893904717857535232L;
-	static final String CREATEACCOUNT = "CREATEACCOUNT";
-	static final String MAKEDEPOSIT = "MAKEDEPOSIT";
-	static final String CHARGEACCOUNT = "CHARGEACCOUNT";
+
 	private AccountDAO accountDao;
 
 	/*
@@ -64,40 +62,18 @@ public class AgBank extends Agent {
 	 */
 	@Override
 	protected void setup() {
-		System.out.println(getLocalName() + ": HAS ENTERED");
+		super.setup();
 
 		accountDao = new AccountDAO();
 		/*
 		 * List of Accounts
 		 */
 		listHotelAccount = new ArrayList<CreateAccount>();
-		/*
-		 * Register of codec and ontology in the ContentManager
-		 */
-		getContentManager().registerLanguage(codec);
-		getContentManager().registerOntology(ontology);
 
 		/*
 		 * Creates its own description
 		 */
-		DFAgentDescription dfDescription = new DFAgentDescription();
-		ServiceDescription createService = new ServiceDescription();
-		createService.setName(this.getName());
-		createService.setType(CREATEACCOUNT);
-		dfDescription.addServices(createService);
-
-		try {
-			// Registers its description in the DF
-			DFService.register(this, dfDescription);
-			System.out.println(getLocalName() + ": registered in the DF");
-			dfDescription = null;
-			createService = null;
-			doWait(10000);
-
-		} catch (FIPAException e) {
-			// TODO handle
-			e.printStackTrace();
-		}
+		registerServices(Constants.CREATEACCOUNT_ACTION);
 
 		// Create hotel account
 		addBehaviour(new CreateAccountBehavior(this));
@@ -379,7 +355,7 @@ public class AgBank extends Agent {
 
 	}
 
-	private final class MakeDepositBehavior extends CyclicBehaviour {
+	private final class MakeDepositBehavior extends MetaCyclicBehaviour {
 		private static final long serialVersionUID = 5591566038041266929L;
 		private static final int VALID_REQ = 0;
 		private static final int REJECT_REQ = -1;
@@ -434,29 +410,12 @@ public class AgBank extends Agent {
 
 						// send reply
 						ACLMessage reply = msg.createReply();
-						String log = "";
-						switch (answer) {
-						case VALID_REQ:
-							reply.setPerformative(ACLMessage.AGREE);
-							log = "AGREE";
-							break;
-
-						case REJECT_REQ:
-							reply.setPerformative(ACLMessage.REFUSE);
-							log = "REFUSE";
-							break;
-
-						case NOT_UNDERSTOOD_REQ:
-						default:
-							reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-							log = "NOT_UNDERSTOOD";
-							break;
-						}
+						reply = treatReply(reply, this.log, answer);
 
 						myAgent.send(reply);
 
 						System.out.println(myAgent.getLocalName()
-								+ ": answer sent -> " + log);
+								+ ": answer sent -> " + this.log);
 					}
 				}
 

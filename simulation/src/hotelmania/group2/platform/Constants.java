@@ -11,6 +11,8 @@ public class Constants {
 	public static final String CONSULTROOMPRICES_PROTOCOL = "CONSULTROOMPRICES";
 	public static final String CONSULTACCOUNTSTATUS_PROTOCOL = "CONSULTACCOUNTSTATUS";
 	public static final String REGISTRATION_PROTOCOL = "Registration";
+	public static final String CREATEACCOUNT_PROTOCOL = "CREATEACCOUNT";
+	public static final String CHARGEACCOUNT_PROTOCOL = "CHARGEACCOUNT";
 	
 
 	// Request Actions
@@ -19,7 +21,8 @@ public class Constants {
 	public static final String MAKEDEPOSIT_ACTION = "MAKEDEPOSIT";
 	public static final String SIGNCONTRACT_ACTION = "SIGNCONTRACT_REQUEST";
 	public static final String REGISTRATION_ACTION = "Registration";
-	
+	public static final String CREATEACCOUNT_ACTION = "CREATEACCOUNT";
+	public static final String CHARGEACCOUNT_ACTION = "CHARGEACCOUNT";
 	
 	// Query-ref Actions
 	public static final String CONSULTHOTELSINFO_ACTION = "CONSULTHOTELSINFO";

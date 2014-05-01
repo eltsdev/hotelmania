@@ -105,12 +105,12 @@ public class AgHotelmania extends MetaAgent {
 						// send reply
 						ACLMessage reply = msg.createReply();
 						String log = "";
-						this.treatReply(reply, log, answer);
+						reply = this.treatReply(reply, this.log, answer);
 
 						myAgent.send(reply);
 
 						System.out.println(myAgent.getLocalName()
-								+ ": answer sent -> " + log);
+								+ ": answer sent -> " + this.log);
 					}
 				}
 
@@ -252,12 +252,12 @@ public class AgHotelmania extends MetaAgent {
 						// send reply
 						ACLMessage reply = msg.createReply();
 						String log = "";
-						this.treatReply(reply, log, answer);
+						reply= this.treatReply(reply, this.log, answer);
 
 						myAgent.send(reply);
 
 						System.out.println(myAgent.getLocalName()
-								+ ": answer sent -> " + log);
+								+ ": answer sent -> " + this.log);
 					}
 				}
 
