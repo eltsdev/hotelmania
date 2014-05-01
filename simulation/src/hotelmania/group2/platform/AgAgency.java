@@ -32,7 +32,7 @@ public class AgAgency extends MetaAgent
 		super.setup();
 
 		// Creates its own description
-		registerServices(Constants.SIGNCONTRACT_REQUEST);
+		registerServices(Constants.SIGNCONTRACT_ACTION);
 				
 		// Behaviors
 
