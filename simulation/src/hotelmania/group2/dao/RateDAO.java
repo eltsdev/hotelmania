@@ -13,13 +13,19 @@ import org.junit.runner.Computer;
  */
 public class RateDAO {
 
+	private static RateDAO instance;
+	
 	private ArrayList<Rating> rates;
 
-	/**
-	 * 
-	 */
-	public RateDAO() {
+	private RateDAO() {
 		rates = new ArrayList<Rating>();
+	}
+
+	public static RateDAO getInstance() {
+		if (instance==null) {
+			instance = new RateDAO();
+		}
+		return instance;
 	}
 
 	/**

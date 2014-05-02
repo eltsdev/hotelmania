@@ -1,4 +1,4 @@
-; Wed Apr 30 09:45:52 CEST 2014
+; Fri May 02 15:37:04 CEST 2014
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -189,7 +189,7 @@
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot day
-		(type STRING)
+		(type INTEGER)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(multislot cookerStaff
@@ -548,7 +548,7 @@
 	(is-a Concept)
 	(role concrete)
 	(single-slot day
-		(type STRING)
+		(type INTEGER)
 ;+		(cardinality 0 1)
 		(create-accessor read-write)))
 

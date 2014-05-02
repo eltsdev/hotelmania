@@ -1,61 +1,32 @@
 package hotelmania.group2.dao;
 
-import java.util.Date;
-
-public class Contract 
-{
-	// Constants
-	//	static final int TYPE_RECEPCIONIST=0;
-	//	static final int TYPE_COOKER=1;
-	//	static final int TYPE_ROOMSTAFF=2;
-	//	
-	//	static final int CATEGORY_RECEPCIONIST_NOVICE = 10;
-	//	static final int CATEGORY_RECEPCIONIST_EXPERIENCED = 11;
-	//	
-	//	static final int CATEGORY_COOKER_1STARS = 21;
-	//	static final int CATEGORY_COOKER_2STARS = 22;
-	//	static final int CATEGORY_COOKER_3STARS = 23;
-	//	
-	//	static final int CATEGORY_ROOMSERVICE = 30;
-
-	
-	//Attributes
+public class Contract {
 	String hotelName;
-	
-	int recepcionistNovice;
+	int date;
+	int chef1stars;
+	int chef2stars;
+	int chef3stars;
 	int recepcionistExperienced;
-	int cooker1stars;
-	int cooker2stars;
-	int cooker3stars;
-	int roomservice;
-	
-	Date date;
-	
- 	public Contract() 
- 	{
-		this.date = new Date();
+	int recepcionistNovice;
+	int roomService;
+
+	public Contract() {
+		this.date = 0;
 	}
- 	
-	public Contract(String hotelName, 
-			int recepcionistNovice,
-			int recepcionistExperienced, 
-			int cooker1stars, 
-			int cooker2stars,
-			int cooker3stars, 
-			int roomservice, 
-			Date date)
-	{
+
+	public Contract(String hotelName, int date, int chef1stars,
+			int chef2stars, int chef3stars, int recepcionistExperienced,
+			int recepcionistNovice, int roomService) {
+		super();
 		this.hotelName = hotelName;
-		this.recepcionistNovice = recepcionistNovice;
-		this.recepcionistExperienced = recepcionistExperienced;
-		this.cooker1stars = cooker1stars;
-		this.cooker2stars = cooker2stars;
-		this.cooker3stars = cooker3stars;
-		this.roomservice = roomservice;
 		this.date = date;
+		this.chef1stars = chef1stars;
+		this.chef2stars = chef2stars;
+		this.chef3stars = chef3stars;
+		this.recepcionistExperienced = recepcionistExperienced;
+		this.recepcionistNovice = recepcionistNovice;
+		this.roomService = roomService;
 	}
-
-
 
 	public String getHotelName() {
 		return hotelName;
@@ -65,12 +36,36 @@ public class Contract
 		this.hotelName = hotelName;
 	}
 
-	public int getRecepcionistNovice() {
-		return recepcionistNovice;
+	public int getDate() {
+		return date;
 	}
 
-	public void setRecepcionistNovice(int recepcionistNovice) {
-		this.recepcionistNovice = recepcionistNovice;
+	public void setDate(int date) {
+		this.date = date;
+	}
+
+	public int getchef1stars() {
+		return chef1stars;
+	}
+
+	public void setchef1stars(int chef1stars) {
+		this.chef1stars = chef1stars;
+	}
+
+	public int getchef2stars() {
+		return chef2stars;
+	}
+
+	public void setchef2stars(int chef2stars) {
+		this.chef2stars = chef2stars;
+	}
+
+	public int getchef3stars() {
+		return chef3stars;
+	}
+
+	public void setchef3stars(int chef3stars) {
+		this.chef3stars = chef3stars;
 	}
 
 	public int getRecepcionistExperienced() {
@@ -81,46 +76,20 @@ public class Contract
 		this.recepcionistExperienced = recepcionistExperienced;
 	}
 
-	public int getCooker1stars() {
-		return cooker1stars;
+	public int getRecepcionistNovice() {
+		return recepcionistNovice;
 	}
 
-	public void setCooker1stars(int cooker1stars) {
-		this.cooker1stars = cooker1stars;
+	public void setRecepcionistNovice(int recepcionistNovice) {
+		this.recepcionistNovice = recepcionistNovice;
 	}
 
-	public int getCooker2stars() {
-		return cooker2stars;
+	public int getRoomService() {
+		return roomService;
 	}
 
-	public void setCooker2stars(int cooker2stars) {
-		this.cooker2stars = cooker2stars;
+	public void setRoomService(int roomService) {
+		this.roomService = roomService;
 	}
 
-	public int getCooker3stars() {
-		return cooker3stars;
-	}
-
-	public void setCooker3stars(int cooker3stars) {
-		this.cooker3stars = cooker3stars;
-	}
-
-	public int getRoomservice() {
-		return roomservice;
-	}
-
-	public void setRoomservice(int roomservice) {
-		this.roomservice = roomservice;
-	}
-
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
- 	
-
- 	
 }

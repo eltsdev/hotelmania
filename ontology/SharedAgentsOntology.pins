@@ -1,4 +1,4 @@
-; Wed Apr 30 09:45:52 CEST 2014
+; Fri May 02 15:37:04 CEST 2014
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -97,9 +97,9 @@
 
 ([project+annotation] of  %3APROJECT-ANNOTATION
 
-	(%3ALOCATION "C:\\Users\\user\\Documents\\GitHub\\hotelmania\\simulation\\src-gen")
+	(%3ALOCATION "E:\\elts\\Documentos\\GitHub\\hotelmania\\simulation\\src-gen")
 	(%3AONTOLOGYNAME "SharedAgents")
-	(%3APACKAGE "hotelmania.onto")
+	(%3APACKAGE "hotelmania.ontology")
 	(%3ASUPPORT "j2se"))
 
 ([RateHotel] of  %3AJADE-CLASS

@@ -1,22 +1,12 @@
 package hotelmania.group2.platform;
 
-import hotelmania.ontology.SharedAgentsOntology;
-import jade.content.lang.Codec;
-import jade.content.lang.sl.SLCodec;
-import jade.content.onto.Ontology;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 
-public class AgReporter extends Agent
+public class AgReporter extends MetaAgent
 {
 	private static final long serialVersionUID = -4208905954219155107L;
-
-	// Codec for the SL language used
-	private Codec codec = new SLCodec();
-
-	// External communication protocol's ontology
-	private Ontology ontology = SharedAgentsOntology.getInstance();
 
 	//------------------------------------------------- 
 	// Agent Attributes
@@ -47,6 +37,18 @@ public class AgReporter extends Agent
 		addBehaviour(new GenerateSimulationReportBehavior(this));
 		addBehaviour(new ObtainInformationFromAgentsBehavior(this));
 	}
+	
+	/**
+	 * //TODO to decide
+	 */
+	@Override
+	protected boolean setRegisterForDayEvents() {
+		return false;
+	}
+	
+	@Override
+	protected void doOnNewDay() {}
+
 		
 	// --------------------------------------------------------
 	// Behaviors

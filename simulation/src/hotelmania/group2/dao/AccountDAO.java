@@ -11,11 +11,20 @@ import java.util.ArrayList;
  */
 public class AccountDAO {
 
+	private static AccountDAO instance;
+	
 	private ArrayList<Account> listAccount;
 
-	public AccountDAO() {
+	private AccountDAO() {
 		listAccount = new ArrayList<Account>();
 
+	}
+
+	public static AccountDAO getInstance() {
+		if (instance==null) {
+			instance = new AccountDAO();
+		}
+		return instance;
 	}
 
 	/**
@@ -65,6 +74,5 @@ public class AccountDAO {
 
 		}
 		return false;
-	}
-
+	}	
 }

@@ -8,18 +8,18 @@ import jade.core.*;
 /**
 * Protege name: DayEvent
 * @author ontology bean generator
-* @version 2014/04/23, 10:59:43
+* @version 2014/05/2, 15:37:02
 */
 public class DayEvent implements Concept {
 
    /**
 * Protege name: day
    */
-   private String day;
-   public void setDay(String value) { 
+   private int day;
+   public void setDay(int value) { 
     this.day=value;
    }
-   public String getDay() {
+   public int getDay() {
      return this.day;
    }
 

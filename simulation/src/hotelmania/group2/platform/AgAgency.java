@@ -1,5 +1,6 @@
 package hotelmania.group2.platform;
 
+import hotelmania.group2.dao.Contract;
 import hotelmania.ontology.SignContract;
 import jade.content.Concept;
 import jade.content.ContentElement;
@@ -11,26 +12,20 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-
 public class AgAgency extends MetaAgent 
 {
 	private static final long serialVersionUID = 2893904717857535232L;
 	
+	//------------------------------------------------- 
 	// Agent Attributes
-	
-	String name;
+	//-------------------------------------------------
 	AID agHotel;
 	AID agReporter;
 
-	Date currentDate;
-	
 	@Override
 	protected void setup() {
 		super.setup();
-
+		
 		// Creates its own description
 		registerServices(Constants.SIGNCONTRACT_ACTION);
 				
@@ -44,19 +39,18 @@ public class AgAgency extends MetaAgent
 
 	}
 
-	protected Date getCurrentDate()
-	{
-		return currentDate;
+	/**
+	 * This means: I AM interested on this event.
+	 */
+	@Override
+	protected boolean setRegisterForDayEvents() {
+		return true;
 	}
 	
-	protected Date getNextDay(Date currentDate)
-	{
-		Calendar calendar = GregorianCalendar.getInstance();
-		calendar.setTime(currentDate);
-		calendar.add(Calendar.DATE,1);
-		return calendar.getTime();
-	}
+	@Override
+	protected void doOnNewDay() {}
 
+	
 	// --------------------------------------------------------
 	// BEHAVIOURS
 	// --------------------------------------------------------
@@ -66,14 +60,12 @@ public class AgAgency extends MetaAgent
 		private static final long serialVersionUID = 7390814510706022198L;
 		
 		//Types of response
-		
 		private static final int VALID_REQ = 0;
 		private static final int REJECT_REQ = -1;
 		private static final int NOT_UNDERSTOOD_REQ = 1;
 
-
-		public SignStaffContractWithHotelBehavior(AgAgency me) {
-			super(me);
+		public SignStaffContractWithHotelBehavior(AgAgency agent) {
+			super(agent);
 		}
 
 		@Override
@@ -82,8 +74,10 @@ public class AgAgency extends MetaAgent
 			ACLMessage msg = receive(
 					MessageTemplate.and(
 							MessageTemplate.and(
+									MessageTemplate.and(
 									MessageTemplate.MatchLanguage(codec.getName()), 
 									MessageTemplate.MatchOntology(ontology.getName())),
+									MessageTemplate.MatchProtocol(Constants.SIGNCONTRACT_PROTOCOL)),
 									MessageTemplate.MatchPerformative(ACLMessage.REQUEST))
 					);
 	
@@ -111,7 +105,6 @@ public class AgAgency extends MetaAgent
 						int answer = answerContractRequest(msg, (SignContract) conc);
 						
 						//send reply
-						//TODO: use request template, because now there is a mix of performatives.
 						ACLMessage reply = msg.createReply();
 						String log = "";
 						switch (answer) 
@@ -163,9 +156,19 @@ public class AgAgency extends MetaAgent
 			}
 		}
 
-		private boolean signContractWithHotel(SignContract action) {
-			// TODO complete...
-			Date contractDate = getNextDay(getCurrentDate());
+		private boolean signContractWithHotel(SignContract intent) 
+		{
+			Contract newContract = new Contract(
+					intent.getHotel().getHotel_name(), 
+					today+1, 
+					intent.getContract().getChef_1stars(),
+					intent.getContract().getChef_2stars(),
+					intent.getContract().getChef_2stars(),
+					intent.getContract().getRecepcionist_experienced(),
+					intent.getContract().getRecepcionist_novice(),
+					intent.getContract().getRoom_service_staff());
+			contractDAO.createContract(newContract );
+			
 			return true;
 		}
 
@@ -186,5 +189,4 @@ public class AgAgency extends MetaAgent
 		}
 
 	}
-
 }

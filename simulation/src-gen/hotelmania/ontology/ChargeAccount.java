@@ -1,20 +1,18 @@
 package hotelmania.ontology;
 
 
-import jade.content.AgentAction;
+import jade.content.*;
+import jade.util.leap.*;
+import jade.core.*;
 
 /**
 * Protege name: ChargeAccount
 * @author ontology bean generator
-* @version 2014/04/23, 10:59:43
+* @version 2014/05/2, 15:37:03
 */
 public class ChargeAccount implements AgentAction {
 
    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 7119722549930410293L;
-/**
 * Protege name: money
    */
    private float money;

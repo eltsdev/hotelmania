@@ -3,11 +3,9 @@ package hotelmania.group2.platform;
 import hotelmania.ontology.BookRoom;
 import hotelmania.ontology.Booking;
 import hotelmania.ontology.Hotel;
-import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.MakeDeposit;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;
-import hotelmania.ontology.SharedAgentsOntology;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
@@ -15,14 +13,15 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 
 public class AgClient extends MetaAgent {
-
+	
 	private static final long serialVersionUID = 6748170421157254696L;
 
-	// -------------------------------------------------
-	// Agent Attributes
-	// -------------------------------------------------
 
-	private String name;
+	//------------------------------------------------- 
+	// Agent Attributes
+	//-------------------------------------------------
+	protected static final boolean registerForDayEvents = true;
+
 	private AID agHotelMania;
 	private AID agHotel;
 	private AID agBank;
@@ -32,20 +31,28 @@ public class AgClient extends MetaAgent {
 	// -------------------------------------------------
 	// Setup
 	// -------------------------------------------------
-
+	
 	@Override
 	protected void setup() {
 		super.setup();
+		
+		
+		// LocateHotelMania
+		agHotelMania = locateAgent(Constants.RATEHOTEL_ACTION, this);
+		// Locate the Bank
+		agBank = locateAgent(Constants.MAKEDEPOSIT_ACTION, this);
 
+		
 		// Behaviors
 
 		// TODO subscribe day event
 
 		addBehaviour(new RequestBookingInHotelBehavior(this));
 		addBehaviour(new ConsultHotelInfoBehavior(this));
-
+		
 		// TODO refuse offer
 	}
+
 
 	public void receivedAcceptance(ACLMessage message) {
 		System.out.println("hola");
@@ -58,6 +65,19 @@ public class AgClient extends MetaAgent {
 	public void receivedNotUnderstood(ACLMessage message) {
 
 	}
+
+
+
+	/**
+	 * This means: I AM interested on this event.
+	 */
+	@Override
+	protected boolean setRegisterForDayEvents() {
+		return true;
+	}
+	
+	@Override
+	protected void doOnNewDay() {}
 
 
 	// --------------------------------------------------------
@@ -74,6 +94,9 @@ public class AgClient extends MetaAgent {
 		}
 
 		public void action() {
+			if (AgClient.this.bookingDone) {
+				myAgent.doDelete(); // TODO TEST
+			}
 			// LocateHotel
 			agHotel = locateAgent(Constants.BOOKROOM_ACTION, myAgent);
 			if (agHotel != null) {// hotel found
@@ -81,17 +104,11 @@ public class AgClient extends MetaAgent {
 				bookRoom(agHotel);
 			}
 
-			// LocateHotelMania
-			agHotelMania = locateAgent(Constants.RATEHOTEL_ACTION, myAgent);
-
-			if (agHotelMania != null) {// hotel found
+			if (agHotelMania != null && agHotel != null ) {// hotel found
 				// TODO verify is working or not
 				rateHotel(agHotelMania);
 			}
 			// TODO request hotel info
-
-			// Locate the Bank
-			agBank = locateAgent(Constants.MAKEDEPOSIT_ACTION, myAgent);
 
 			if (agBank != null) {// hotel found
 				// TODO verify is working or not
@@ -100,7 +117,7 @@ public class AgClient extends MetaAgent {
 
 			//TODO: FIX
 			// If no message arrives
-			//			block();
+//			block();
 		}
 
 		private void bookRoom(AID hotel) {

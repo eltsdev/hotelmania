@@ -13,13 +13,15 @@ public class Constants {
 	public static final String REGISTRATION_PROTOCOL = "Registration";
 	public static final String CREATEACCOUNT_PROTOCOL = "CREATEACCOUNT";
 	public static final String CHARGEACCOUNT_PROTOCOL = "CHARGEACCOUNT";
+	public static final String SIGNCONTRACT_PROTOCOL = "SIGNCONTRACT";
+	public static final String SUBSCRIBETODAYEVENT_PROTOCOL = "SUBSCRIBETODAYEVENT";	
 	
 
 	// Request Actions
 	public static final String BOOKROOM_ACTION = "BOOKROOM";
 	public static final String RATEHOTEL_ACTION = "RATEHOTEL";
 	public static final String MAKEDEPOSIT_ACTION = "MAKEDEPOSIT";
-	public static final String SIGNCONTRACT_ACTION = "SIGNCONTRACT_REQUEST";
+	public static final String SIGNCONTRACT_ACTION = "SIGNCONTRACT";
 	public static final String REGISTRATION_ACTION = "Registration";
 	public static final String CREATEACCOUNT_ACTION = "CREATEACCOUNT";
 	public static final String CHARGEACCOUNT_ACTION = "CHARGEACCOUNT";
@@ -31,10 +33,14 @@ public class Constants {
 	public static final String CONSULTACCOUNTSTATUS_ACTION = "CONSULTACCOUNTSTATUS";
 	
 	// Subscribe Actions
+	public static final String SUBSCRIBETODAYEVENT_ACTION = "SUBSCRIBETODAYEVENT";
 	
 	// constants
 	public static final int VALID_REQ = 0;
 	public static final int REJECT_REQ = -1;
 	public static final int NOT_UNDERSTOOD_REQ = 1;
 	
+	public static final int FIRST_DAY = 1;
+	public static final String NEW_DAY_TOPIC = "newDay";
+	public static final int DAY_IN_SECONDS = 5*1000;
 }

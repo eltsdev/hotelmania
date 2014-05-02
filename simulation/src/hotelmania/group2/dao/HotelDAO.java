@@ -6,17 +6,23 @@ import java.util.ArrayList;
  * @author user
  */
 public class HotelDAO {
+	private static HotelDAO instance;
+	
 	private ArrayList<Hotel> listHotel;
 
-	public HotelDAO() {
+	private HotelDAO() {
 		listHotel = new ArrayList<Hotel>();
-
 	}
 
-	public ArrayList<Hotel> getListHotel() {
-		return listHotel;
-	}
+	public static HotelDAO getInstance() {
 
+		if (instance==null) {
+			instance = new HotelDAO();
+
+		}
+		return instance;
+	}
+	
 	/**
 	 * @param hotel_name
 	 * @return

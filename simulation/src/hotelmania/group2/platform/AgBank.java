@@ -1,51 +1,29 @@
 package hotelmania.group2.platform;
 
-import hotelmania.group2.dao.AccountDAO;
 import hotelmania.ontology.ChargeAccount;
 import hotelmania.ontology.CreateAccount;
 import hotelmania.ontology.MakeDeposit;
-import hotelmania.ontology.SharedAgentsOntology;
 import jade.content.Concept;
 import jade.content.ContentElement;
-import jade.content.lang.Codec;
 import jade.content.lang.Codec.CodecException;
-import jade.content.lang.sl.SLCodec;
-import jade.content.onto.Ontology;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
-import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
-import jade.domain.DFService;
-import jade.domain.FIPAException;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
 import java.util.ArrayList;
 
 public class AgBank extends MetaAgent {
+	
 	private static final long serialVersionUID = 2893904717857535232L;
 
-	private AccountDAO accountDao;
+	//------------------------------------------------- 
+	// Agent Attributes
+	//-------------------------------------------------
 
-	/*
-	 * Codec for the SL language used
-	 */
-	private Codec codec = new SLCodec();
-
-	/*
-	 * External communication protocol's ontology
-	 */
-	private Ontology ontology = SharedAgentsOntology.getInstance();
-
-	/*
-	 * Agent Attributes
-	 */
-
-	String name;
 	AID agHotel;
 	AID agAgency;
 	AID agReporter;
@@ -63,16 +41,7 @@ public class AgBank extends MetaAgent {
 	@Override
 	protected void setup() {
 		super.setup();
-
-		accountDao = new AccountDAO();
-		/*
-		 * List of Accounts
-		 */
 		listHotelAccount = new ArrayList<CreateAccount>();
-
-		/*
-		 * Creates its own description
-		 */
 		registerServices(Constants.CREATEACCOUNT_ACTION);
 
 		// Create hotel account
@@ -88,6 +57,17 @@ public class AgBank extends MetaAgent {
 		addBehaviour(new ProvideHotelAccountInfoBehavior(this));
 
 	}
+	
+	/**
+	 * This means: I am NOT interested on this event.
+	 */
+	@Override
+	protected boolean setRegisterForDayEvents() {
+		return false;
+	}
+
+	@Override
+	protected void doOnNewDay() {}
 
 	// --------------------------------------------------------
 	// BEHAVIOURS
@@ -210,7 +190,7 @@ public class AgBank extends MetaAgent {
 		 * @return
 		 */
 		private boolean registerNewAccount(CreateAccount account) {
-			return accountDao.registerNewAccount(account.getHotel()
+			return accountDAO.registerNewAccount(account.getHotel()
 					.getHotel_name(), account.getBalance());
 		}
 
@@ -349,13 +329,13 @@ public class AgBank extends MetaAgent {
 		 * @return
 		 */
 		private boolean chargeMoney(ChargeAccount money) {
-			return accountDao.chargeMoney(money.getHotel().getHotel_name(),
+			return accountDAO.chargeMoney(money.getHotel().getHotel_name(),
 					money.getMoney());
 		}
 
 	}
 
-	private final class MakeDepositBehavior extends MetaCyclicBehaviour {
+	private final class MakeDepositBehavior extends CyclicBehaviour {
 		private static final long serialVersionUID = 5591566038041266929L;
 		private static final int VALID_REQ = 0;
 		private static final int REJECT_REQ = -1;
@@ -410,13 +390,29 @@ public class AgBank extends MetaAgent {
 
 						// send reply
 						ACLMessage reply = msg.createReply();
-						//reply = treatReply(reply, this.log, answer);
-						reply.setPerformative(answer);
-						
+						String log = "";
+						switch (answer) {
+						case VALID_REQ:
+							reply.setPerformative(ACLMessage.AGREE);
+							log = "AGREE";
+							break;
+
+						case REJECT_REQ:
+							reply.setPerformative(ACLMessage.REFUSE);
+							log = "REFUSE";
+							break;
+
+						case NOT_UNDERSTOOD_REQ:
+						default:
+							reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+							log = "NOT_UNDERSTOOD";
+							break;
+						}
+
 						myAgent.send(reply);
 
 						System.out.println(myAgent.getLocalName()
-								+ ": answer sent -> " + this.log);
+								+ ": answer sent -> " + log);
 					}
 				}
 
@@ -453,7 +449,7 @@ public class AgBank extends MetaAgent {
 		 * @return
 		 */
 		private boolean registerNewDeposit(MakeDeposit deposit) {
-			return accountDao.registerNewDeposit(deposit.getHotel()
+			return accountDAO.registerNewDeposit(deposit.getHotel()
 					.getHotel_name(), deposit.getMoney());
 		}
 

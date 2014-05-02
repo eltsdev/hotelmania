@@ -8,5 +8,18 @@ package hotelmania.group2.dao;
  *
  */
 public class ClientDAO {
+	
+	private static ClientDAO instance; 
+	
+	private ClientDAO(){
+		
+	}
+
+	public static ClientDAO getInstance() {
+		if (instance==null) {
+			instance = new ClientDAO();
+		}
+		return instance;
+	}
 
 }

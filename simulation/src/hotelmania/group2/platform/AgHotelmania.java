@@ -1,39 +1,31 @@
 package hotelmania.group2.platform;
 
-import hotelmania.group2.dao.HotelDAO;
-import hotelmania.group2.dao.RateDAO;
 import hotelmania.ontology.Hotel;
-import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.RegistrationRequest;
-import hotelmania.ontology.SharedAgentsOntology;
 import jade.content.Concept;
 import jade.content.ContentElement;
-import jade.content.lang.Codec;
 import jade.content.lang.Codec.CodecException;
-import jade.content.lang.sl.SLCodec;
-import jade.content.onto.Ontology;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
-import jade.domain.DFService;
-import jade.domain.FIPAException;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-public class AgHotelmania extends MetaAgent {
+public class AgHotelmania extends MetaAgent 
+{
 	static final long serialVersionUID = -7762674314086577059L;
-	private HotelDAO hotelDAO;
-	private RateDAO rateDAO;
 
+	//------------------------------------------------- 
+	// Agent Attributes
+	//-------------------------------------------------
+	
+	protected static final boolean registerForDayEvents = false;
+
+	
 	@Override
 	protected void setup() {
 		super.setup();
-		hotelDAO = new HotelDAO();
-		rateDAO = new RateDAO();
 
 		//Register the services
 		String[] services = {Constants.REGISTRATION_ACTION,

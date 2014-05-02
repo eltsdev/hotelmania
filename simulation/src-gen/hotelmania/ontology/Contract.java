@@ -9,9 +9,20 @@ import jade.core.*;
    * Describes the total employees to be hired (or actually hired) of each staff category.
 * Protege name: Contract
 * @author ontology bean generator
-* @version 2014/04/23, 10:59:43
+* @version 2014/05/2, 15:37:02
 */
 public class Contract implements Concept {
+
+   /**
+* Protege name: chef_3stars
+   */
+   private int chef_3stars;
+   public void setChef_3stars(int value) { 
+    this.chef_3stars=value;
+   }
+   public int getChef_3stars() {
+     return this.chef_3stars;
+   }
 
    /**
 * Protege name: recepcionist_experienced
@@ -36,36 +47,25 @@ public class Contract implements Concept {
    }
 
    /**
-* Protege name: cooker_3stars
+* Protege name: chef_2stars
    */
-   private int cooker_3stars;
-   public void setCooker_3stars(int value) { 
-    this.cooker_3stars=value;
+   private int chef_2stars;
+   public void setChef_2stars(int value) { 
+    this.chef_2stars=value;
    }
-   public int getCooker_3stars() {
-     return this.cooker_3stars;
+   public int getChef_2stars() {
+     return this.chef_2stars;
    }
 
    /**
-* Protege name: cooker_2stars
+* Protege name: chef_1stars
    */
-   private int cooker_2stars;
-   public void setCooker_2stars(int value) { 
-    this.cooker_2stars=value;
+   private int chef_1stars;
+   public void setChef_1stars(int value) { 
+    this.chef_1stars=value;
    }
-   public int getCooker_2stars() {
-     return this.cooker_2stars;
-   }
-
-   /**
-* Protege name: cooker_1stars
-   */
-   private int cooker_1stars;
-   public void setCooker_1stars(int value) { 
-    this.cooker_1stars=value;
-   }
-   public int getCooker_1stars() {
-     return this.cooker_1stars;
+   public int getChef_1stars() {
+     return this.chef_1stars;
    }
 
    /**

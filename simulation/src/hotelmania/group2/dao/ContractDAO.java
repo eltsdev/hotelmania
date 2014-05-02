@@ -1,37 +1,40 @@
 package hotelmania.group2.dao;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-public class ContractDAO 
-{
-	List<Contract> contracts;
+public class ContractDAO {
+	
+	private static ContractDAO instance;
+	
+	private List<Contract> contracts;
 
-	public ContractDAO() 
-	{
+	private ContractDAO() {
 		this.contracts = new ArrayList<Contract>();
 	}
 	
-	public void createContract(Contract c)
-	{
+	public static ContractDAO getInstance() {
+		if (instance==null) {
+			instance = new ContractDAO();
+		}
+		return instance;
+	}
+
+	public void createContract(Contract c) {
 		contracts.add(c);
 	}
 
-	public List<Contract> getCurrentContractsByHotel(String hotelName) 
-	{
+	public List<Contract> getCurrentContractsByHotel(String hotelName, int day) {
 		List<Contract> result = new ArrayList<Contract>();
-		Date targetDate = new Date();
 		for (Contract c : contracts) {
-			if (c.getHotelName().equals(hotelName) && c.getDate().equals(targetDate)) {
+			if (c.getHotelName().equals(hotelName) && c.getDate() == day) {
 				result.add(c);
 			}
 		}
 		return result;
 	}
-	
-	public List<Contract> getAllContractsByHotel(String hotelName) 
-	{
+
+	public List<Contract> getAllContractsByHotel(String hotelName) {
 		List<Contract> result = new ArrayList<Contract>();
 		for (Contract c : contracts) {
 			if (c.getHotelName().equals(hotelName)) {
