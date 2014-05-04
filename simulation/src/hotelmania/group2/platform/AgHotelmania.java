@@ -212,14 +212,9 @@ public class AgHotelmania extends MetaAgent {
 					// If the action is Registration Request...
 					if (conc instanceof HotelsInfoRequest) {
 						// execute request
-						int answer = answerHotelsInfoRequest(msg,
-								(HotelsInfoRequest) conc);
-
 						// send reply
-						ACLMessage reply = msg.createReply();
-						reply.setPerformative(answer); 
-						//reply = this.treatReply(reply, this.log, answer);
-
+						ACLMessage reply = answerHotelsInfoRequest(msg, (HotelsInfoRequest) conc);
+						
 						myAgent.send(reply);
 
 						System.out.println(myAgent.getLocalName()
@@ -234,29 +229,17 @@ public class AgHotelmania extends MetaAgent {
 
 		}
 		
-		private int answerHotelsInfoRequest(ACLMessage msg,
+		private ACLMessage answerHotelsInfoRequest(ACLMessage msg,
 				HotelsInfoRequest registrationRequestData) {
-			System.out.println(myAgent.getLocalName()
-					+ ": received HotelsInfo Request from "
-					+ (msg.getSender()).getLocalName());
+			System.out.println(myAgent.getLocalName() + ": received HotelsInfo Request from " + (msg.getSender()).getLocalName());
+			ACLMessage reply = msg.createReply();
 			if (hotelDAO.getListHotel() != null) {
-				return ACLMessage.AGREE;
+				reply.setPerformative(ACLMessage.AGREE); 
+				//TODO attach the hotels info!!!
 			} else {
-				return ACLMessage.REFUSE;
+				reply.setPerformative(ACLMessage.REFUSE); 
 			}
-			/*
-
-			if (registrationRequestData != null
-					&& registrationRequestData.getHotel() != null) {
-				if (registerNewHotel(registrationRequestData.getHotel())) {
-					return VALID_REQ;
-				} else {
-					return REJECT_REQ;
-				}
-			} else {
-				return NOT_UNDERSTOOD_REQ;
-
-			}*/
+			return reply;
 		}
 	}
 

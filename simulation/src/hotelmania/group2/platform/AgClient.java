@@ -41,7 +41,7 @@ public class AgClient extends MetaAgent {
 
 		// TODO subscribe day event
 
-		//addBehaviour(new RequestBookingInHotelBehavior(this));
+		addBehaviour(new RequestBookingInHotelBehavior(this));
 		addBehaviour(new ConsultHotelInfoBehavior(this));
 
 		// TODO refuse offer
