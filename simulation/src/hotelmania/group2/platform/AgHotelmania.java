@@ -3,6 +3,7 @@ package hotelmania.group2.platform;
 import hotelmania.group2.dao.HotelDAO;
 import hotelmania.group2.dao.RateDAO;
 import hotelmania.ontology.Hotel;
+import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.RegistrationRequest;
 import hotelmania.ontology.SharedAgentsOntology;
@@ -33,9 +34,11 @@ public class AgHotelmania extends MetaAgent {
 		super.setup();
 		hotelDAO = new HotelDAO();
 		rateDAO = new RateDAO();
-		
+
 		//Register the services
-		String[] services = {Constants.REGISTRATION_ACTION,Constants.RATEHOTEL_ACTION};
+		String[] services = {Constants.REGISTRATION_ACTION,
+				Constants.RATEHOTEL_ACTION,
+				Constants.CONSULTHOTELSINFO_ACTION};
 		this.registerServices(services);
 
 		//add the behaviours
@@ -181,13 +184,77 @@ public class AgHotelmania extends MetaAgent {
 
 		public ProvideHotelInfoBehavior(AgHotelmania agHotelmania) {
 			super(agHotelmania);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
 		public void action() {
-			// TODO provide Hotel Information
+			System.out.println("Ejecutando action de ProvideHotelInfoBehavior");
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.CONSULTHOTELSINFO_PROTOCOL)),
+					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
 
+			// If no message arrives
+			if (msg == null) {
+				block();
+				return;
+			} else {
+				System.out.println("there is a client requesting hotels info");
+			}
+			 //The ContentManager transforms the message content (string) in
+
+			try {
+				ContentElement ce = getContentManager().extractContent(msg);
+
+				// We expect an action inside the message
+				if (ce instanceof Action) {
+					Action agAction = (Action) ce;
+					Concept conc = agAction.getAction();
+
+					// If the action is Registration Request...
+					if (conc instanceof HotelsInfoRequest) {
+						// execute request
+						int answer = answerHotelsInfoRequest(msg,
+								(HotelsInfoRequest) conc);
+
+						// send reply
+						ACLMessage reply = msg.createReply();
+						reply = this.treatReply(reply, this.log, answer);
+
+						myAgent.send(reply);
+
+						System.out.println(myAgent.getLocalName()
+								+ ": answer sent -> " + this.log);
+					}
+				}
+
+			} catch (CodecException | OntologyException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+		
+		private int answerHotelsInfoRequest(ACLMessage msg,
+				HotelsInfoRequest registrationRequestData) {
+			System.out.println(myAgent.getLocalName()
+					+ ": received Registration Request from "
+					+ (msg.getSender()).getLocalName());
+			return 0;
+			/*
+
+			if (registrationRequestData != null
+					&& registrationRequestData.getHotel() != null) {
+				if (registerNewHotel(registrationRequestData.getHotel())) {
+					return VALID_REQ;
+				} else {
+					return REJECT_REQ;
+				}
+			} else {
+				return NOT_UNDERSTOOD_REQ;
+
+			}*/
 		}
 	}
 

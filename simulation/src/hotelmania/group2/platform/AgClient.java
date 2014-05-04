@@ -3,6 +3,7 @@ package hotelmania.group2.platform;
 import hotelmania.ontology.BookRoom;
 import hotelmania.ontology.Booking;
 import hotelmania.ontology.Hotel;
+import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.MakeDeposit;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;
@@ -157,7 +158,7 @@ public class AgClient extends MetaAgent {
 
 	private final class ConsultHotelInfoBehavior extends SimpleBehaviour {
 		private static final long serialVersionUID = 1L;
-
+		private boolean couldFindHotelMania = false;
 		private ConsultHotelInfoBehavior(Agent a) {
 			super(a);
 		}
@@ -167,17 +168,23 @@ public class AgClient extends MetaAgent {
 			AID hotelmania = locateAgent(Constants.CONSULTHOTELSINFO_ACTION, myAgent);
 			if (hotelmania != null) {// hotel found
 				this.consultHotelInfo(hotelmania);
+				this.couldFindHotelMania = true;
+			} else {
+				System.out.println(getLocalName() + " couldn't locate hotelmania in behaviour ConsultHotelInfoBehavior");
 			}
 		}
 
 		private void consultHotelInfo(AID hotelmania) {
-			sendRequest(this.getAgent(), hotelmania, null, codec, ontology,Constants.CONSULTHOTELSINFO_PROTOCOL,ACLMessage.QUERY_REF);
+			System.out.println(getLocalName() + ": REQUESTING INFORMATION ABOUT HOTELS TO HOTELMANIA");
+			HotelsInfoRequest request = new HotelsInfoRequest();
+			
+			sendRequest(this.getAgent(), hotelmania, request, codec, ontology,Constants.CONSULTHOTELSINFO_PROTOCOL,ACLMessage.QUERY_REF);
 			System.out.println(getLocalName() + ": REQUESTS INFORMATION ABOUT HOTELS TO HOTELMANIA");
 		}
 
 		@Override
 		public boolean done() {
-			return false;
+			return this.couldFindHotelMania;
 		}
 
 	}
