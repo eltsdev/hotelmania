@@ -13,6 +13,10 @@ public class HotelDAO {
 
 	}
 
+	public ArrayList<Hotel> getListHotel() {
+		return listHotel;
+	}
+
 	/**
 	 * @param hotel_name
 	 * @return

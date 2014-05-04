@@ -107,8 +107,8 @@ public class AgHotelmania extends MetaAgent {
 
 						// send reply
 						ACLMessage reply = msg.createReply();
-						String log = "";
-						reply = this.treatReply(reply, this.log, answer);
+						reply.setPerformative(answer);
+						//reply = this.treatReply(reply, this.log, answer);
 
 						myAgent.send(reply);
 
@@ -140,12 +140,12 @@ public class AgHotelmania extends MetaAgent {
 			if (registrationRequestData != null
 					&& registrationRequestData.getHotel() != null) {
 				if (registerNewHotel(registrationRequestData.getHotel())) {
-					return VALID_REQ;
+					return ACLMessage.AGREE;
 				} else {
-					return REJECT_REQ;
+					return ACLMessage.REFUSE;
 				}
 			} else {
-				return NOT_UNDERSTOOD_REQ;
+				return ACLMessage.NOT_UNDERSTOOD;
 
 			}
 		}
@@ -188,7 +188,6 @@ public class AgHotelmania extends MetaAgent {
 
 		@Override
 		public void action() {
-			System.out.println("Ejecutando action de ProvideHotelInfoBehavior");
 			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 					MessageTemplate.MatchLanguage(codec.getName()),
 					MessageTemplate.MatchOntology(ontology.getName())),
@@ -199,9 +198,7 @@ public class AgHotelmania extends MetaAgent {
 			if (msg == null) {
 				block();
 				return;
-			} else {
-				System.out.println("there is a client requesting hotels info");
-			}
+			} 
 			 //The ContentManager transforms the message content (string) in
 
 			try {
@@ -220,7 +217,8 @@ public class AgHotelmania extends MetaAgent {
 
 						// send reply
 						ACLMessage reply = msg.createReply();
-						reply = this.treatReply(reply, this.log, answer);
+						reply.setPerformative(answer); 
+						//reply = this.treatReply(reply, this.log, answer);
 
 						myAgent.send(reply);
 
@@ -239,9 +237,13 @@ public class AgHotelmania extends MetaAgent {
 		private int answerHotelsInfoRequest(ACLMessage msg,
 				HotelsInfoRequest registrationRequestData) {
 			System.out.println(myAgent.getLocalName()
-					+ ": received Registration Request from "
+					+ ": received HotelsInfo Request from "
 					+ (msg.getSender()).getLocalName());
-			return 0;
+			if (hotelDAO.getListHotel() != null) {
+				return ACLMessage.AGREE;
+			} else {
+				return ACLMessage.REFUSE;
+			}
 			/*
 
 			if (registrationRequestData != null
@@ -318,8 +320,9 @@ public class AgHotelmania extends MetaAgent {
 
 						// send reply
 						ACLMessage reply = msg.createReply();
-						String log = "";
-						reply= this.treatReply(reply, this.log, answer);
+						reply.setPerformative(answer);
+						//String log = "";
+						//reply= this.treatReply(reply, this.log, answer);
 
 						myAgent.send(reply);
 
@@ -347,12 +350,12 @@ public class AgHotelmania extends MetaAgent {
 
 			if (ratingData != null && ratingData.getHotel() != null) {
 				if (registerNewRating(ratingData)) {
-					return VALID_REQ;
+					return ACLMessage.AGREE;
 				} else {
-					return REJECT_REQ;
+					return ACLMessage.REFUSE;
 				}
 			} else {
-				return NOT_UNDERSTOOD_REQ;
+				return ACLMessage.NOT_UNDERSTOOD;
 
 			}
 		}

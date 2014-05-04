@@ -10,11 +10,13 @@ import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 
 public class MetaAgent extends Agent {
 
@@ -36,6 +38,10 @@ public class MetaAgent extends Agent {
 		// Register codec and ontology in ContentManager
 		getContentManager().registerLanguage(this.codec);
 		getContentManager().registerOntology(this.ontology);
+		
+		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
+		addBehaviour(new ReceiveRejectionMsgBehavior(this));
+		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
 	}
  
 	
@@ -108,6 +114,96 @@ public class MetaAgent extends Agent {
 			// TODO handle
 			e.printStackTrace();
 		}
+	}
+	
+	private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour {
+		private static final long serialVersionUID = -4878774871721189228L;
+
+		private ReceiveAcceptanceMsgBehavior(Agent a) {
+			super(a);
+		}
+
+		public void action() {
+			// Waits for acceptance messages
+			ACLMessage msg = receive(MessageTemplate
+					.MatchPerformative(ACLMessage.AGREE));
+
+			if (msg != null) {
+				// If an acceptance arrives...
+				String request = "*Request*" ;
+				System.out.println(myAgent.getLocalName()
+						+ ": received "+request +" acceptance from "
+						+ (msg.getSender()).getLocalName());
+				receivedAcceptance(msg);
+			} else {
+				// If no message arrives
+				block();
+			}
+
+		}
+	}
+
+	private final class ReceiveRejectionMsgBehavior extends CyclicBehaviour {
+		private static final long serialVersionUID = 1L;
+
+		private ReceiveRejectionMsgBehavior(Agent a) {
+			super(a);
+		}
+
+		public void action() {
+			// Waits for rejection message
+			ACLMessage msg = receive(MessageTemplate
+					.MatchPerformative(ACLMessage.REFUSE));
+
+			if (msg != null) {
+				// If a rejection arrives...
+				System.out.println(myAgent.getLocalName()
+						+ ": received work rejection from "
+						+ (msg.getSender()).getLocalName());
+				receivedReject(msg);
+			} else {
+				// If no message arrives
+				block();
+			}
+
+		}
+	}
+
+	private final class ReceiveNotUnderstoodMsgBehavior extends CyclicBehaviour {
+		private static final long serialVersionUID = 1L;
+
+		private ReceiveNotUnderstoodMsgBehavior(Agent a) {
+			super(a);
+		}
+
+		public void action() {
+			// Waits for estimations not understood
+			ACLMessage msg = receive(MessageTemplate
+					.MatchPerformative(ACLMessage.NOT_UNDERSTOOD));
+			if (msg != null) {
+				// If a not understood message arrives...
+				System.out.println(myAgent.getLocalName()
+						+ ": received NOT_UNDERSTOOD from "
+						+ (msg.getSender()).getLocalName());
+				receivedNotUnderstood(msg);
+			} else {
+				// If no message arrives
+				block();
+			}
+
+		}
+	}
+	
+	public void receivedAcceptance(ACLMessage message) {
+		
+	}
+	
+	public void receivedReject(ACLMessage message) {
+		
+	}
+	
+	public void receivedNotUnderstood(ACLMessage message) {
+		
 	}
 	
 	

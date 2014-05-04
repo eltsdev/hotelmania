@@ -1,9 +1,7 @@
 package hotelmania.group2.platform;
 
-import hotelmania.ontology.MakeDeposit;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
-import jade.lang.acl.ACLMessage;
 
 public class MetaCyclicBehaviour extends CyclicBehaviour {
 	private static final long serialVersionUID = 1L;
@@ -14,7 +12,7 @@ public class MetaCyclicBehaviour extends CyclicBehaviour {
 		super(a);
 	}
 
-	public ACLMessage treatReply (ACLMessage reply, String log, int answer) {
+	/*public ACLMessage treatReply (ACLMessage reply, String log, int answer) {
 		switch (answer) {
 		case Constants.VALID_REQ:
 			reply.setPerformative(ACLMessage.AGREE); 
@@ -33,7 +31,7 @@ public class MetaCyclicBehaviour extends CyclicBehaviour {
 			break;
 		}
 		return reply;
-	}
+	}*/
 
 	
 		

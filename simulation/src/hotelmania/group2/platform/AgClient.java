@@ -15,7 +15,7 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 
 public class AgClient extends MetaAgent {
-	
+
 	private static final long serialVersionUID = 6748170421157254696L;
 
 	// -------------------------------------------------
@@ -32,30 +32,43 @@ public class AgClient extends MetaAgent {
 	// -------------------------------------------------
 	// Setup
 	// -------------------------------------------------
-	
+
 	@Override
 	protected void setup() {
 		super.setup();
-		
+
 		// Behaviors
 
 		// TODO subscribe day event
 
-		addBehaviour(new RequestBookingInHotelBehavior(this));
+		//addBehaviour(new RequestBookingInHotelBehavior(this));
 		addBehaviour(new ConsultHotelInfoBehavior(this));
-		
+
 		// TODO refuse offer
 	}
+
+	public void receivedAcceptance(ACLMessage message) {
+		System.out.println("hola");
+	}
+
+	public void receivedReject(ACLMessage message) {
+
+	}
+
+	public void receivedNotUnderstood(ACLMessage message) {
+
+	}
+
 
 	// --------------------------------------------------------
 	// Behaviors
 	// --------------------------------------------------------
 
 	private final class RequestBookingInHotelBehavior extends CyclicBehaviour {
-		
+
 		private static final long serialVersionUID = -1417563883440156372L;
 		private int messageType;
-		
+
 		private RequestBookingInHotelBehavior(Agent a) {
 			super(a);
 		}
@@ -87,7 +100,7 @@ public class AgClient extends MetaAgent {
 
 			//TODO: FIX
 			// If no message arrives
-//			block();
+			//			block();
 		}
 
 		private void bookRoom(AID hotel) {
@@ -146,7 +159,7 @@ public class AgClient extends MetaAgent {
 			action_deposit.setHotel(hotel);
 			action_deposit.setMoney(2000);
 			messageType = ACLMessage.REQUEST;
-			
+
 			// TODO AGREGAR PROTOCOLO
 			sendRequest(this.getAgent(), bank, action_deposit,
 					codec, ontology,Constants.MAKEDEPOSIT_PROTOCOL,messageType);
@@ -177,7 +190,7 @@ public class AgClient extends MetaAgent {
 		private void consultHotelInfo(AID hotelmania) {
 			System.out.println(getLocalName() + ": REQUESTING INFORMATION ABOUT HOTELS TO HOTELMANIA");
 			HotelsInfoRequest request = new HotelsInfoRequest();
-			
+
 			sendRequest(this.getAgent(), hotelmania, request, codec, ontology,Constants.CONSULTHOTELSINFO_PROTOCOL,ACLMessage.QUERY_REF);
 			System.out.println(getLocalName() + ": REQUESTS INFORMATION ABOUT HOTELS TO HOTELMANIA");
 		}

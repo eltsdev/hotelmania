@@ -410,8 +410,9 @@ public class AgBank extends MetaAgent {
 
 						// send reply
 						ACLMessage reply = msg.createReply();
-						reply = treatReply(reply, this.log, answer);
-
+						//reply = treatReply(reply, this.log, answer);
+						reply.setPerformative(answer);
+						
 						myAgent.send(reply);
 
 						System.out.println(myAgent.getLocalName()
@@ -437,12 +438,12 @@ public class AgBank extends MetaAgent {
 
 			if (deposit != null && deposit.getHotel() != null) {
 				if (registerNewDeposit(deposit)) {
-					return VALID_REQ;
+					return ACLMessage.AGREE;
 				} else {
-					return REJECT_REQ;
+					return ACLMessage.REFUSE;
 				}
 			} else {
-				return NOT_UNDERSTOOD_REQ;
+				return ACLMessage.NOT_UNDERSTOOD;
 
 			}
 		}
