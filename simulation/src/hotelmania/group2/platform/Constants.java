@@ -38,9 +38,10 @@ public class Constants {
 	public static final String SUBSCRIBETODAYEVENT_ACTION = "SUBSCRIBETODAYEVENT";
 	
 	// constants
-	public static final int VALID_REQ = 0;
-	public static final int REJECT_REQ = -1;
-	public static final int NOT_UNDERSTOOD_REQ = 1;
+	public static final String AGREE = "AGREE";
+	public static final String REFUSE = "REFUSE";
+	public static final String NOT_UNDERSTOOD = "NOT_UNDERSTOOD";
+	
 	
 	public static final int FIRST_DAY = 1;
 	public static final String NEW_DAY_TOPIC = "newDay";
