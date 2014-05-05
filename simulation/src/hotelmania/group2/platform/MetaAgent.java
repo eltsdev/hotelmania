@@ -7,6 +7,7 @@ import hotelmania.group2.dao.ContractDAO;
 import hotelmania.group2.dao.HotelDAO;
 import hotelmania.group2.dao.RateDAO;
 import hotelmania.ontology.DayEvent;
+import hotelmania.ontology.NotificationDayEvent;
 import hotelmania.ontology.SharedAgentsOntology;
 import jade.content.Concept;
 import jade.content.ContentElement;
@@ -112,12 +113,9 @@ public abstract class MetaAgent extends Agent {
 						
 					try {
 						//Update DAY variable
-						String strday = msg.getContent(); 
-						MetaAgent.this.day = Integer.parseInt(strday);
-						//TODO not using the ontology
 						
-//						ContentElement ce = getContentManager().extractContent(msg);
-						//MetaAgent.this.day = ((DayEvent)ce).getDay();
+						ContentElement ce = getContentManager().extractContent(msg);
+						MetaAgent.this.day = ((NotificationDayEvent)ce).getDayEvent().getDay();
 						
 						//LOG
 //						System.out.println("Agent "+myAgent.getLocalName()+": "+topic.getLocalName()+" = " + strday );

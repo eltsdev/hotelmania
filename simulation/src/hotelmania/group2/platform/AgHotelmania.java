@@ -1,6 +1,7 @@
 package hotelmania.group2.platform;
 
 import hotelmania.ontology.Hotel;
+import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.RegistrationRequest;
 import jade.content.Concept;
@@ -40,6 +41,18 @@ public class AgHotelmania extends MetaAgent
 
 		// TODO addBehaviour(new ReceiveHotelRatingBehavior(this));
 	}
+	
+	/**
+	 * This means: I am not interested on this event.
+	 */
+	@Override
+	protected boolean setRegisterForDayEvents() {
+		return false;
+	}
+
+	@Override
+	protected void doOnNewDay() {}
+
 
 	// --------------------------------------------------------
 	// BEHAVIOURS CLASSES

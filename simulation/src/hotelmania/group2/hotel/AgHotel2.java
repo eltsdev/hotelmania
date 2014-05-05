@@ -81,7 +81,6 @@ public class AgHotel2 extends MetaAgent
 		}
 		// Search agency agent
 		
-		System.out.println("hire again");
 		hireDailyStaffBehaviorAction();
 	}
 
@@ -456,7 +455,6 @@ public class AgHotel2 extends MetaAgent
 	 */
 	void hireDailyStaffBehaviorAction() {
 		// Ensure I can contact agency
-		System.out.println(agAgency );
 		if (agAgency == null) {
 			return;
 		}

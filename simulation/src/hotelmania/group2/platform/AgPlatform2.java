@@ -1,6 +1,7 @@
 package hotelmania.group2.platform;
 
 import hotelmania.ontology.DayEvent;
+import hotelmania.ontology.NotificationDayEvent;
 import jade.content.ContentElement;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
@@ -58,18 +59,18 @@ public class AgPlatform2 extends MetaAgent
 					msg.setProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL);
 					//Day number
 					int day = getTickCount();
+					NotificationDayEvent notificationDayEvent = new NotificationDayEvent();
 					DayEvent dayEvent = new DayEvent();
 					dayEvent.setDay(day);
-					msg.setContent(String.valueOf(day));  //TODO not using ontology!
-//					try {
-						//getContentManager().fillContent(msg, (ContentElement) dayEvent);
+					notificationDayEvent.setDayEvent(dayEvent);
+					
+					try {
+						getContentManager().fillContent(msg, notificationDayEvent);
 						myAgent.send(msg);
 						System.out.println("Agent "+myAgent.getLocalName()+": " + topic.getLocalName() +" = "+day);
-//					} catch (CodecException | OntologyException e) {
-//						e.printStackTrace();
-//					}
-					
-					
+					} catch (CodecException | OntologyException e) {
+						e.printStackTrace();
+					}
 				}
 			} );
 		}

@@ -110,13 +110,13 @@ public class AgAgency extends MetaAgent
 						switch (answer) 
 						{
 						case VALID_REQ:
-							reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
-							log = "ACCEPT_PROPOSAL";
+							reply.setPerformative(ACLMessage.AGREE);
+							log = "AGREE";
 							break;
 
 						case REJECT_REQ:
-							reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
-							log = "REJECT_PROPOSAL";
+							reply.setPerformative(ACLMessage.REFUSE);
+							log = "REFUSE";
 							break;
 
 						case NOT_UNDERSTOOD_REQ:

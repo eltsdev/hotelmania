@@ -3,6 +3,7 @@ package hotelmania.group2.platform;
 import hotelmania.ontology.BookRoom;
 import hotelmania.ontology.Booking;
 import hotelmania.ontology.Hotel;
+import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.MakeDeposit;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;

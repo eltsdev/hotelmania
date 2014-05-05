@@ -22,6 +22,11 @@ public class HotelDAO {
 		}
 		return instance;
 	}
+
+	public ArrayList<Hotel> getListHotel() {
+		return listHotel;
+	}
+
 	
 	/**
 	 * @param hotel_name
