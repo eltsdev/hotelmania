@@ -1,6 +1,7 @@
 package hotelmania.group2.hotel;
 import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.MetaAgent;
+import hotelmania.group2.platform.MetaCyclicBehaviour;
 import hotelmania.ontology.BookRoom;
 import hotelmania.ontology.Booking;
 import hotelmania.ontology.Contract;
@@ -21,8 +22,7 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-public class AgHotel2 extends MetaAgent 
-{
+public class AgHotel2 extends MetaAgent {
 	private static final long serialVersionUID = 2893904717857535232L;
 
 	//------------------------------------------------- 
@@ -224,7 +224,7 @@ public class AgHotel2 extends MetaAgent
 	 * @author user
 	 *
 	 */
-	private final class MakeRoomBookingBehavior extends CyclicBehaviour {
+	private final class MakeRoomBookingBehavior extends MetaCyclicBehaviour {
 
 		/**
 		 * 
@@ -276,28 +276,8 @@ public class AgHotel2 extends MetaAgent
 					// If the action is BookRoom...
 					if (conc instanceof BookRoom) {
 						// execute request
-						int answer = answerBookingRequest(msg, (BookRoom) conc);
-
-						// send reply
-						ACLMessage reply = msg.createReply();
-						String log = "";
-						switch (answer) {
-						case VALID_REQ:
-							reply.setPerformative(ACLMessage.AGREE);
-							log = "AGREE";
-							break;
-
-						case REJECT_REQ:
-							reply.setPerformative(ACLMessage.REFUSE);
-							log = "REFUSE";
-							break;
-
-						case NOT_UNDERSTOOD_REQ:
-						default:
-							reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-							log = "NOT_UNDERSTOOD";
-							break;
-						}
+						ACLMessage reply = answerBookingRequest(msg,
+								(BookRoom) conc);
 
 						myAgent.send(reply);
 
@@ -318,22 +298,29 @@ public class AgHotel2 extends MetaAgent
 		 * @param conc
 		 * @return
 		 */
-		private int answerBookingRequest(ACLMessage msg, BookRoom bookData) {
+		private ACLMessage answerBookingRequest(ACLMessage msg,
+				BookRoom bookData) {
 			System.out.println(myAgent.getLocalName()
 					+ ": received Registration Request from "
 					+ (msg.getSender()).getLocalName());
+			// send reply
+			ACLMessage reply = msg.createReply();
 
 			if (bookData != null) {
 				if (bookRoom(bookData.getBooking())) {
-					return VALID_REQ;
+					reply.setPerformative(ACLMessage.AGREE);
+					this.log = Constants.AGREE;
 				} else {
-					return REJECT_REQ;
+					reply.setPerformative(ACLMessage.REFUSE);
+					this.log = Constants.REFUSE;
 				}
 			} else {
-				return NOT_UNDERSTOOD_REQ;
-
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				this.log = Constants.NOT_UNDERSTOOD;
 			}
-		}
+
+			return reply;
+			}
 
 		/**
 		 * 
@@ -407,24 +394,12 @@ public class AgHotel2 extends MetaAgent
 			hotel.setHotel_name(name);
 			action_account.setHotel(hotel);
 			action_account.setBalance(1000000);
+			sendRequest(this.getAgent(), agBank, action_account, codec,
+					ontology, Constants.CREATEACCOUNT_PROTOCOL,
+					ACLMessage.REQUEST);
+			System.out.println(getLocalName() + ": REQUESTS CREATION ACCOUNT");
 	
-			// As it is an action and the encoding language the SL,
-			// it must be wrapped into an Action
-			Action agAction = new Action(agBank, action_account);
-			try {
-				// The ContentManager transforms the java objects into strings
-				getContentManager().fillContent(msg, agAction);
-				send(msg);
-				System.out.println(getLocalName()
-						+ ": REQUESTS CREATION ACCOUNT");
-				
-				done  = true;
-			} catch (CodecException ce) {
-				ce.printStackTrace();
-			} catch (OntologyException oe) {
-				oe.printStackTrace();
 			}
-		}
 	
 		@Override
 		public boolean done() {
@@ -479,7 +454,8 @@ public class AgHotel2 extends MetaAgent
 			// The ContentManager transforms the java objects into strings
 			getContentManager().fillContent(msg, agAction);
 			send(msg);
-			System.out.println(getLocalName() + ": REQUESTS "+ request.getClass().getSimpleName());
+			System.out.println(getLocalName() + ": REQUESTS "
+					+ request.getClass().getSimpleName());
 		} catch (CodecException ce) {
 			ce.printStackTrace();
 		} catch (OntologyException oe) {
@@ -489,10 +465,11 @@ public class AgHotel2 extends MetaAgent
 
 	/**
 	 * This is invoked on a NewDay event.
-	 * @param date of the contract
+	 * 
+	 * @param date
+	 *            of the contract
 	 */
-	Contract hireDailyStaff(int day) 
-	{
+	Contract hireDailyStaff(int day) {
 		Contract contract;
 		if (day == Constants.FIRST_DAY) {
 			contract = getInitialContract();

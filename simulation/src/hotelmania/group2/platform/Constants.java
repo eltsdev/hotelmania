@@ -45,5 +45,5 @@ public class Constants {
 	
 	public static final int FIRST_DAY = 1;
 	public static final String NEW_DAY_TOPIC = "newDay";
-	public static int DAY_IN_SECONDS = 5*1000;
+	public static int DAY_IN_SECONDS = 15*1000;
 }
