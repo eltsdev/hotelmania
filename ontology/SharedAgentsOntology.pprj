@@ -1,4 +1,4 @@
-; Fri May 02 15:37:04 CEST 2014
+; Mon May 05 12:27:38 CEST 2014
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -29,6 +29,9 @@
 	(label "Instances")
 	(property_list [ProjectKB_7094_00037])
 	(widget_class_name "edu.stanford.smi.protege.widget.InstancesTab"))
+
+([KB_667064_Class3] of  Map
+)
 
 ([KB_883944_Instance_0] of  Property_List
 
@@ -406,9 +409,6 @@
 	(x 0)
 	(y 120))
 
-([KB_961117_Class3] of  Map
-)
-
 ([PAL_FORM_WIDGET] of  Widget
 
 	(height 476)
@@ -426,8 +426,8 @@
 	(customized_instance_widgets
 		[SimpleJADEAbstractOntology_ProjectKB_00109]
 		[SimpleJADEAbstractOntology_ProjectKB_00503]
-		[SimpleJADEAbstractOntology_ProjectKB_00104]
 		[STANDARD_SLOT_FORM_WIDGET]
+		[SimpleJADEAbstractOntology_ProjectKB_00104]
 		[PAL_FORM_WIDGET]
 		[SimpleJADEAbstractOntology_ProjectKB_00303]
 		[STANDARD_CLASS_FORM_WIDGET])
@@ -614,13 +614,13 @@
 
 ([SharedAgentsOntology_ProjectKB_Class10004] of  String
 
-	(name ":PAL-CONSTRAINT")
-	(string_value "%3APAL-NAME"))
+	(name ":META-CLASS")
+	(string_value "%3ANAME"))
 
 ([SharedAgentsOntology_ProjectKB_Class10005] of  String
 
-	(name ":META-CLASS")
-	(string_value "%3ANAME"))
+	(name ":PAL-CONSTRAINT")
+	(string_value "%3APAL-NAME"))
 
 ([SharedAgentsOntology_ProjectKB_Class10006] of  Map_Entry
 

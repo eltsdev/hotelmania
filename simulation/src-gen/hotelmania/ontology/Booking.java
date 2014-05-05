@@ -8,7 +8,7 @@ import jade.core.*;
 /**
 * Protege name: Booking
 * @author ontology bean generator
-* @version 2014/05/2, 15:37:03
+* @version 2014/05/5, 12:27:35
 */
 public class Booking implements Concept {
 
