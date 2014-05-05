@@ -56,7 +56,7 @@ public class AgClient extends MetaAgent {
 
 
 	public void receivedAcceptance(ACLMessage message) {
-		System.out.println("hola");
+
 	}
 
 	public void receivedReject(ACLMessage message) {

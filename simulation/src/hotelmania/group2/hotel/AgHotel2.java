@@ -50,7 +50,7 @@ public class AgHotel2 extends MetaAgent
 		// Search bank agent
 		agBank = locateAgent(Constants.CREATEACCOUNT_ACTION, this);
 
-//		addBehaviour(new RegisterInHotelmaniaBehavior(this));
+		addBehaviour(new RegisterInHotelmaniaBehavior(this));
 //		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
 //		addBehaviour(new ReceiveRejectionMsgBehavior(this));
 //		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
