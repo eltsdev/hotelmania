@@ -1,5 +1,7 @@
 package hotelmania.group2.platform;
 
+import jade.lang.acl.ACLMessage;
+
 public class Constants {
 	
 	// Protocols
