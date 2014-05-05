@@ -2,7 +2,6 @@ package hotelmania.group2.platform;
 
 import hotelmania.ontology.DayEvent;
 import hotelmania.ontology.NotificationDayEvent;
-import jade.content.ContentElement;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.core.AID;
@@ -16,6 +15,11 @@ import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
 public class AgPlatform2 extends MetaAgent
 {
 	private static final long serialVersionUID = -4208905954219155107L;
@@ -28,6 +32,22 @@ public class AgPlatform2 extends MetaAgent
 	protected void setup() 
 	{
 		super.setup();
+		
+		
+		// create and load default properties
+		Properties defaultProps = new Properties();
+		FileInputStream in;
+		try {
+			in = new FileInputStream("resources/settings.properties");
+			defaultProps.load(in);
+			Constants.DAY_IN_SECONDS = Integer.parseInt(defaultProps.getProperty("day.length","5"))*1000;
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		// Behaviors
 //		addBehaviour(new SetTimeSpeedBehavior(this));
