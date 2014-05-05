@@ -100,6 +100,8 @@ public class AgHotel2 extends MetaAgent {
 		public void action() {
 			// Register hotel
 			if (agHotelmania==null) {
+				// Search hotelmania agent
+				agHotelmania = locateAgent(Constants.REGISTRATION_ACTION, myAgent);
 				block();
 				return;
 			}

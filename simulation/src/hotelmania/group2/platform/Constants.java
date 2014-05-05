@@ -15,15 +15,15 @@ public class Constants {
 	public static final String REGISTRATION_PROTOCOL = "Registration";
 	public static final String CREATEACCOUNT_PROTOCOL = "CREATEACCOUNT";
 	public static final String CHARGEACCOUNT_PROTOCOL = "CHARGEACCOUNT";
-	public static final String SIGNCONTRACT_PROTOCOL = "SIGNCONTRACT";
-	public static final String SUBSCRIBETODAYEVENT_PROTOCOL = "SUBSCRIBETODAYEVENT";	
+	public static final String SIGNCONTRACT_PROTOCOL = "SignContract";
+	public static final String SUBSCRIBETODAYEVENT_PROTOCOL = "SubscribeToDayEvent";	
 	
 
 	// Request Actions
 	public static final String BOOKROOM_ACTION = "BOOKROOM";
 	public static final String RATEHOTEL_ACTION = "RATEHOTEL";
 	public static final String MAKEDEPOSIT_ACTION = "MAKEDEPOSIT";
-	public static final String SIGNCONTRACT_ACTION = "SIGNCONTRACT";
+	public static final String SIGNCONTRACT_ACTION = "SignContract";
 	public static final String REGISTRATION_ACTION = "Registration";
 	public static final String CREATEACCOUNT_ACTION = "CREATEACCOUNT";
 	public static final String CHARGEACCOUNT_ACTION = "CHARGEACCOUNT";
@@ -35,7 +35,7 @@ public class Constants {
 	public static final String CONSULTACCOUNTSTATUS_ACTION = "CONSULTACCOUNTSTATUS";
 	
 	// Subscribe Actions
-	public static final String SUBSCRIBETODAYEVENT_ACTION = "SUBSCRIBETODAYEVENT";
+	public static final String SUBSCRIBETODAYEVENT_ACTION = "SubscribeToDayEvent";
 	
 	// constants
 	public static final String AGREE = "AGREE";
