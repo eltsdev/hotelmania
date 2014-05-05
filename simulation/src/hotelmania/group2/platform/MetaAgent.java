@@ -59,6 +59,10 @@ public abstract class MetaAgent extends Agent {
 	@Override
 	protected void setup() {
 		super.setup();
+		
+		// Generate hotel name
+		name = 	getLocalName();
+		
 		System.out.println(getLocalName() + ": HAS ENTERED");
 		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
 		addBehaviour(new ReceiveRejectionMsgBehavior(this));

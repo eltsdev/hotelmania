@@ -38,9 +38,6 @@ public class AgHotel2 extends MetaAgent
 	protected void setup() {
 		super.setup();
 		
-		// Generate hotel name
-		name = 	"Hotel2";
-		
 		// Search agency agent
 		agAgency = locateAgent(Constants.SIGNCONTRACT_ACTION, this);
 		
