@@ -3,6 +3,7 @@ package hotelmania.group2.platform;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.lang.acl.ACLMessage;
 
 public class AgReporter extends MetaAgent
 {
@@ -80,6 +81,24 @@ public class AgReporter extends MetaAgent
 			// If no message arrives
 			block();
 		}
+	}
+
+	@Override
+	public void receivedAcceptance(ACLMessage message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void receivedReject(ACLMessage message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void receivedNotUnderstood(ACLMessage message) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

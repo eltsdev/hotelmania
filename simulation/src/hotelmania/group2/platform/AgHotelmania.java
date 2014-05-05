@@ -16,7 +16,7 @@ import jade.lang.acl.MessageTemplate;
 public class AgHotelmania extends MetaAgent 
 {
 	static final long serialVersionUID = -7762674314086577059L;
-
+	
 	//------------------------------------------------- 
 	// Agent Attributes
 	//-------------------------------------------------
@@ -361,5 +361,23 @@ public class AgHotelmania extends MetaAgent
 					.getPrice_rating(), ratingData.getRatings()
 					.getRoom_staff_rating());
 		}
+	}
+
+	@Override
+	public void receivedAcceptance(ACLMessage message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void receivedReject(ACLMessage message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void receivedNotUnderstood(ACLMessage message) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -530,4 +530,22 @@ public class AgHotel2 extends MetaAgent
 		return c ;
 	}
 
+	@Override
+	public void receivedAcceptance(ACLMessage message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void receivedReject(ACLMessage message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void receivedNotUnderstood(ACLMessage message) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

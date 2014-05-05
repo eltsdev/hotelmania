@@ -60,7 +60,10 @@ public abstract class MetaAgent extends Agent {
 	protected void setup() {
 		super.setup();
 		System.out.println(getLocalName() + ": HAS ENTERED");
-		
+		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
+		addBehaviour(new ReceiveRejectionMsgBehavior(this));
+		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
+	
 		// Get services instances
 		bookDao = BookingDAO.getInstance();
 		contractDAO = ContractDAO.getInstance();
@@ -289,17 +292,11 @@ public abstract class MetaAgent extends Agent {
 		}
 	}
 	
-	public void receivedAcceptance(ACLMessage message) {
-		
-	}
+	public abstract void receivedAcceptance(ACLMessage message);
 	
-	public void receivedReject(ACLMessage message) {
-		
-	}
+	public abstract void receivedReject(ACLMessage message);
 	
-	public void receivedNotUnderstood(ACLMessage message) {
-		
-	}
+	public  abstract void receivedNotUnderstood(ACLMessage message);
 	
 	
 
