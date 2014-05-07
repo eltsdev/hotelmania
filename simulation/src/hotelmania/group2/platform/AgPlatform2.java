@@ -35,17 +35,20 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.HashSet;
+import java.util.Set;
 
 public class AgPlatform2 extends MetaAgent
 {
 	private static final long serialVersionUID = -4208905954219155107L;
 	private MessageTemplate subscriptionTemplate;
 	private SubscriptionResponder subscriptionResponder;
+	private Set<Subscription> suscripciones = new HashSet<Subscription>();
 
 	//------------------------------------------------- 
 	// Setup
 	//-------------------------------------------------
-	
+
 	@Override
 	protected void setup() 
 	{
@@ -54,39 +57,72 @@ public class AgPlatform2 extends MetaAgent
 		registerServices(Constants.SUBSCRIBETODAYEVENT_ACTION); //TODO + set time behavior?
 
 		// Behaviors
-		
+
 		//addBehaviour(new SetTimeSpeedBehavior(this));
 		addBehaviour(new GeneratePlatformAgentsBehavior(this));
 		//addBehaviour(new GenerateClientsBehavior(this));
 		//addBehaviour(new CreateDayEventsBehavior(this, mt ));
-//		timeBehavior();
+		//		timeBehavior();
 		
-		System.out.println("Agent "+getLocalName()+" waiting for requests...");
-		
+		System.out.println(getLocalName()+" waiting for requests...");
+
 		subscriptionTemplate = MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 				MessageTemplate.MatchLanguage(codec.getName()),
 				MessageTemplate.MatchOntology(ontology.getName())),
 				MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)),
 				MessageTemplate.or(MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE), MessageTemplate.MatchPerformative(ACLMessage.CANCEL)));
 		
+		SubscriptionManager gestor = new SubscriptionManager() {
+			 
+            public boolean register(Subscription subscription) {
+                suscripciones.add(subscription);
+                return true;
+            }
+ 
+            public boolean deregister(Subscription subscription) {
+                suscripciones.remove(subscription);
+                return true;
+            }
+        };
+		
+		subscriptionResponder = new HacerSuscripcion(this, subscriptionTemplate, gestor);
+		addBehaviour(subscriptionResponder);
 
-		subscriptionResponder = new SubscriptionResponder(this, subscriptionTemplate) {
+		doTick();
+	}
 
-			private static final long serialVersionUID = 1487262053281422988L;
-
-			protected ACLMessage handleSubscription(ACLMessage subscription) throws NotUnderstoodException ,RefuseException 
+	 private class HacerSuscripcion extends SubscriptionResponder {
+		 private static final long serialVersionUID = 1487262053281422988L;
+			private Subscription subscription;
+		 
+		 public HacerSuscripcion(Agent agent, MessageTemplate template, SubscriptionManager gestor) {
+	            super(agent, template, gestor);
+	        }
+		 
+		 protected ACLMessage handleSubscription(ACLMessage proposal) throws NotUnderstoodException ,RefuseException 
 			{
-				System.out.println(myAgent.getLocalName()+": subscription received from "+subscription.getSender().getLocalName());
-				
-				if (checkAction(subscription)) {
-					return super.handleSubscription(subscription);
-				}
-				else {
+				System.out.println(myAgent.getLocalName()+": subscription received from "+proposal.getSender().getLocalName());
+
+				if (checkAction(proposal)) {
+					//System.out.println("aaaa " + proposal.getOntology());
+					this.subscription = this.createSubscription(proposal);
+					try {
+						this.mySubscriptionManager.register(this.subscription);
+	                } catch (Exception e) {
+	                    System.out.println("error subscribing " + proposal.getSender().getLocalName() );
+	                }
+					ACLMessage agree = proposal.createReply();
+	                agree.setPerformative(ACLMessage.AGREE);
+	                return agree;
+				} else {
 					// We refuse to perform the action
-					System.out.println("Agent "+getLocalName()+": Refuse");
-					throw new RefuseException("check-failed");
+					//System.out.println("Agent "+getLocalName()+": Refuse");
+					//throw new RefuseException("check-failed");
+					ACLMessage refuse = proposal.createReply();
+	                refuse.setPerformative(ACLMessage.REFUSE);
+	                return refuse;
 				}
-				
+
 			}
 
 			private boolean checkAction(ACLMessage request) {
@@ -97,34 +133,30 @@ public class AgPlatform2 extends MetaAgent
 				// TODO verify other cases
 				return true;
 			}
-			
+
 			// If the CANCEL message has a meaningful content, use it. 
 			// Otherwise deregister the Subscription with the same convID (default)
 			protected ACLMessage handleCancel(ACLMessage cancel) throws FailureException {
 				try {
-					Action act = (Action) myAgent.getContentManager().extractContent(cancel);
-					ACLMessage subsMsg = (ACLMessage)act.getAction();
-					Subscription s = getSubscription(subsMsg);
-					if (s != null) {
-						mySubscriptionManager.deregister(s);
-						s.close();
-					}
-				}
-				catch(Exception e) {
-					super.handleCancel(cancel);
-				}
-				return null;
+					System.out.printf("%s: CANCEL subscription received from " +  cancel.getSender().getLocalName());
+	                //El SubscriptionManager elimina del registro la suscripcion
+	                this.mySubscriptionManager.deregister(this.subscription);
+	            } catch (Exception e) {
+					System.out.printf("%s: error removing subscription from " +  cancel.getSender().getLocalName());
+	            }
+	 
+	            //Acepta la cancelación y responde
+	            ACLMessage response = cancel.createReply();
+	            response.setPerformative(ACLMessage.INFORM);
+	            return response;
 			}
-		};
-		addBehaviour(subscriptionResponder);
-		
-		doTick();
-	}
-
-@Deprecated
+		 
+	 }
+	
+	@Deprecated
 	private void timeBehavior() 
 	{
-	
+
 		addBehaviour(new SubscriptionResponder(this, subscriptionTemplate) {
 			private static final long serialVersionUID = 7696805654686733174L;
 
@@ -138,9 +170,9 @@ public class AgPlatform2 extends MetaAgent
 					ACLMessage agree = subscription.createReply();
 					agree.setProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL);
 					agree.setPerformative(ACLMessage.AGREE);
-					
-//					createSubscription(agree).notify(notification);
-					
+
+					//					createSubscription(agree).notify(notification);
+
 					return agree;
 				}
 				else {
@@ -169,13 +201,13 @@ public class AgPlatform2 extends MetaAgent
 
 			public void onTick() 
 			{
-				
-//				ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
-//				//				msg.addReceiver(topic);
-//				inform.setLanguage(codec.getName());
-//				inform.setOntology(ontology.getName());
-//				inform.setProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL);
-				
+
+				//				ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
+				//				//				msg.addReceiver(topic);
+				//				inform.setLanguage(codec.getName());
+				//				inform.setOntology(ontology.getName());
+				//				inform.setProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL);
+
 
 				//Day number
 				int day = getTickCount();
@@ -184,31 +216,31 @@ public class AgPlatform2 extends MetaAgent
 				dayEvent.setDay(day);
 				notificationDayEvent.setDayEvent(dayEvent);
 
-				
-//				try {
-//					getContentManager().fillContent(inform, notificationDayEvent);
-//					myAgent.notify();
-//					System.out.println("Agent "+myAgent.getLocalName()+": day = "+day);
-//				} catch (CodecException | OntologyException e) {
-//					e.printStackTrace();
-//				}
+
+				//				try {
+				//					getContentManager().fillContent(inform, notificationDayEvent);
+				//					myAgent.notify();
+				//					System.out.println("Agent "+myAgent.getLocalName()+": day = "+day);
+				//				} catch (CodecException | OntologyException e) {
+				//					e.printStackTrace();
+				//				}
 				System.out.print("Sending to subscribers: ");
 				System.out.println(subscriptionResponder.getSubscriptions().size());
 				for(Object subscriptionObj : subscriptionResponder.getSubscriptions())
 				{
+					System.out.println("sending");
 					Subscription subscription = (Subscription) subscriptionObj;
-					System.out.println("sending to: "+ subscription.getMessage().getSender().getLocalName());
 					notify(subscription, notificationDayEvent);
 				}
-				
+
 			}
-			
+
 			private void notify(SubscriptionResponder.Subscription sub, NotificationDayEvent data) {
 				try {
 					ACLMessage notification = sub.getMessage().createReply();
 					notification.addUserDefinedParameter(ACLMessage.IGNORE_FAILURE, "true");
 					notification.setPerformative(ACLMessage.INFORM);
-					
+
 					getContentManager().fillContent(notification, data);
 					//pass to Subscription the message to send
 					sub.notify(notification);
@@ -241,8 +273,8 @@ public class AgPlatform2 extends MetaAgent
 			e.printStackTrace();
 		}
 	}
-	
-		
+
+
 	/**
 	 * Periodically send messages about topic "NEW_DAY"
 	 */
@@ -250,9 +282,9 @@ public class AgPlatform2 extends MetaAgent
 	private void createDayEventsBehavior() {
 		try {
 			TopicManagementHelper topicHelper = (TopicManagementHelper) getHelper(TopicManagementHelper.SERVICE_NAME);
-			
+
 			final AID topic = topicHelper.createTopic(Constants.NEW_DAY_TOPIC);
-			
+
 			addBehaviour(new TickerBehaviour(this, Constants.DAY_IN_SECONDS) 
 			{
 				private static final long serialVersionUID = 6616055369402031517L;
@@ -270,7 +302,7 @@ public class AgPlatform2 extends MetaAgent
 					DayEvent dayEvent = new DayEvent();
 					dayEvent.setDay(day);
 					notificationDayEvent.setDayEvent(dayEvent);
-					
+
 					try {
 						getContentManager().fillContent(msg, notificationDayEvent);
 						myAgent.send(msg);
@@ -290,7 +322,7 @@ public class AgPlatform2 extends MetaAgent
 	// --------------------------------------------------------
 	// Behaviors
 	// --------------------------------------------------------
-	
+
 	private final class SetTimeSpeedBehavior extends CyclicBehaviour 
 	{
 		private static final long serialVersionUID = -9078033789982364795L;
@@ -304,11 +336,11 @@ public class AgPlatform2 extends MetaAgent
 			block();
 		}
 	}
-	
+
 	private final class GeneratePlatformAgentsBehavior extends SimpleBehaviour 
 	{
 		private static final long serialVersionUID = -9078033789982364797L;
-		
+
 		boolean done;
 
 		private GeneratePlatformAgentsBehavior(Agent a) {
@@ -320,22 +352,22 @@ public class AgPlatform2 extends MetaAgent
 			try {
 				ContainerController cc = getContainerController();
 				AgentController ac = null;
-				
+
 				ac = cc.createNewAgent("reporter", "hotelmania.group2.platform.AgReporter", null);
 				ac.start();
-				
+
 				ac = cc.createNewAgent("hotelmania", "hotelmania.group2.platform.AgHotelmania", null);
 				ac.start();
-				
+
 				ac = cc.createNewAgent("agency", "hotelmania.group2.platform.AgAgency", null);
 				ac.start();
 
-//				ac = cc.createNewAgent("bank", "hotelmania.group2.platform.AgBank", null);
-//				ac.start();
+				//				ac = cc.createNewAgent("bank", "hotelmania.group2.platform.AgBank", null);
+				//				ac.start();
 			} catch (StaleProxyException e) {
 				e.printStackTrace();
-//				done = false;
-//				block();
+				//				done = false;
+				//				block();
 			}
 			done = true;
 		}
@@ -360,11 +392,11 @@ public class AgPlatform2 extends MetaAgent
 			block();
 		}
 	}
-	
+
 	//-----------------------------------------------------------------------
 	// Special-purpose methods - they can overlap with the agent's behaviors 
 	//-----------------------------------------------------------------------
-	
+
 	/**
 	 * Explicitly FALSE! To avoid race conditions never let it TRUE
 	 */
@@ -376,10 +408,10 @@ public class AgPlatform2 extends MetaAgent
 	@Override
 	protected void doOnNewDay() 
 	{
-		
+
 		//Generate Clients Behavior
 		//TODO Complete
-		
+
 		try {
 			ContainerController cc = getContainerController();
 			AgentController ac = null;
@@ -396,23 +428,23 @@ public class AgPlatform2 extends MetaAgent
 	@Override
 	public void receivedAcceptance(ACLMessage message) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
 	@Override
 	public void receivedReject(ACLMessage message) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
 	@Override
 	public void receivedNotUnderstood(ACLMessage message) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	final class CreateDayEventsBehavior extends SubscriptionResponder 
 	{
 		/**
@@ -423,7 +455,7 @@ public class AgPlatform2 extends MetaAgent
 		public CreateDayEventsBehavior(Agent agent, MessageTemplate mt) {
 			super(agent, mt);
 		}
-		
+
 
 	}
 }
