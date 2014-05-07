@@ -196,8 +196,8 @@ public class AgPlatform2 extends MetaAgent
 				System.out.println(subscriptionResponder.getSubscriptions().size());
 				for(Object subscriptionObj : subscriptionResponder.getSubscriptions())
 				{
-					System.out.println("sending");
 					Subscription subscription = (Subscription) subscriptionObj;
+					System.out.println("sending to: "+ subscription.getMessage().getSender().getLocalName());
 					notify(subscription, notificationDayEvent);
 				}
 				

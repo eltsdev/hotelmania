@@ -307,7 +307,7 @@ public abstract class MetaAgent extends Agent {
 		if (agSimulator == null) {
 			return;
 		}
-		System.out.println("subscription sent!");
+		System.out.println(this.getLocalName()+": subscription to day event sent!");
 
 		ACLMessage msg = new ACLMessage(ACLMessage.SUBSCRIBE);
 		msg.addReceiver(agSimulator);
