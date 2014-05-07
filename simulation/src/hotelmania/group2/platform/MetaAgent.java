@@ -144,8 +144,6 @@ public abstract class MetaAgent extends Agent {
 
 
 	protected void doOnNewDay() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	public AID locateAgent(String type, Agent myAgent) {
@@ -321,12 +319,13 @@ public abstract class MetaAgent extends Agent {
 			private static final long serialVersionUID = 1L;
 
 			protected void handleInform(ACLMessage inform) {
-				System.out.println("Agent " + inform.getSender().getName()
-						+ " successfully performed the requested action");
+				doOnNewDay();
+//				System.out.println("Agent " + inform.getSender().getLocalName()
+//						+ " successfully performed the requested action");
 			}
 
 			protected void handleRefuse(ACLMessage refuse) {
-				System.out.println("Agent " + refuse.getSender().getName()
+				System.out.println("Agent " + refuse.getSender().getLocalName()
 						+ " refused to perform the requested action");
 				// nResponders--;
 			}
@@ -338,7 +337,7 @@ public abstract class MetaAgent extends Agent {
 					// does not exist
 					System.out.println("Responder does not exist");
 				} else {
-					System.out.println("Agent " + failure.getSender().getName()
+					System.out.println("Agent " + failure.getSender().getLocalName()
 							+ " failed to perform the requested action");
 				}
 			}
