@@ -2,15 +2,31 @@ package hotelmania.group2.platform;
 
 import hotelmania.ontology.DayEvent;
 import hotelmania.ontology.NotificationDayEvent;
+import jade.content.abs.AbsIRE;
+import jade.content.abs.AbsPredicate;
 import jade.content.lang.Codec.CodecException;
+import jade.content.lang.sl.SLVocabulary;
 import jade.content.onto.OntologyException;
+import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.core.messaging.TopicManagementHelper;
+import jade.domain.FIPANames;
+import jade.domain.FIPAAgentManagement.FIPAManagementOntology;
+import jade.domain.FIPAAgentManagement.FailureException;
+import jade.domain.FIPAAgentManagement.NotUnderstoodException;
+import jade.domain.FIPAAgentManagement.RefuseException;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.proto.AchieveREResponder;
+import jade.proto.SubscriptionResponder;
+import jade.proto.SubscriptionResponder.Subscription;
+import jade.proto.SubscriptionResponder.SubscriptionManager;
+import jade.util.Logger;
+import jade.util.leap.List;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
@@ -23,6 +39,8 @@ import java.util.Properties;
 public class AgPlatform2 extends MetaAgent
 {
 	private static final long serialVersionUID = -4208905954219155107L;
+	private MessageTemplate subscriptionTemplate;
+	private SubscriptionResponder subscriptionResponder;
 
 	//------------------------------------------------- 
 	// Setup
@@ -32,8 +50,182 @@ public class AgPlatform2 extends MetaAgent
 	protected void setup() 
 	{
 		super.setup();
+		loadProperties();
+		registerServices(Constants.SUBSCRIBETODAYEVENT_ACTION); //TODO + set time behavior?
+
+		// Behaviors
 		
+		//addBehaviour(new SetTimeSpeedBehavior(this));
+		addBehaviour(new GeneratePlatformAgentsBehavior(this));
+		//addBehaviour(new GenerateClientsBehavior(this));
+		//addBehaviour(new CreateDayEventsBehavior(this, mt ));
+//		timeBehavior();
 		
+		System.out.println("Agent "+getLocalName()+" waiting for requests...");
+		
+		subscriptionTemplate = MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+				MessageTemplate.MatchLanguage(codec.getName()),
+				MessageTemplate.MatchOntology(ontology.getName())),
+				MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)),
+				MessageTemplate.or(MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE), MessageTemplate.MatchPerformative(ACLMessage.CANCEL)));
+		
+
+		subscriptionResponder = new SubscriptionResponder(this, subscriptionTemplate) {
+
+			private static final long serialVersionUID = 1487262053281422988L;
+
+			protected ACLMessage handleSubscription(ACLMessage subscription) throws NotUnderstoodException ,RefuseException 
+			{
+				System.out.println(myAgent.getLocalName()+": subscription received from "+subscription.getSender().getLocalName());
+				
+				if (checkAction(subscription)) {
+					return super.handleSubscription(subscription);
+				}
+				else {
+					// We refuse to perform the action
+					System.out.println("Agent "+getLocalName()+": Refuse");
+					throw new RefuseException("check-failed");
+				}
+				
+			}
+
+			private boolean checkAction(ACLMessage request) {
+				//Avoid self-subscriptions
+				if (request.getSender().equals(myAgent.getAID())) {
+					return false;
+				}
+				// TODO verify other cases
+				return true;
+			}
+			
+			// If the CANCEL message has a meaningful content, use it. 
+			// Otherwise deregister the Subscription with the same convID (default)
+			protected ACLMessage handleCancel(ACLMessage cancel) throws FailureException {
+				try {
+					Action act = (Action) myAgent.getContentManager().extractContent(cancel);
+					ACLMessage subsMsg = (ACLMessage)act.getAction();
+					Subscription s = getSubscription(subsMsg);
+					if (s != null) {
+						mySubscriptionManager.deregister(s);
+						s.close();
+					}
+				}
+				catch(Exception e) {
+					super.handleCancel(cancel);
+				}
+				return null;
+			}
+		};
+		addBehaviour(subscriptionResponder);
+		
+		doTick();
+	}
+
+@Deprecated
+	private void timeBehavior() 
+	{
+	
+		addBehaviour(new SubscriptionResponder(this, subscriptionTemplate) {
+			private static final long serialVersionUID = 7696805654686733174L;
+
+			protected ACLMessage handleSubscription(ACLMessage subscription) throws NotUnderstoodException ,RefuseException {
+				System.out.println("Agent "+getLocalName()+": REQUEST received from "+subscription.getSender().getName()+". Action is "+subscription.getContent());
+				if (checkAction(subscription)) {
+					// We agree to perform the action. Note that in the FIPA-Request
+					// protocol the AGREE message is optional. Return null if you
+					// don't want to send it.
+					System.out.println("Agent "+getLocalName()+": Agree");
+					ACLMessage agree = subscription.createReply();
+					agree.setProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL);
+					agree.setPerformative(ACLMessage.AGREE);
+					
+//					createSubscription(agree).notify(notification);
+					
+					return agree;
+				}
+				else {
+					// We refuse to perform the action
+					System.out.println("Agent "+getLocalName()+": Refuse");
+					throw new RefuseException("check-failed");
+				}
+			}
+
+			private boolean checkAction(ACLMessage request) {
+				//Avoid self-subscriptions
+				if (request.getSender().equals(myAgent.getAID())) {
+					return false;
+				}
+				// TODO verify other cases
+				return true;
+			}
+
+		} );
+	}
+
+	private void doTick() {
+		addBehaviour(new TickerBehaviour(this, Constants.DAY_IN_SECONDS) 
+		{
+			private static final long serialVersionUID = 6616055369402031518L;
+
+			public void onTick() 
+			{
+				
+//				ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
+//				//				msg.addReceiver(topic);
+//				inform.setLanguage(codec.getName());
+//				inform.setOntology(ontology.getName());
+//				inform.setProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL);
+				
+
+				//Day number
+				int day = getTickCount();
+				NotificationDayEvent notificationDayEvent = new NotificationDayEvent();
+				DayEvent dayEvent = new DayEvent();
+				dayEvent.setDay(day);
+				notificationDayEvent.setDayEvent(dayEvent);
+
+				
+//				try {
+//					getContentManager().fillContent(inform, notificationDayEvent);
+//					myAgent.notify();
+//					System.out.println("Agent "+myAgent.getLocalName()+": day = "+day);
+//				} catch (CodecException | OntologyException e) {
+//					e.printStackTrace();
+//				}
+				System.out.print("Sending to subscribers: ");
+				System.out.println(subscriptionResponder.getSubscriptions().size());
+				for(Object subscriptionObj : subscriptionResponder.getSubscriptions())
+				{
+					System.out.println("sending");
+					Subscription subscription = (Subscription) subscriptionObj;
+					notify(subscription, notificationDayEvent);
+				}
+				
+			}
+			
+			private void notify(SubscriptionResponder.Subscription sub, NotificationDayEvent data) {
+				try {
+					ACLMessage notification = sub.getMessage().createReply();
+					notification.addUserDefinedParameter(ACLMessage.IGNORE_FAILURE, "true");
+					notification.setPerformative(ACLMessage.INFORM);
+					
+					getContentManager().fillContent(notification, data);
+					//pass to Subscription the message to send
+					sub.notify(notification);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+					//FIXME: Check whether a FAILURE message should be sent back.       
+				}
+			}
+		} );
+	}
+
+	private boolean subscriptionActive() {
+		return day >= Constants.SIMULATION_DAYS; //TODO || cancelled ;
+	}
+
+	private void loadProperties() {
 		// create and load default properties
 		Properties defaultProps = new Properties();
 		FileInputStream in;
@@ -48,18 +240,13 @@ public class AgPlatform2 extends MetaAgent
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		// Behaviors
-//		addBehaviour(new SetTimeSpeedBehavior(this));
-		createDayEventsBehavior();
-		addBehaviour(new GeneratePlatformAgentsBehavior(this));
-		//addBehaviour(new GenerateClientsBehavior(this));
 	}
 	
 		
 	/**
 	 * Periodically send messages about topic "NEW_DAY"
 	 */
+	@Deprecated
 	private void createDayEventsBehavior() {
 		try {
 			TopicManagementHelper topicHelper = (TopicManagementHelper) getHelper(TopicManagementHelper.SERVICE_NAME);
@@ -224,5 +411,19 @@ public class AgPlatform2 extends MetaAgent
 	public void receivedNotUnderstood(ACLMessage message) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	final class CreateDayEventsBehavior extends SubscriptionResponder 
+	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -7739604235932591107L;
+
+		public CreateDayEventsBehavior(Agent agent, MessageTemplate mt) {
+			super(agent, mt);
+		}
+		
+
 	}
 }

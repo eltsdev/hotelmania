@@ -6,12 +6,10 @@ import hotelmania.group2.dao.ClientDAO;
 import hotelmania.group2.dao.ContractDAO;
 import hotelmania.group2.dao.HotelDAO;
 import hotelmania.group2.dao.RateDAO;
-import hotelmania.ontology.DayEvent;
 import hotelmania.ontology.NotificationDayEvent;
 import hotelmania.ontology.SharedAgentsOntology;
 import jade.content.Concept;
 import jade.content.ContentElement;
-import jade.content.abs.AbsConcept;
 import jade.content.lang.Codec;
 import jade.content.lang.Codec.CodecException;
 import jade.content.lang.sl.SLCodec;
@@ -20,8 +18,8 @@ import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.ServiceException;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.SimpleBehaviour;
 import jade.core.messaging.TopicManagementHelper;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
@@ -29,6 +27,7 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.proto.SubscriptionInitiator;
 
 public abstract class MetaAgent extends Agent {
 
@@ -82,17 +81,18 @@ public abstract class MetaAgent extends Agent {
 		
 		if(setRegisterForDayEvents())
 		{
-			subscribeToDayEvent();
+			addBehaviour(new LocateSimulatorBehavior());
 		}
+		
 	}
  
 	protected abstract boolean setRegisterForDayEvents();
-
 
 	/**
 	 * Subscribe to day change events (topic "newDay").
 	 * @author elts
 	 */
+	@Deprecated
 	private void subscribeToDayEvent() {
 		try {
 			TopicManagementHelper topicHelper = (TopicManagementHelper) getHelper(TopicManagementHelper.SERVICE_NAME);
@@ -127,7 +127,7 @@ public abstract class MetaAgent extends Agent {
 						//LOG
 //						System.out.println("Agent "+myAgent.getLocalName()+": "+topic.getLocalName()+" = " + strday );
 						
-						doOnNewDay();
+//						doOnNewDay();
 						
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -142,6 +142,11 @@ public abstract class MetaAgent extends Agent {
 		}
 	}
 
+
+	protected void doOnNewDay() {
+		// TODO Auto-generated method stub
+		
+	}
 
 	public AID locateAgent(String type, Agent myAgent) {
 		DFAgentDescription dfd = new DFAgentDescription();
@@ -168,8 +173,6 @@ public abstract class MetaAgent extends Agent {
 		return null;
 	}
 
-	protected abstract void doOnNewDay();
-	
 	//TODO fix the method params!
 	public void sendRequest(Agent sender, AID receiver, Concept concept,
 			Codec codec, Ontology ontology, String protocol, int messageType) {
@@ -301,7 +304,68 @@ public abstract class MetaAgent extends Agent {
 	public abstract void receivedReject(ACLMessage message);
 	
 	public  abstract void receivedNotUnderstood(ACLMessage message);
-	
+
+	private void addSubscriptionToDayEventBehavior(AID agSimulator) {
+		if (agSimulator == null) {
+			return;
+		}
+		System.out.println("subscription sent!");
+
+		ACLMessage msg = new ACLMessage(ACLMessage.SUBSCRIBE);
+		msg.addReceiver(agSimulator);
+		msg.setProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL);
+		msg.setLanguage(codec.getName());
+		msg.setOntology(ontology.getName());
+
+		addBehaviour(new SubscriptionInitiator(this, msg) {
+			private static final long serialVersionUID = 1L;
+
+			protected void handleInform(ACLMessage inform) {
+				System.out.println("Agent " + inform.getSender().getName()
+						+ " successfully performed the requested action");
+			}
+
+			protected void handleRefuse(ACLMessage refuse) {
+				System.out.println("Agent " + refuse.getSender().getName()
+						+ " refused to perform the requested action");
+				// nResponders--;
+			}
+
+			protected void handleFailure(ACLMessage failure) {
+				if (failure.getSender().equals(myAgent.getAMS())) {
+					// FAILURE notification from the JADE runtime: the
+					// receiver
+					// does not exist
+					System.out.println("Responder does not exist");
+				} else {
+					System.out.println("Agent " + failure.getSender().getName()
+							+ " failed to perform the requested action");
+				}
+			}
+
+		});
+	}
+
+	final class LocateSimulatorBehavior extends SimpleBehaviour {
+		private static final long serialVersionUID = 9034688687283651380L;
+		private AID agSimulator;
+
+		@Override
+		public void action() {
+			agSimulator = MetaAgent.this.locateAgent(
+					Constants.SUBSCRIBETODAYEVENT_ACTION, myAgent);
+			if (done()) {
+				MetaAgent.this.addSubscriptionToDayEventBehavior(agSimulator);
+			}
+		}
+
+		@Override
+		public boolean done() {
+			return (agSimulator != null);
+		}
+
+	}
+
 	
 
 }
