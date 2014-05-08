@@ -6,8 +6,10 @@ import hotelmania.group2.dao.ClientDAO;
 import hotelmania.group2.dao.ContractDAO;
 import hotelmania.group2.dao.HotelDAO;
 import hotelmania.group2.dao.RateDAO;
+import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.NotificationDayEvent;
 import hotelmania.ontology.SharedAgentsOntology;
+import hotelmania.ontology.SubscribeToDayEvent;
 import jade.content.Concept;
 import jade.content.ContentElement;
 import jade.content.lang.Codec;
@@ -314,6 +316,15 @@ public abstract class MetaAgent extends Agent {
 		msg.setProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL);
 		msg.setLanguage(codec.getName());
 		msg.setOntology(ontology.getName());
+		
+		SubscribeToDayEvent action = new SubscribeToDayEvent();
+		try {
+			this.getContentManager().fillContent(msg, action);
+		} catch (CodecException e) {
+			e.printStackTrace();
+		} catch (OntologyException e) {
+			e.printStackTrace();
+		}
 
 		addBehaviour(new SubscriptionInitiator(this, msg) {
 			private static final long serialVersionUID = 1L;

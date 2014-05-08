@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 public class AgPlatform2 extends MetaAgent
 {
@@ -104,11 +105,16 @@ public class AgPlatform2 extends MetaAgent
 				System.out.println(myAgent.getLocalName()+": subscription received from "+proposal.getSender().getLocalName());
 
 				if (checkAction(proposal)) {
-					//System.out.println("aaaa " + proposal.getOntology());
+					if (proposal.getConversationId() == null) {
+						String conversationId = String.valueOf(proposal.getSender().hashCode()) + UUID.randomUUID().toString();
+						proposal.setConversationId(conversationId);
+					}
+					System.out.println(proposal);
 					this.subscription = this.createSubscription(proposal);
 					try {
 						this.mySubscriptionManager.register(this.subscription);
 	                } catch (Exception e) {
+	                	e.printStackTrace();
 	                    System.out.println("error subscribing " + proposal.getSender().getLocalName() );
 	                }
 					ACLMessage agree = proposal.createReply();
