@@ -451,7 +451,7 @@ public class AgHotel2 extends MetaAgent {
 		
 		// As it is an action and the encoding language the SL,
 		// it must be wrapped into an Action
-		Action agAction = new Action(agHotelmania, request);
+		Action agAction = new Action(this.getAID(), request);
 		try {
 			// The ContentManager transforms the java objects into strings
 			getContentManager().fillContent(msg, agAction);

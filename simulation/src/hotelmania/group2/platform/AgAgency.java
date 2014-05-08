@@ -40,11 +40,11 @@ public class AgAgency extends MetaAgent
 	}
 
 	/**
-	 * This means: I AM interested on this event.
+	 * This means: I AM NOT interested on this event.
 	 */
 	@Override
 	protected boolean setRegisterForDayEvents() {
-		return true;
+		return false;
 	}
 	
 	@Override
