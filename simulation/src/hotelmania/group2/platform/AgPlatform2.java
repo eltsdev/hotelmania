@@ -82,7 +82,12 @@ public class AgPlatform2 extends MetaAgent
 			dayEvent.setDay(day);
 			notificationDayEvent.setDayEvent(dayEvent);
 			
-			System.out.println("Sending to  # subscribers: "+ subscriptionResponder.getSubscriptions().size());
+			System.out.println("*************************************************************");
+			System.out.println("Day = "+day);
+			System.out.println("*************************************************************");
+			
+			
+			System.out.println("Sending day notification to  # subscribers: "+ subscriptionResponder.getSubscriptions().size());
 			
 			for(Object subscriptionObj : subscriptionResponder.getSubscriptions())
 			{
@@ -341,14 +346,13 @@ public class AgPlatform2 extends MetaAgent
 
 	@Override
 	public void receivedReject(ACLMessage message) {
-		// TODO Auto-generated method stub
-
+		// TODO logs
 	}
 
 
 	@Override
 	public void receivedNotUnderstood(ACLMessage message) {
-		// TODO Auto-generated method stub
+//		TODO logs
 
 	}
 }

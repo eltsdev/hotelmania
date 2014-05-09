@@ -14,10 +14,7 @@ public class MetaSimpleBehaviour extends SimpleBehaviour {
 	}
 
 	@Override
-	public void action() {
-		// TODO Auto-generated method stub
-
-	}
+	public void action() { }
 
 	@Override
 	public boolean done() {

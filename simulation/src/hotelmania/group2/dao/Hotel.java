@@ -1,6 +1,3 @@
-/**
- * 
- */
 package hotelmania.group2.dao;
 
 /**

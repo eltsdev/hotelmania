@@ -5,21 +5,8 @@ import java.util.List;
 
 public class ContractDAO {
 	
-	private static ContractDAO instance;
+	private List<Contract> contracts = new ArrayList<Contract>();
 	
-	private List<Contract> contracts;
-
-	private ContractDAO() {
-		this.contracts = new ArrayList<Contract>();
-	}
-	
-	public static ContractDAO getInstance() {
-		if (instance==null) {
-			instance = new ContractDAO();
-		}
-		return instance;
-	}
-
 	public void createContract(Contract c) {
 		contracts.add(c);
 	}

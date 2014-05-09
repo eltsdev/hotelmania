@@ -1,27 +1,18 @@
-
 /**
  * 
  */
 package hotelmania.group2.dao;
-
 
 /**
  * @author user
  *
  */
 public class Account {
-	
 
-	
-	
 	private String hotel;
 	private float balance;
 
-	/**
-	 * 
-	 */
 	public Account() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -62,6 +53,5 @@ public class Account {
 	public void setBalance(float balance) {
 		this.balance = balance;
 	}
-
 
 }

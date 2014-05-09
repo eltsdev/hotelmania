@@ -1,31 +1,10 @@
-/**
- * 
- */
 package hotelmania.group2.dao;
 
 import java.util.ArrayList;
 
-/**
- * @author user
- *
- */
 public class AccountDAO {
 
-	private static AccountDAO instance;
-	
-	private ArrayList<Account> listAccount;
-
-	private AccountDAO() {
-		listAccount = new ArrayList<Account>();
-
-	}
-
-	public static AccountDAO getInstance() {
-		if (instance==null) {
-			instance = new AccountDAO();
-		}
-		return instance;
-	}
+	private ArrayList<Account> listAccount = new ArrayList<Account>();
 
 	/**
 	 * @param hotel_name

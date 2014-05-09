@@ -1,4 +1,5 @@
 package hotelmania.group2.hotel;
+import hotelmania.group2.dao.BookingDAO;
 import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.MetaAgent;
 import hotelmania.group2.platform.MetaCyclicBehaviour;
@@ -87,16 +88,18 @@ public class AgHotel2 extends MetaAgent {
 		private void registerHotel() {
 			RegistrationRequest register = new RegistrationRequest();
 			Hotel hotel = new Hotel();
-			hotel.setHotel_name(name);
+			hotel.setHotel_name(getLocalName());
 			register.setHotel(hotel);
 			
-			sendRequest(myAgent, agHotelmania, register, codec, ontology, Constants.REGISTRATION_PROTOCOL, ACLMessage.REQUEST);
+			sendRequest(agHotelmania, register, Constants.REGISTRATION_PROTOCOL, ACLMessage.REQUEST);
 		}
 	}
 
 	private final class MakeRoomBookingBehavior extends MetaCyclicBehaviour {
 
 		private static final long serialVersionUID = -390060690778340930L;
+		private BookingDAO bookDAO = new BookingDAO();
+		
 
 		public MakeRoomBookingBehavior(Agent a) {
 			super(a);
@@ -178,7 +181,7 @@ public class AgHotel2 extends MetaAgent {
 			}
 
 		private boolean bookRoom(Booking book) {
-			bookDao.booking(book.getDays(), book.getStartDay());
+			bookDAO.booking(book.getDays(), book.getStartDay());
 			return true;
 		}
 
@@ -223,13 +226,11 @@ public class AgHotel2 extends MetaAgent {
 		private void createHotelAccount() {
 			CreateAccount action_account = new CreateAccount();
 			Hotel hotel = new Hotel();
-			hotel.setHotel_name(name);
+			hotel.setHotel_name(getLocalName());
 			action_account.setHotel(hotel);
 			action_account.setBalance(1000000);
 
-			sendRequest(myAgent, agBank, action_account, codec,
-					ontology, Constants.CREATEACCOUNT_PROTOCOL,
-					ACLMessage.REQUEST);
+			sendRequest(agBank, action_account, Constants.CREATEACCOUNT_PROTOCOL, ACLMessage.REQUEST);
 
 			this.setDone(true);
 		}
@@ -246,11 +247,11 @@ public class AgHotel2 extends MetaAgent {
 		SignContract request = new SignContract();
 		
 		Hotel hotel = new Hotel();
-		hotel.setHotel_name(name);
+		hotel.setHotel_name(getLocalName());
 		request.setHotel(hotel);
-		request.setContract(hireDailyStaff(today+1));
+		request.setContract(hireDailyStaff(day+1));
 		
-		this.sendRequest(this, agAgency, request, codec, ontology, Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
+		this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
 		
 	}
 
@@ -320,7 +321,7 @@ public class AgHotel2 extends MetaAgent {
 
 		private void consultHotelInfo(AID hotelmania) {
 			HotelsInfoRequest request = new HotelsInfoRequest();
-			sendRequest(this.getAgent(), hotelmania, request, codec, ontology,Constants.CONSULTHOTELSINFO_PROTOCOL,ACLMessage.QUERY_REF);
+			sendRequest(hotelmania, request,Constants.CONSULTHOTELSINFO_PROTOCOL,ACLMessage.QUERY_REF);
 		}
 
 	}

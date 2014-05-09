@@ -1,6 +1,7 @@
 package hotelmania.group2.platform;
 
 import hotelmania.group2.dao.Contract;
+import hotelmania.group2.dao.ContractDAO;
 import hotelmania.ontology.SignContract;
 import jade.content.Concept;
 import jade.content.ContentElement;
@@ -52,6 +53,7 @@ public class AgAgency extends MetaAgent
 	private final class SignStaffContractWithHotelBehavior extends MetaCyclicBehaviour 
 	{
 		private static final long serialVersionUID = 7390814510706022198L;
+		private ContractDAO contractDAO = new ContractDAO();
 
 		public SignStaffContractWithHotelBehavior(Agent a) {
 			super(a);
@@ -132,14 +134,14 @@ public class AgAgency extends MetaAgent
 		{
 			Contract newContract = new Contract(
 					intent.getHotel().getHotel_name(), 
-					today+1, 
+					day+1, 
 					intent.getContract().getChef_1stars(),
 					intent.getContract().getChef_2stars(),
 					intent.getContract().getChef_2stars(),
 					intent.getContract().getRecepcionist_experienced(),
 					intent.getContract().getRecepcionist_novice(),
 					intent.getContract().getRoom_service_staff());
-			contractDAO.createContract(newContract );
+			contractDAO .createContract(newContract );
 			
 			return true;
 		}

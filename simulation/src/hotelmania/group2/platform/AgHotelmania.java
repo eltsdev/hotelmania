@@ -1,5 +1,7 @@
 package hotelmania.group2.platform;
 
+import hotelmania.group2.dao.HotelDAO;
+import hotelmania.group2.dao.RatingDAO;
 import hotelmania.ontology.Hotel;
 import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.RateHotel;
@@ -17,6 +19,8 @@ import jade.lang.acl.MessageTemplate;
 public class AgHotelmania extends MetaAgent 
 {
 	static final long serialVersionUID = -7762674314086577059L;
+	private HotelDAO hotelDAO = new HotelDAO();
+	private RatingDAO ratingDAO = new RatingDAO();
 	
 	@Override
 	protected void setup() {
@@ -139,7 +143,7 @@ public class AgHotelmania extends MetaAgent
 		}
 
 		private boolean registerNewHotel(Hotel hotel) {
-			return hotelDAO.registerNewHotel(hotel.getHotel_name());
+			return hotelDAO .registerNewHotel(hotel.getHotel_name());
 		}
 	}
 
@@ -310,7 +314,7 @@ public class AgHotelmania extends MetaAgent
 		 * @return
 		 */
 		private boolean registerNewRating(RateHotel ratingData) {
-			return rateDAO.registerNewRating(ratingData.getHotel()
+			return ratingDAO .registerNewRating(ratingData.getHotel()
 					.getHotel_name(), ratingData.getRatings()
 					.getCleanliness_rating(), ratingData.getRatings()
 					.getCookers_rating(), ratingData.getRatings()

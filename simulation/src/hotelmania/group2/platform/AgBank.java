@@ -1,5 +1,6 @@
 package hotelmania.group2.platform;
 
+import hotelmania.group2.dao.AccountDAO;
 import hotelmania.ontology.ChargeAccount;
 import hotelmania.ontology.CreateAccount;
 import hotelmania.ontology.MakeDeposit;
@@ -15,7 +16,9 @@ import jade.lang.acl.MessageTemplate;
 public class AgBank extends MetaAgent {
 	
 	private static final long serialVersionUID = 2893904717857535232L;
-
+	
+	private AccountDAO accountDAO = new AccountDAO();
+	
 	@Override
 	protected void setup() {
 		super.setup();
@@ -135,7 +138,7 @@ public class AgBank extends MetaAgent {
 		 * @return
 		 */
 		private boolean registerNewAccount(CreateAccount account) {
-			return accountDAO.registerNewAccount(account.getHotel()
+			return accountDAO .registerNewAccount(account.getHotel()
 					.getHotel_name(), account.getBalance());
 		}
 	}

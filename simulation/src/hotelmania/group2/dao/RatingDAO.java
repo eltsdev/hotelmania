@@ -1,31 +1,13 @@
-/**
- * 
- */
 package hotelmania.group2.dao;
 
 import java.util.ArrayList;
 
-import org.junit.runner.Computer;
+public class RatingDAO {
 
-/**
- * @author user
- *
- */
-public class RateDAO {
-
-	private static RateDAO instance;
-	
 	private ArrayList<Rating> rates;
 
-	private RateDAO() {
+	public RatingDAO() {
 		rates = new ArrayList<Rating>();
-	}
-
-	public static RateDAO getInstance() {
-		if (instance==null) {
-			instance = new RateDAO();
-		}
-		return instance;
 	}
 
 	/**
@@ -43,13 +25,9 @@ public class RateDAO {
 		return true;
 	}
 
-	/**
-	 * 
-	 */
 	private void computeRating() {
 		for (int i = 0; i < rates.size(); i++) {
 			//TODO could be using HashMap?
-			
 		}
 		
 	}

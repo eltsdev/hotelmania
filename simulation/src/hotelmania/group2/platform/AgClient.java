@@ -105,9 +105,7 @@ public class AgClient extends MetaAgent {
 			booking.setDays(10);
 			booking.setStartDay("10/04/2014");
 
-			sendRequest(this.getAgent(), hotel, action_booking,
-					codec, ontology, Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
-			System.out.println(getLocalName() + ": REQUESTS MAKE BOOKING");
+			sendRequest(hotel, action_booking, Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
 		}
 
 		/**
@@ -130,10 +128,7 @@ public class AgClient extends MetaAgent {
 			action_rating.setHotel(hotel);
 			action_rating.setRatings(rating);
 
-			sendRequest(this.getAgent(), hotelMania,
-					action_rating, codec, ontology, Constants.RATEHOTEL_PROTOCOL,ACLMessage.REQUEST);
-			System.out.println(getLocalName() + ": REQUESTS RATE HOTEL");
-
+			sendRequest(hotelMania, action_rating, Constants.RATEHOTEL_PROTOCOL,ACLMessage.REQUEST);
 		}
 
 		private void makeDeposit(AID bank) {
@@ -146,8 +141,7 @@ public class AgClient extends MetaAgent {
 			action_deposit.setHotel(hotel);
 			action_deposit.setMoney(2000);
 
-			sendRequest(this.getAgent(), bank, action_deposit,
-					codec, ontology,Constants.MAKEDEPOSIT_PROTOCOL,ACLMessage.REQUEST);
+			sendRequest(bank, action_deposit,Constants.MAKEDEPOSIT_PROTOCOL,ACLMessage.REQUEST);
 		}
 	}
 
@@ -172,8 +166,7 @@ public class AgClient extends MetaAgent {
 
 		private void consultHotelInfo(AID hotelmania) {
 			HotelsInfoRequest request = new HotelsInfoRequest();
-
-			sendRequest(myAgent, hotelmania, request, codec, ontology,Constants.CONSULTHOTELSINFO_PROTOCOL,ACLMessage.QUERY_REF);
+			sendRequest(hotelmania, request, Constants.CONSULTHOTELSINFO_PROTOCOL,ACLMessage.QUERY_REF);
 		}
 
 	}

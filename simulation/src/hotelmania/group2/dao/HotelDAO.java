@@ -2,31 +2,16 @@ package hotelmania.group2.dao;
 
 import java.util.ArrayList;
 
-/**
- * @author user
- */
 public class HotelDAO {
-	private static HotelDAO instance;
-	
 	private ArrayList<Hotel> listHotel;
 
-	private HotelDAO() {
+	public HotelDAO() {
 		listHotel = new ArrayList<Hotel>();
-	}
-
-	public static HotelDAO getInstance() {
-
-		if (instance==null) {
-			instance = new HotelDAO();
-
-		}
-		return instance;
 	}
 
 	public ArrayList<Hotel> getListHotel() {
 		return listHotel;
 	}
-
 	
 	/**
 	 * @param hotel_name
