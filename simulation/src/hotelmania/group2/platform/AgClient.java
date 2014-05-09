@@ -9,23 +9,12 @@ import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 
 public class AgClient extends MetaAgent {
 	
 	private static final long serialVersionUID = 6748170421157254696L;
 
-
-	//------------------------------------------------- 
-	// Agent Attributes
-	//-------------------------------------------------
-	protected static final boolean registerForDayEvents = true;
-
-	private AID agHotelMania;
-	private AID agHotel;
-	private AID agBank;
 	private boolean bookingDone;
 	private String actualHotel;
 
@@ -37,37 +26,12 @@ public class AgClient extends MetaAgent {
 	protected void setup() {
 		super.setup();
 		
-		
-		// LocateHotelMania
-		agHotelMania = locateAgent(Constants.RATEHOTEL_ACTION, this);
-		// Locate the Bank
-		agBank = locateAgent(Constants.MAKEDEPOSIT_ACTION, this);
-
-		
 		// Behaviors
-
-		// TODO subscribe day event
 
 		//addBehaviour(new RequestBookingInHotelBehavior(this));
 		addBehaviour(new ConsultHotelInfoBehavior(this));
-		
 		// TODO refuse offer
 	}
-
-
-	public void receivedAcceptance(ACLMessage message) {
-
-	}
-
-	public void receivedReject(ACLMessage message) {
-
-	}
-
-	public void receivedNotUnderstood(ACLMessage message) {
-
-	}
-
-
 
 	/**
 	 * This means: I AM interested on this event.
@@ -77,48 +41,59 @@ public class AgClient extends MetaAgent {
 		return true;
 	}
 	
+
 	@Override
-	protected void doOnNewDay() {}
+	protected void doOnNewDay() {
+		//TODO to implement...
+	}
 
 
 	// --------------------------------------------------------
 	// Behaviors
 	// --------------------------------------------------------
 
-	private final class RequestBookingInHotelBehavior extends CyclicBehaviour {
+	private final class RequestBookingInHotelBehavior extends MetaSimpleBehaviour {
 
 		private static final long serialVersionUID = -1417563883440156372L;
-		private int messageType;
+		private AID agHotel;
+		private AID agHotelMania;
+		private AID agBank;
+		
 
 		private RequestBookingInHotelBehavior(Agent a) {
 			super(a);
 		}
 
 		public void action() {
+			this.setDone(true);
+			
+			/* TODO implement:			
 			if (AgClient.this.bookingDone) {
-				myAgent.doDelete(); // TODO TEST
+				myAgent.doDelete(); // TODO Test if this works.
 			}
+			
 			// LocateHotel
-			agHotel = locateAgent(Constants.BOOKROOM_ACTION, myAgent);
-			if (agHotel != null) {// hotel found
-				// TODO verify is working or not
+			if (agHotel == null) {
+				agHotel = locateAgent(Constants.BOOKROOM_ACTION, myAgent);
+			}else {
 				bookRoom(agHotel);
+				this.setDone(true);
 			}
 
-			if (agHotelMania != null && agHotel != null ) {// hotel found
-				// TODO verify is working or not
+			if (agHotelMania == null) {
+				agHotelMania = locateAgent(Constants.REGISTRATION_ACTION, myAgent);
+			}else {
 				rateHotel(agHotelMania);
 			}
-			// TODO request hotel info
 
-			if (agBank != null) {// hotel found
-				// TODO verify is working or not
+			// TODO request hotel info
+			
+			if (agBank == null) {
+				agBank = locateAgent(Constants.REGISTRATION_ACTION, myAgent);
+			}else {
 				makeDeposit(agBank);
 			}
-
-			//TODO: FIX
-			// If no message arrives
-//			block();
+			 */			
 		}
 
 		private void bookRoom(AID hotel) {
@@ -130,7 +105,6 @@ public class AgClient extends MetaAgent {
 			booking.setDays(10);
 			booking.setStartDay("10/04/2014");
 
-			// TODO AGREGAR PROTOCOLO
 			sendRequest(this.getAgent(), hotel, action_booking,
 					codec, ontology, Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
 			System.out.println(getLocalName() + ": REQUESTS MAKE BOOKING");
@@ -156,18 +130,13 @@ public class AgClient extends MetaAgent {
 			action_rating.setHotel(hotel);
 			action_rating.setRatings(rating);
 
-			// TODO AGREGAR PROTOCOLO
 			sendRequest(this.getAgent(), hotelMania,
 					action_rating, codec, ontology, Constants.RATEHOTEL_PROTOCOL,ACLMessage.REQUEST);
 			System.out.println(getLocalName() + ": REQUESTS RATE HOTEL");
 
 		}
 
-		/**
-		 * @param agBank
-		 */
 		private void makeDeposit(AID bank) {
-
 			// Hotel
 			Hotel hotel = new Hotel();
 			hotel.setHotel_name(actualHotel);
@@ -176,48 +145,63 @@ public class AgClient extends MetaAgent {
 			MakeDeposit action_deposit = new MakeDeposit();
 			action_deposit.setHotel(hotel);
 			action_deposit.setMoney(2000);
-			messageType = ACLMessage.REQUEST;
 
-			// TODO AGREGAR PROTOCOLO
 			sendRequest(this.getAgent(), bank, action_deposit,
-					codec, ontology,Constants.MAKEDEPOSIT_PROTOCOL,messageType);
-			System.out.println(getLocalName()
-					+ ": REQUESTS PAY SERVICES TO HOTEL ACCOUNT " + messageType);
-
+					codec, ontology,Constants.MAKEDEPOSIT_PROTOCOL,ACLMessage.REQUEST);
 		}
 	}
 
-	private final class ConsultHotelInfoBehavior extends SimpleBehaviour {
+	private final class ConsultHotelInfoBehavior extends MetaSimpleBehaviour {
+
 		private static final long serialVersionUID = 1L;
-		private boolean couldFindHotelMania = false;
+		private AID hotelmania;
+		
 		private ConsultHotelInfoBehavior(Agent a) {
 			super(a);
 		}
 
 		@Override
 		public void action() {
-			AID hotelmania = locateAgent(Constants.CONSULTHOTELSINFO_ACTION, myAgent);
-			if (hotelmania != null) {// hotel found
-				this.consultHotelInfo(hotelmania);
-				this.couldFindHotelMania = true;
+			if (hotelmania == null) {
+				hotelmania = locateAgent(Constants.CONSULTHOTELSINFO_ACTION, myAgent);
 			} else {
-				System.out.println(getLocalName() + " couldn't locate hotelmania in behaviour ConsultHotelInfoBehavior");
+				this.consultHotelInfo(hotelmania);
+				this.setDone(true);
 			}
 		}
 
 		private void consultHotelInfo(AID hotelmania) {
-			System.out.println(getLocalName() + ": REQUESTING INFORMATION ABOUT HOTELS TO HOTELMANIA");
 			HotelsInfoRequest request = new HotelsInfoRequest();
 
-			sendRequest(this.getAgent(), hotelmania, request, codec, ontology,Constants.CONSULTHOTELSINFO_PROTOCOL,ACLMessage.QUERY_REF);
-			System.out.println(getLocalName() + ": REQUESTS INFORMATION ABOUT HOTELS TO HOTELMANIA");
+			sendRequest(myAgent, hotelmania, request, codec, ontology,Constants.CONSULTHOTELSINFO_PROTOCOL,ACLMessage.QUERY_REF);
 		}
 
-		@Override
-		public boolean done() {
-			return this.couldFindHotelMania;
-		}
+	}
 
+
+	@Override
+	public void receivedAcceptance(ACLMessage message) {
+		//TODO switch by message.getProtocol()
+	}
+
+	@Override
+	public void receivedReject(ACLMessage message) {
+		// TODO Auto-generated method stub
+		if (message.getProtocol().equals(Constants.BOOKROOM_PROTOCOL)) {
+			logRejectedMessage(Constants.BOOKROOM_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+			logRejectedMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
+		}
+	}
+
+	@Override
+	public void receivedNotUnderstood(ACLMessage message) {
+		// TODO Auto-generated method stub
+		if (message.getProtocol().equals(Constants.BOOKROOM_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.BOOKROOM_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
+		}	
 	}
 
 }

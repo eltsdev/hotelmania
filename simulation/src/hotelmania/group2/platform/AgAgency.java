@@ -9,7 +9,6 @@ import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
@@ -147,7 +146,7 @@ public class AgAgency extends MetaAgent
 
 	}
 
-	private final class ProvideHotelStaffInfoToClientBehavior extends CyclicBehaviour 
+	private final class ProvideHotelStaffInfoToClientBehavior extends MetaCyclicBehaviour 
 	{
 		private static final long serialVersionUID = -4414753731149819352L;
 

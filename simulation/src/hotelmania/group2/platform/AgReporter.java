@@ -2,23 +2,11 @@ package hotelmania.group2.platform;
 
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 
 public class AgReporter extends MetaAgent
 {
 	private static final long serialVersionUID = -4208905954219155107L;
-
-	//------------------------------------------------- 
-	// Agent Attributes
-	//-------------------------------------------------
-
-	AID agClient;
-	AID agHotel;
-	AID agSimulator;
-	AID agHotelmania;
-	AID agBank;
-	AID agAgency;
 
 	//------------------------------------------------- 
 	// Setup
@@ -27,14 +15,7 @@ public class AgReporter extends MetaAgent
 	@Override
 	protected void setup() 
 	{
-		System.out.println(getLocalName() + ": HAS ENTERED");
-
-		// Register codec and ontology in ContentManager
-		getContentManager().registerLanguage(codec);
-		getContentManager().registerOntology(ontology);
-
 		// Behaviors
-		
 		addBehaviour(new GenerateSimulationReportBehavior(this));
 		addBehaviour(new ObtainInformationFromAgentsBehavior(this));
 	}
@@ -48,14 +29,16 @@ public class AgReporter extends MetaAgent
 	}
 	
 	@Override
-	protected void doOnNewDay() {}
+	protected void doOnNewDay() {
+		//TODO blank.
+	}
 
 		
 	// --------------------------------------------------------
 	// Behaviors
 	// --------------------------------------------------------
 	
-	private final class GenerateSimulationReportBehavior extends CyclicBehaviour 
+	private final class GenerateSimulationReportBehavior extends MetaCyclicBehaviour 
 	{
 		private static final long serialVersionUID = 7520884931937975601L;
 
@@ -64,14 +47,23 @@ public class AgReporter extends MetaAgent
 		}
 
 		public void action() {
-			// If no message arrives
+			//TODO blank.
+			
+			//If no message arrives
 			block();
 		}
 	}
 
-	private final class ObtainInformationFromAgentsBehavior extends CyclicBehaviour 
+	private final class ObtainInformationFromAgentsBehavior extends MetaCyclicBehaviour 
 	{
 		private static final long serialVersionUID = -3157976627925663055L;
+
+		private AID agClient; //TODO many...
+		private AID agHotel; //TODO many...
+		private AID agSimulator;
+		private AID agHotelmania;
+		private AID agBank;
+		private AID agAgency;
 
 		private ObtainInformationFromAgentsBehavior(Agent a) {
 			super(a);

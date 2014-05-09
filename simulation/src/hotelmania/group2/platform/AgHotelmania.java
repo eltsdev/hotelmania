@@ -6,6 +6,7 @@ import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.RegistrationRequest;
 import jade.content.Concept;
 import jade.content.ContentElement;
+import jade.content.abs.AbsContentElement;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
@@ -22,17 +23,14 @@ public class AgHotelmania extends MetaAgent
 		super.setup();
 
 		//Register the services
-		String[] services = {Constants.REGISTRATION_ACTION,
+		this.registerServices(Constants.REGISTRATION_ACTION,
 				Constants.RATEHOTEL_ACTION,
-				Constants.CONSULTHOTELSINFO_ACTION};
-		this.registerServices(services);
+				Constants.CONSULTHOTELSINFO_ACTION);
 
 		//add the behaviours
 		addBehaviour(new ReceiveRegisterRequestBehavior(this));
-		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
 		addBehaviour(new ProvideHotelInfoBehavior(this));
-
-		// TODO addBehaviour(new ReceiveHotelRatingBehavior(this));
+		//TODO addBehaviour(new ReceiveHotelRatingBehavior(this));
 	}
 	
 	/**
@@ -42,10 +40,6 @@ public class AgHotelmania extends MetaAgent
 	protected boolean setRegisterForDayEvents() {
 		return false;
 	}
-
-	@Override
-	protected void doOnNewDay() {}
-
 
 	// --------------------------------------------------------
 	// BEHAVIOURS CLASSES
@@ -125,7 +119,9 @@ public class AgHotelmania extends MetaAgent
 			System.out.println(myAgent.getLocalName()
 					+ ": received Registration Request from "
 					+ (msg.getSender()).getLocalName());
+			
 			ACLMessage reply = msg.createReply();
+			
 			if (registrationRequestData != null
 					&& registrationRequestData.getHotel() != null) {
 				if (registerNewHotel(registrationRequestData.getHotel())) {
@@ -147,35 +143,11 @@ public class AgHotelmania extends MetaAgent
 		}
 	}
 
-	private final class ReceiveNotUnderstoodMsgBehavior extends MetaCyclicBehaviour {
-		private static final long serialVersionUID = 1L;
-
-		private ReceiveNotUnderstoodMsgBehavior(Agent a) {
-			super(a);
-		}
-
-		public void action() {
-			// Waits for estimations not understood
-			ACLMessage msg = receive(MessageTemplate
-					.MatchPerformative(ACLMessage.NOT_UNDERSTOOD));
-			if (msg != null) {
-				// If a not understood message arrives...
-				System.out.println(myAgent.getLocalName()
-						+ ": received NOT_UNDERSTOOD from "
-						+ (msg.getSender()).getLocalName());
-			} else {
-				// If no message arrives
-				block();
-			}
-
-		}
-	}
-
 	private final class ProvideHotelInfoBehavior extends MetaCyclicBehaviour {
 		private static final long serialVersionUID = 2449653047078980935L;
 
-		public ProvideHotelInfoBehavior(AgHotelmania agHotelmania) {
-			super(agHotelmania);
+		public ProvideHotelInfoBehavior(Agent a) {
+			super(a);
 		}
 
 		@Override
@@ -204,9 +176,8 @@ public class AgHotelmania extends MetaAgent
 					// If the action is Registration Request...
 					if (conc instanceof HotelsInfoRequest) {
 						// execute request
+						ACLMessage reply = answerHotelsInfoRequest(msg);
 						// send reply
-						ACLMessage reply = answerHotelsInfoRequest(msg, (HotelsInfoRequest) conc);
-						
 						myAgent.send(reply);
 
 						System.out.println(myAgent.getLocalName()
@@ -221,54 +192,54 @@ public class AgHotelmania extends MetaAgent
 
 		}
 		
-		private ACLMessage answerHotelsInfoRequest(ACLMessage msg, HotelsInfoRequest registrationRequestData) {
+		private ACLMessage answerHotelsInfoRequest(ACLMessage msg) {
+			
 			System.out.println(myAgent.getLocalName() + ": received HotelsInfo Request from " + (msg.getSender()).getLocalName());
 			ACLMessage reply = msg.createReply();
+			
 			if (hotelDAO.getListHotel() != null) {
 				this.log = Constants.AGREE;
 				reply.setPerformative(ACLMessage.AGREE);
-				
-				//TODO attach the hotels info!!!
+				AbsContentElement hotels = getAllHotels();
+				// The ContentManager transforms the java objects into strings
+				try {
+					myAgent.getContentManager().fillContent(msg, hotels);
+				} catch (CodecException | OntologyException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
 			} else {
 				this.log = Constants.REFUSE;
 				reply.setPerformative(ACLMessage.REFUSE); 
 			}
 			return reply;
 		}
+
+		private AbsContentElement getAllHotels() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
-	/**
-	 * @author user
-	 *
-	 */
 	private final class UpdateHotelRatingBehavior extends MetaCyclicBehaviour {
+
 		private static final long serialVersionUID = 7586132058023771627L;
 
-		private static final int VALID_REQ = 0;
-		private static final int REJECT_REQ = -1;
-		private static final int NOT_UNDERSTOOD_REQ = 1;
-
-		/**
-		 * @param agHotelmania
-		 */
-		public UpdateHotelRatingBehavior(AgHotelmania agHotelmania) {
-			super(agHotelmania);
-
+		
+		public UpdateHotelRatingBehavior(Agent a) {
+			super(a);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see jade.core.behaviours.Behaviour#action()
-		 */
 		@Override
 		public void action() {
 			/*
 			 * Look for messages
 			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 					MessageTemplate.MatchLanguage(codec.getName()),
 					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.RATEHOTEL_PROTOCOL)),
 					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
@@ -280,7 +251,7 @@ public class AgHotelmania extends MetaAgent
 			}
 
 			/*
-			 * The ContentManager transforms the message content (string) in
+			 * The ContentManager transforms the message content (string) in a java object
 			 */
 			try {
 				ContentElement ce = getContentManager().extractContent(msg);
@@ -293,14 +264,8 @@ public class AgHotelmania extends MetaAgent
 					// If the action is Rate Hotel...
 					if (conc instanceof RateHotel) {
 						// execute request
-						int answer = rateHotel(msg, (RateHotel) conc);
-
+						ACLMessage reply = rateHotel(msg, (RateHotel) conc);
 						// send reply
-						ACLMessage reply = msg.createReply();
-						reply.setPerformative(answer);
-						//String log = "";
-						//reply= this.treatReply(reply, this.log, answer); TODO!!! FALTA
-
 						myAgent.send(reply);
 
 						System.out.println(myAgent.getLocalName()
@@ -312,30 +277,32 @@ public class AgHotelmania extends MetaAgent
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}
 
-		/**
-		 * @param msg
-		 * @param conc
-		 * @return
-		 */
-		private int rateHotel(ACLMessage msg, RateHotel ratingData) {
+
+		private ACLMessage rateHotel(ACLMessage msg, RateHotel ratingData) {
+		
 			System.out.println(myAgent.getLocalName()
 					+ ": received Rating Request from "
 					+ (msg.getSender()).getLocalName());
 
+			ACLMessage reply = msg.createReply();
+
 			if (ratingData != null && ratingData.getHotel() != null) {
 				if (registerNewRating(ratingData)) {
-					return ACLMessage.AGREE;
+					this.log = Constants.AGREE;
+					reply.setPerformative(ACLMessage.AGREE);
 				} else {
-					return ACLMessage.REFUSE;
+					this.log = Constants.REFUSE;
+					reply.setPerformative(ACLMessage.REFUSE);
 				}
 			} else {
-				return ACLMessage.NOT_UNDERSTOOD;
-
+				this.log = Constants.NOT_UNDERSTOOD;
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 			}
+			return reply;
 		}
+		
 
 		/**
 		 * Register a new rating and update the ratings for each hotel.
@@ -348,9 +315,10 @@ public class AgHotelmania extends MetaAgent
 					.getCleanliness_rating(), ratingData.getRatings()
 					.getCookers_rating(), ratingData.getRatings()
 					.getPrice_rating(), ratingData.getRatings()
-					.getRoom_staff_rating());
+					.getRoom_staff_rating()); //TODO use a method to convert the object...
 		}
 	}
+	
 
 	@Override
 	public void receivedAcceptance(ACLMessage message) {
@@ -360,13 +328,23 @@ public class AgHotelmania extends MetaAgent
 
 	@Override
 	public void receivedReject(ACLMessage message) {
-		// TODO Auto-generated method stub
-		
+		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
+			logRejectedMessage(Constants.REGISTRATION_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.RATEHOTEL_PROTOCOL)) {
+			logRejectedMessage(Constants.RATEHOTEL_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+			logRejectedMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
+		}
 	}
 
 	@Override
 	public void receivedNotUnderstood(ACLMessage message) {
-		// TODO Auto-generated method stub
-		
+		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.REGISTRATION_ACTION, message);
+		} else if (message.getProtocol().equals(Constants.RATEHOTEL_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.RATEHOTEL_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
+		}
 	}
 }

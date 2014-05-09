@@ -16,10 +16,6 @@ public class AgBank extends MetaAgent {
 	
 	private static final long serialVersionUID = 2893904717857535232L;
 
-	//------------------------------------------------- 
-	// Agent Attributes
-	//-------------------------------------------------
-
 	@Override
 	protected void setup() {
 		super.setup();
@@ -154,7 +150,25 @@ public class AgBank extends MetaAgent {
 
 		@Override
 		public void action() {
-			block();//TODO blank!
+			/*
+			 * Look for messages
+			 */
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)),
+					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
+
+			/*
+			 * If no message arrives
+			 */
+			if (msg == null) {
+				block();
+				return;
+			}
+			
+			//TODO to implement...
+			block();
 		}
 
 	}
@@ -172,9 +186,10 @@ public class AgBank extends MetaAgent {
 			/*
 			 * Look for messages
 			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 					MessageTemplate.MatchLanguage(codec.getName()),
 					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.CHARGEACCOUNT_PROTOCOL)),
 					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
@@ -202,8 +217,7 @@ public class AgBank extends MetaAgent {
 						ACLMessage reply = chargeAccount(msg, (ChargeAccount) conc);
 						myAgent.send(reply);
 
-						System.out.println(myAgent.getLocalName()
-								+ ": answer sent -> " + log);
+						System.out.println(myAgent.getLocalName() + ": answer sent -> " + log);
 					}
 				}
 
@@ -212,11 +226,6 @@ public class AgBank extends MetaAgent {
 			}
 		}
 
-		/**
-		 * @param msg
-		 * @param conc
-		 * @return
-		 */
 		private ACLMessage chargeAccount(ACLMessage msg, ChargeAccount money) {
 			System.out.println(myAgent.getLocalName()
 					+ ": received Cliente Deposit Request from "
@@ -261,9 +270,10 @@ public class AgBank extends MetaAgent {
 			/*
 			 * Look for messages
 			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 					MessageTemplate.MatchLanguage(codec.getName()),
 					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.MAKEDEPOSIT_PROTOCOL)),
 					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
