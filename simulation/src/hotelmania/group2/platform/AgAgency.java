@@ -157,27 +157,37 @@ public class AgAgency extends MetaAgent
 
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
+			// TODO Blank
+			block();
 
 		}
-
 	}
 
+	
 	@Override
 	public void receivedAcceptance(ACLMessage message) {
-		// TODO Auto-generated method stub
-		
+		//TODO switch by message.getProtocol()
 	}
 
 	@Override
 	public void receivedReject(ACLMessage message) {
 		// TODO Auto-generated method stub
-		
+		if (message.getProtocol().equals(Constants.SIGNCONTRACT_PROTOCOL)) {
+			logRejectedMessage(Constants.SIGNCONTRACT_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSSTAFF_PROTOCOL)) {
+			logRejectedMessage(Constants.CONSULTHOTELSSTAFF_PROTOCOL, message);
+		}
 	}
 
 	@Override
 	public void receivedNotUnderstood(ACLMessage message) {
 		// TODO Auto-generated method stub
-		
+		if (message.getProtocol().equals(Constants.SIGNCONTRACT_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.SIGNCONTRACT_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSSTAFF_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.CONSULTHOTELSSTAFF_PROTOCOL, message);
+		}	
 	}
+
+
 }

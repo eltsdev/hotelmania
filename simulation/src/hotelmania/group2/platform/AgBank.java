@@ -8,13 +8,9 @@ import jade.content.ContentElement;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
-import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-
-import java.util.ArrayList;
 
 public class AgBank extends MetaAgent {
 	
@@ -24,24 +20,10 @@ public class AgBank extends MetaAgent {
 	// Agent Attributes
 	//-------------------------------------------------
 
-	AID agHotel;
-	AID agAgency;
-	AID agReporter;
-
-	/*
-	 * List of Hotel Account
-	 */
-	private ArrayList<CreateAccount> listHotelAccount;
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jade.core.Agent#setup()
-	 */
 	@Override
 	protected void setup() {
 		super.setup();
-		listHotelAccount = new ArrayList<CreateAccount>();
+		
 		registerServices(Constants.CREATEACCOUNT_ACTION);
 
 		// Create hotel account
@@ -166,8 +148,8 @@ public class AgBank extends MetaAgent {
 
 		private static final long serialVersionUID = -4414753731149819352L;
 
-		public ProvideHotelAccountInfoBehavior(AgBank agBank) {
-			super(agBank);
+		public ProvideHotelAccountInfoBehavior(Agent a) {
+			super(a);
 		}
 
 		@Override
@@ -181,8 +163,8 @@ public class AgBank extends MetaAgent {
 
 		private static final long serialVersionUID = 5591566038041266929L;
 
-		public ChargeAccountBehavior(AgBank agBank) {
-			super(agBank);
+		public ChargeAccountBehavior(Agent a) {
+			super(a);
 		}
 
 		@Override
@@ -241,7 +223,7 @@ public class AgBank extends MetaAgent {
 					+ (msg.getSender()).getLocalName());
 
 			ACLMessage reply = msg.createReply();
-			
+
 			if (money != null && money.getHotel() != null) {
 				if (chargeMoney(money)) {
 					reply.setPerformative(ACLMessage.AGREE);
@@ -256,13 +238,8 @@ public class AgBank extends MetaAgent {
 			}
 
 			return reply;
-			}
+		}
 
-
-		/**
-		 * @param money
-		 * @return
-		 */
 		private boolean chargeMoney(ChargeAccount money) {
 			return accountDAO.chargeMoney(money.getHotel().getHotel_name(),
 					money.getMoney());
@@ -270,27 +247,14 @@ public class AgBank extends MetaAgent {
 
 	}
 
-	//TODO Continue refactoring from here...
-	
-	private final class MakeDepositBehavior extends CyclicBehaviour {
+	private final class MakeDepositBehavior extends MetaCyclicBehaviour {
 		
 		private static final long serialVersionUID = 5591566038041266929L;
-		private static final int VALID_REQ = 0;
-		private static final int REJECT_REQ = -1;
-		private static final int NOT_UNDERSTOOD_REQ = 1;
 
-		/**
-		 * @param agBank
-		 */
-		public MakeDepositBehavior(AgBank agBank) {
-			super(agBank);
+		public MakeDepositBehavior(Agent a) {
+			super(a);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see jade.core.behaviours.Behaviour#action()
-		 */
 		@Override
 		public void action() {
 
@@ -324,33 +288,10 @@ public class AgBank extends MetaAgent {
 					// If the action is Create Account...
 					if (conc instanceof MakeDeposit) {
 						// execute request
-						int answer = makeDeposit(msg, (MakeDeposit) conc);
-
-						// send reply
-						ACLMessage reply = msg.createReply();
-						String log = "";
-						switch (answer) {
-						case VALID_REQ:
-							reply.setPerformative(ACLMessage.AGREE);
-							log = "AGREE";
-							break;
-
-						case REJECT_REQ:
-							reply.setPerformative(ACLMessage.REFUSE);
-							log = "REFUSE";
-							break;
-
-						case NOT_UNDERSTOOD_REQ:
-						default:
-							reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-							log = "NOT_UNDERSTOOD";
-							break;
-						}
-
+						ACLMessage reply = makeDeposit(msg, (MakeDeposit) conc);
 						myAgent.send(reply);
 
-						System.out.println(myAgent.getLocalName()
-								+ ": answer sent -> " + log);
+						System.out.println(myAgent.getLocalName() + ": answer sent -> " + log);
 					}
 				}
 
@@ -360,32 +301,29 @@ public class AgBank extends MetaAgent {
 
 		}
 
-		/**
-		 * @param msg
-		 * @param deposit
-		 * @return
-		 */
-		private int makeDeposit(ACLMessage msg, MakeDeposit deposit) {
+		private ACLMessage makeDeposit(ACLMessage msg, MakeDeposit deposit) {
 			System.out.println(myAgent.getLocalName()
 					+ ": received Cliente Deposit Request from "
 					+ (msg.getSender()).getLocalName());
 
+			ACLMessage reply = msg.createReply();
+
 			if (deposit != null && deposit.getHotel() != null) {
 				if (registerNewDeposit(deposit)) {
-					return ACLMessage.AGREE;
+					this.log = Constants.AGREE;
+					reply.setPerformative(ACLMessage.AGREE);
+					//TODO attach the hotels info!!!
 				} else {
-					return ACLMessage.REFUSE;
+					this.log = Constants.REFUSE;
+					reply.setPerformative(ACLMessage.REFUSE); 
 				}
 			} else {
-				return ACLMessage.NOT_UNDERSTOOD;
-
+				this.log = Constants.NOT_UNDERSTOOD;
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 			}
+			return reply;
 		}
 
-		/**
-		 * @param deposit
-		 * @return
-		 */
 		private boolean registerNewDeposit(MakeDeposit deposit) {
 			return accountDAO.registerNewDeposit(deposit.getHotel()
 					.getHotel_name(), deposit.getMoney());
@@ -393,22 +331,39 @@ public class AgBank extends MetaAgent {
 
 	}
 
+	
 	@Override
 	public void receivedAcceptance(ACLMessage message) {
-		// TODO Auto-generated method stub
-		
+		//TODO switch by message.getProtocol()
 	}
 
 	@Override
 	public void receivedReject(ACLMessage message) {
 		// TODO Auto-generated method stub
-		
+		if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+			logRejectedMessage(Constants.CREATEACCOUNT_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)) {
+			logRejectedMessage(Constants.CONSULTACCOUNTSTATUS_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.CHARGEACCOUNT_PROTOCOL)) {
+			logRejectedMessage(Constants.CHARGEACCOUNT_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.MAKEDEPOSIT_PROTOCOL)) {
+			logRejectedMessage(Constants.MAKEDEPOSIT_PROTOCOL, message);
+		}
 	}
 
 	@Override
 	public void receivedNotUnderstood(ACLMessage message) {
 		// TODO Auto-generated method stub
-		
+		if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.CREATEACCOUNT_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.CONSULTACCOUNTSTATUS_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.CHARGEACCOUNT_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.CHARGEACCOUNT_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.MAKEDEPOSIT_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.MAKEDEPOSIT_PROTOCOL, message);
+		}	
 	}
+
 
 }

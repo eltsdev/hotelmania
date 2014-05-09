@@ -378,12 +378,12 @@ public abstract class MetaAgent extends Agent {
 
 	
 	public void logNotUnderstoodMessage(String action, ACLMessage message) {
-		System.out.println("NotUnderstood Action: "+action); //TODO define format
+		System.out.println(this.getLocalName()+": Receive <NotUnderstood> for Action: "+action); //TODO define format
 	}
 
 
 	public void logRejectedMessage(String action, ACLMessage message) {
-		System.out.println("Rejected Action: "+action); //TODO define format
+		System.out.println(this.getLocalName()+": Receive <Rejected> for Action: "+action); //TODO define format
 	}
 	
 

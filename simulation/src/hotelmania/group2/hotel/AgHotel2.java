@@ -334,7 +334,6 @@ public class AgHotel2 extends MetaAgent {
 
 	@Override
 	public void receivedReject(ACLMessage message) {
-		// TODO Auto-generated method stub
 		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
 			logRejectedMessage(Constants.REGISTRATION_PROTOCOL, message);
 			//TODO: DEFINE: addBehaviour(new RegisterInHotelmaniaBehavior(this));
@@ -343,17 +342,28 @@ public class AgHotel2 extends MetaAgent {
 		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
 			logRejectedMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
 		}
+		/*
+		TODO include cases for: 
+		MakeRoomBookingBehavior
+		ProvideRoomInfoBehavior
+		Consult account status
+		*/
 	}
 
 	@Override
 	public void receivedNotUnderstood(ACLMessage message) {
-		// TODO Auto-generated method stub
 		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
 			logNotUnderstoodMessage(Constants.REGISTRATION_ACTION, message);
 		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
 			logNotUnderstoodMessage(Constants.CREATEACCOUNT_PROTOCOL, message);
 		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
 			logNotUnderstoodMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
-		}	
+		}
+		/*
+		TODO include cases for: 
+		MakeRoomBookingBehavior
+		ProvideRoomInfoBehavior
+		Consult account status
+		*/
 	}
 }
