@@ -9,8 +9,8 @@ import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
+import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
@@ -66,35 +66,18 @@ public class AgBank extends MetaAgent {
 		return false;
 	}
 
-	@Override
-	protected void doOnNewDay() {}
-
 	// --------------------------------------------------------
 	// BEHAVIOURS
 	// --------------------------------------------------------
 
-	/**
-	 * @author user
-	 *
-	 */
-	private final class CreateAccountBehavior extends SimpleBehaviour {
+	private final class CreateAccountBehavior extends MetaCyclicBehaviour {
+		
 		private static final long serialVersionUID = 7390814510706022198L;
-		private static final int VALID_REQ = 0;
-		private static final int REJECT_REQ = -1;
-		private static final int NOT_UNDERSTOOD_REQ = 1;
 
-		/**
-		 * @param agBank
-		 */
-		public CreateAccountBehavior(AgBank agBank) {
-			super(agBank);
+		public CreateAccountBehavior(Agent a) {
+			super(a);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see jade.core.behaviours.Behaviour#action()
-		 */
 		@Override
 		public void action() {
 			/*
@@ -127,29 +110,7 @@ public class AgBank extends MetaAgent {
 					// If the action is Create Account...
 					if (conc instanceof CreateAccount) {
 						// execute request
-						int answer = createAccount(msg, (CreateAccount) conc);
-
-						// send reply
-						ACLMessage reply = msg.createReply();
-						String log = "";
-						switch (answer) {
-						case VALID_REQ:
-							reply.setPerformative(ACLMessage.AGREE);
-							log = "AGREE";
-							break;
-
-						case REJECT_REQ:
-							reply.setPerformative(ACLMessage.REFUSE);
-							log = "REFUSE";
-							break;
-
-						case NOT_UNDERSTOOD_REQ:
-						default:
-							reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-							log = "NOT_UNDERSTOOD";
-							break;
-						}
-
+						ACLMessage reply = createAccount(msg, (CreateAccount) conc);
 						myAgent.send(reply);
 
 						System.out.println(myAgent.getLocalName()
@@ -160,7 +121,6 @@ public class AgBank extends MetaAgent {
 			} catch (CodecException | OntologyException e) {
 				e.printStackTrace();
 			}
-
 		}
 
 		/**
@@ -168,21 +128,28 @@ public class AgBank extends MetaAgent {
 		 * @param accountData
 		 * @return
 		 */
-		private int createAccount(ACLMessage msg, CreateAccount accountData) {
+		private ACLMessage createAccount(ACLMessage msg, CreateAccount accountData) {
+			
 			System.out.println(myAgent.getLocalName()
 					+ ": received Account Request from "
 					+ (msg.getSender()).getLocalName());
 
+			ACLMessage reply = msg.createReply();
+			
 			if (accountData != null && accountData.getHotel() != null) {
 				if (registerNewAccount(accountData)) {
-					return VALID_REQ;
+					reply.setPerformative(ACLMessage.AGREE);
+					this.log = Constants.AGREE;
 				} else {
-					return REJECT_REQ;
+					reply.setPerformative(ACLMessage.REFUSE);
+					this.log = Constants.REFUSE;
 				}
 			} else {
-				return NOT_UNDERSTOOD_REQ;
-
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				this.log = Constants.NOT_UNDERSTOOD;
 			}
+
+			return reply;
 		}
 
 		/**
@@ -193,24 +160,10 @@ public class AgBank extends MetaAgent {
 			return accountDAO.registerNewAccount(account.getHotel()
 					.getHotel_name(), account.getBalance());
 		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see jade.core.behaviours.Behaviour#done()
-		 */
-		@Override
-		public boolean done() {
-			// TODO Auto-generated method stub
-			return false;
-		}
 	}
 
-	/**
-	 * @author user
-	 *
-	 */
-	private final class ProvideHotelAccountInfoBehavior extends CyclicBehaviour {
+	private final class ProvideHotelAccountInfoBehavior extends MetaCyclicBehaviour {
+
 		private static final long serialVersionUID = -4414753731149819352L;
 
 		public ProvideHotelAccountInfoBehavior(AgBank agBank) {
@@ -219,17 +172,14 @@ public class AgBank extends MetaAgent {
 
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
-
+			block();//TODO blank!
 		}
 
 	}
 
-	private final class ChargeAccountBehavior extends CyclicBehaviour {
+	private final class ChargeAccountBehavior extends MetaCyclicBehaviour {
+
 		private static final long serialVersionUID = 5591566038041266929L;
-		private static final int VALID_REQ = 0;
-		private static final int REJECT_REQ = -1;
-		private static final int NOT_UNDERSTOOD_REQ = 1;
 
 		public ChargeAccountBehavior(AgBank agBank) {
 			super(agBank);
@@ -267,29 +217,7 @@ public class AgBank extends MetaAgent {
 					// If the action is Charge Account...
 					if (conc instanceof ChargeAccount) {
 						// execute request
-						int answer = chargeAccount(msg, (ChargeAccount) conc);
-
-						// send reply
-						ACLMessage reply = msg.createReply();
-						String log = "";
-						switch (answer) {
-						case VALID_REQ:
-							reply.setPerformative(ACLMessage.AGREE);
-							log = "AGREE";
-							break;
-
-						case REJECT_REQ:
-							reply.setPerformative(ACLMessage.REFUSE);
-							log = "REFUSE";
-							break;
-
-						case NOT_UNDERSTOOD_REQ:
-						default:
-							reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-							log = "NOT_UNDERSTOOD";
-							break;
-						}
-
+						ACLMessage reply = chargeAccount(msg, (ChargeAccount) conc);
 						myAgent.send(reply);
 
 						System.out.println(myAgent.getLocalName()
@@ -307,22 +235,29 @@ public class AgBank extends MetaAgent {
 		 * @param conc
 		 * @return
 		 */
-		private int chargeAccount(ACLMessage msg, ChargeAccount money) {
+		private ACLMessage chargeAccount(ACLMessage msg, ChargeAccount money) {
 			System.out.println(myAgent.getLocalName()
 					+ ": received Cliente Deposit Request from "
 					+ (msg.getSender()).getLocalName());
 
+			ACLMessage reply = msg.createReply();
+			
 			if (money != null && money.getHotel() != null) {
 				if (chargeMoney(money)) {
-					return VALID_REQ;
+					reply.setPerformative(ACLMessage.AGREE);
+					this.log = Constants.AGREE;
 				} else {
-					return REJECT_REQ;
+					reply.setPerformative(ACLMessage.REFUSE);
+					this.log = Constants.REFUSE;
 				}
 			} else {
-				return NOT_UNDERSTOOD_REQ;
-
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				this.log = Constants.NOT_UNDERSTOOD;
 			}
-		}
+
+			return reply;
+			}
+
 
 		/**
 		 * @param money
@@ -335,7 +270,10 @@ public class AgBank extends MetaAgent {
 
 	}
 
+	//TODO Continue refactoring from here...
+	
 	private final class MakeDepositBehavior extends CyclicBehaviour {
+		
 		private static final long serialVersionUID = 5591566038041266929L;
 		private static final int VALID_REQ = 0;
 		private static final int REJECT_REQ = -1;

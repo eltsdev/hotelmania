@@ -173,10 +173,9 @@ public abstract class MetaAgent extends Agent {
 		return null;
 	}
 
-	//TODO fix the method params!
-	public void sendRequest(Agent sender, AID receiver, Concept concept,
-			Codec codec, Ontology ontology, String protocol, int messageType) {
-		ACLMessage msg = new ACLMessage(messageType);
+	public void sendRequest(Agent sender, AID receiver, Concept content,
+			Codec codec, Ontology ontology, String protocol, int performative) {
+		ACLMessage msg = new ACLMessage(performative);
 		msg.addReceiver(receiver);
 		msg.setLanguage(codec.getName());
 		msg.setOntology(ontology.getName());
@@ -184,7 +183,7 @@ public abstract class MetaAgent extends Agent {
 
 		// As it is an action and the encoding language the SL,
 		// it must be wrapped into an Action
-		Action agAction = new Action(receiver, concept);
+		Action agAction = new Action(receiver, content);
 		try {
 			// The ContentManager transforms the java objects into strings
 			sender.getContentManager().fillContent(msg, agAction);
@@ -195,6 +194,7 @@ public abstract class MetaAgent extends Agent {
 			oe.printStackTrace();
 		}
 
+		System.out.println(getLocalName() + ": REQUESTS " + content.getClass().getSimpleName());
 	}
 	
 	public void registerServices(String...services) {
@@ -376,6 +376,15 @@ public abstract class MetaAgent extends Agent {
 
 	}
 
+	
+	public void logNotUnderstoodMessage(String action, ACLMessage message) {
+		System.out.println("NotUnderstood Action: "+action); //TODO define format
+	}
+
+
+	public void logRejectedMessage(String action, ACLMessage message) {
+		System.out.println("Rejected Action: "+action); //TODO define format
+	}
 	
 
 }

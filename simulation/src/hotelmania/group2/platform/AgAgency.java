@@ -8,6 +8,7 @@ import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
+import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -19,6 +20,7 @@ public class AgAgency extends MetaAgent
 	//------------------------------------------------- 
 	// Agent Attributes
 	//-------------------------------------------------
+	
 	AID agHotel;
 	AID agReporter;
 
@@ -32,11 +34,8 @@ public class AgAgency extends MetaAgent
 		// Behaviors
 
 		addBehaviour(new SignStaffContractWithHotelBehavior(this));
-		
-		//TODO charge hotel account
-
 		addBehaviour(new ProvideHotelStaffInfoToClientBehavior(this));
-
+		//TODO charge hotel account
 	}
 
 	/**
@@ -47,25 +46,16 @@ public class AgAgency extends MetaAgent
 		return false;
 	}
 	
-	@Override
-	protected void doOnNewDay() {}
-
-	
 	// --------------------------------------------------------
 	// BEHAVIOURS
 	// --------------------------------------------------------
 
-	private final class SignStaffContractWithHotelBehavior extends CyclicBehaviour 
+	private final class SignStaffContractWithHotelBehavior extends MetaCyclicBehaviour 
 	{
 		private static final long serialVersionUID = 7390814510706022198L;
-		
-		//Types of response
-		private static final int VALID_REQ = 0;
-		private static final int REJECT_REQ = -1;
-		private static final int NOT_UNDERSTOOD_REQ = 1;
 
-		public SignStaffContractWithHotelBehavior(AgAgency agent) {
-			super(agent);
+		public SignStaffContractWithHotelBehavior(Agent a) {
+			super(a);
 		}
 
 		@Override
@@ -84,8 +74,8 @@ public class AgAgency extends MetaAgent
 			// If no message arrives
 			if (msg == null) 
 			{
-				block();					
-				return;					
+				block();
+				return;
 			}
 	
 			// The ContentManager transforms the message content (string) in java objects
@@ -102,30 +92,7 @@ public class AgAgency extends MetaAgent
 					if (conc instanceof SignContract)
 					{
 						//execute request
-						int answer = answerContractRequest(msg, (SignContract) conc);
-						
-						//send reply
-						ACLMessage reply = msg.createReply();
-						String log = "";
-						switch (answer) 
-						{
-						case VALID_REQ:
-							reply.setPerformative(ACLMessage.AGREE);
-							log = "AGREE";
-							break;
-
-						case REJECT_REQ:
-							reply.setPerformative(ACLMessage.REFUSE);
-							log = "REFUSE";
-							break;
-
-						case NOT_UNDERSTOOD_REQ:
-						default:
-							reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-							log = "NOT_UNDERSTOOD";
-							break;
-						}
-						
+						ACLMessage reply = answerContractRequest(msg, (SignContract) conc);
 						myAgent.send(reply);
 						
 						System.out.println(myAgent.getLocalName() + ": answer sent -> " + log );
@@ -140,20 +107,26 @@ public class AgAgency extends MetaAgent
 			
 		}
 
-		private int answerContractRequest(ACLMessage msg, SignContract action)
+		private ACLMessage answerContractRequest(ACLMessage msg, SignContract action)
 		{
 			System.out.println(myAgent.getLocalName()+": received "+action.getClass().getSimpleName()+" from "+(msg.getSender()).getLocalName());
-
+			
+			ACLMessage reply = msg.createReply();
+					
 			if (action != null && action.getHotel() != null ) {
 				if(signContractWithHotel(action))
 				{
-					return 	VALID_REQ;
-				}else {
-					return REJECT_REQ;
+					this.log = Constants.AGREE;
+					reply.setPerformative(ACLMessage.AGREE);
+				} else {
+					this.log = Constants.REFUSE;
+					reply.setPerformative(ACLMessage.REFUSE);
 				}
-			}else {
-				return NOT_UNDERSTOOD_REQ;					
+			} else {
+				this.log = Constants.NOT_UNDERSTOOD;
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 			}
+			return reply;
 		}
 
 		private boolean signContractWithHotel(SignContract intent) 

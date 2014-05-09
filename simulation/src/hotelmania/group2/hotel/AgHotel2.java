@@ -2,6 +2,7 @@ package hotelmania.group2.hotel;
 import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.MetaAgent;
 import hotelmania.group2.platform.MetaCyclicBehaviour;
+import hotelmania.group2.platform.MetaSimpleBehaviour;
 import hotelmania.ontology.BookRoom;
 import hotelmania.ontology.Booking;
 import hotelmania.ontology.Contract;
@@ -18,52 +19,30 @@ import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
 public class AgHotel2 extends MetaAgent {
+	
 	private static final long serialVersionUID = 2893904717857535232L;
 
 	//------------------------------------------------- 
 	// Agent Attributes
 	//-------------------------------------------------
 
-	AID agHotelmania;
-	AID agBank;
-	AID agClient;
-	AID agAgency;
 	boolean registered;
 
 	@Override
 	protected void setup() {
 		super.setup();
-		
-		// Search agency agent
-		agAgency = locateAgent(Constants.SIGNCONTRACT_ACTION, this);
-		
-		// Search hotelmania agent
-		agHotelmania = locateAgent(Constants.REGISTRATION_ACTION, this);
-		
-		// Search bank agent
-		agBank = locateAgent(Constants.CREATEACCOUNT_ACTION, this);
 
 		addBehaviour(new RegisterInHotelmaniaBehavior(this));
-//		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
-//		addBehaviour(new ReceiveRejectionMsgBehavior(this));
-//		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
-
-//		NOT NEEDED: addBehaviour(new HireDailyStaffBehavior(this));
 
 //		addBehaviour(new MakeRoomBookingBehavior(this));
-//
 //		addBehaviour(new ProvideRoomInfoBehavior(this));
-//
 //		addBehaviour(new CreateBankAccountBehavior(this));
-		
-		//addBehaviour(new ConsultHotelInfoBehavior(this));
-
-		// TODO Consult account status
+//		addBehaviour(new ConsultHotelInfoBehavior(this));
+//		 TODO Consult account status
 	}
 	
 	/**
@@ -76,11 +55,6 @@ public class AgHotel2 extends MetaAgent {
 
 	@Override
 	protected void doOnNewDay() {
-		if (agAgency == null) {
-			agAgency = locateAgent(Constants.SIGNCONTRACT_ACTION, this);
-		}
-		// Search agency agent
-		
 		hireDailyStaffBehaviorAction();
 	}
 
@@ -88,9 +62,9 @@ public class AgHotel2 extends MetaAgent {
 	// BEHAVIOURS
 	// --------------------------------------------------------
 
-	private final class RegisterInHotelmaniaBehavior extends SimpleBehaviour {
+	private final class RegisterInHotelmaniaBehavior extends MetaSimpleBehaviour {
 		private static final long serialVersionUID = 1256090117313507535L;
-		private boolean registration = false;
+		private AID agHotelmania;
 
 		private RegisterInHotelmaniaBehavior(Agent a) {
 			super(a);
@@ -102,148 +76,31 @@ public class AgHotel2 extends MetaAgent {
 			if (agHotelmania==null) {
 				// Search hotelmania agent
 				agHotelmania = locateAgent(Constants.REGISTRATION_ACTION, myAgent);
-				block();
-				return;
+				//block();
+				//return;
+			} else {
+				registerHotel();
+				this.setDone(true);
 			}
 			
-			registerHotel();
 		}
 
 		private void registerHotel() {
-			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-			msg.addReceiver(agHotelmania);
-			msg.setLanguage(codec.getName());
-			msg.setOntology(ontology.getName());
-			msg.setProtocol(Constants.REGISTRATION_PROTOCOL);
-
 			RegistrationRequest register = new RegistrationRequest();
 			Hotel hotel = new Hotel();
 			hotel.setHotel_name(name);
 			register.setHotel(hotel);
-
-			// As it is an action and the encoding language the SL,
-			// it must be wrapped into an Action
-			Action agAction = new Action(agHotelmania, register);
-			try {
-				// The ContentManager transforms the java objects into strings
-				getContentManager().fillContent(msg, agAction);
-				send(msg);
-				System.out.println(getLocalName() + ": REQUESTS REGISTRATION");
-				
-				registration = true; //FIXME this must be done when the Acceptance is received.
-				
-				
-			} catch (CodecException ce) {
-				ce.printStackTrace();
-			} catch (OntologyException oe) {
-				oe.printStackTrace();
-			}
-		}
-
-		@Override
-		public boolean done() {
-			return registration;
+			
+			sendRequest(myAgent, agHotelmania, register, codec, ontology, Constants.REGISTRATION_PROTOCOL, ACLMessage.REQUEST);
 		}
 	}
 
-	private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour {
-		private static final long serialVersionUID = -4878774871721189228L;
-
-		private ReceiveAcceptanceMsgBehavior(Agent a) {
-			super(a);
-		}
-
-		public void action() {
-			// Waits for acceptance messages
-			ACLMessage msg = receive(MessageTemplate
-					.MatchPerformative(ACLMessage.AGREE));
-
-			if (msg != null) {
-				// If an acceptance arrives...
-				registered = true;
-				String request = "*Request*" ;
-				System.out.println(myAgent.getLocalName()
-						+ ": received "+request +" acceptance from "
-						+ (msg.getSender()).getLocalName());
-			} else {
-				// If no message arrives
-				block();
-			}
-
-		}
-	}
-
-	private final class ReceiveRejectionMsgBehavior extends CyclicBehaviour {
-		private static final long serialVersionUID = 1L;
-
-		private ReceiveRejectionMsgBehavior(Agent a) {
-			super(a);
-		}
-
-		public void action() {
-			// Waits for rejection message
-			ACLMessage msg = receive(MessageTemplate
-					.MatchPerformative(ACLMessage.REFUSE));
-
-			if (msg != null) {
-				// If a rejection arrives...
-				System.out.println(myAgent.getLocalName()
-						+ ": received work rejection from "
-						+ (msg.getSender()).getLocalName());
-			} else {
-				// If no message arrives
-				block();
-			}
-
-		}
-	}
-
-	private final class ReceiveNotUnderstoodMsgBehavior extends CyclicBehaviour {
-		private static final long serialVersionUID = 1L;
-
-		private ReceiveNotUnderstoodMsgBehavior(Agent a) {
-			super(a);
-		}
-
-		public void action() {
-			// Waits for estimations not understood
-			ACLMessage msg = receive(MessageTemplate
-					.MatchPerformative(ACLMessage.NOT_UNDERSTOOD));
-			if (msg != null) {
-				// If a not understood message arrives...
-				System.out.println(myAgent.getLocalName()
-						+ ": received NOT_UNDERSTOOD from "
-						+ (msg.getSender()).getLocalName());
-			} else {
-				// If no message arrives
-				block();
-			}
-
-		}
-	}
-
-	/**
-	 * @author user
-	 *
-	 */
 	private final class MakeRoomBookingBehavior extends MetaCyclicBehaviour {
 
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = -390060690778340930L;
-		private static final int VALID_REQ = 0;
-		private static final int REJECT_REQ = -1;
-		private static final int NOT_UNDERSTOOD_REQ = 1;
 
-		// private boolean clientFound = false;
-
-		/**
-		 * @param agHotel
-		 */
-		public MakeRoomBookingBehavior(AgHotel2 agHotel) {
-			
-			super(agHotel);
+		public MakeRoomBookingBehavior(Agent a) {
+			super(a);
 		}
 
 		@Override
@@ -278,13 +135,10 @@ public class AgHotel2 extends MetaAgent {
 					// If the action is BookRoom...
 					if (conc instanceof BookRoom) {
 						// execute request
-						ACLMessage reply = answerBookingRequest(msg,
-								(BookRoom) conc);
-
+						ACLMessage reply = answerBookingRequest(msg, (BookRoom) conc);
 						myAgent.send(reply);
 
-						System.out.println(myAgent.getLocalName()
-								+ ": answer sent -> " + log);
+						System.out.println(myAgent.getLocalName() + ": answer sent -> " + log);
 					}
 				}
 
@@ -324,28 +178,19 @@ public class AgHotel2 extends MetaAgent {
 			return reply;
 			}
 
-		/**
-		 * 
-		 */
 		private boolean bookRoom(Booking book) {
-
 			bookDao.booking(book.getDays(), book.getStartDay());
 			return true;
-
 		}
 
 	}
 
 	private final class ProvideRoomInfoBehavior extends CyclicBehaviour {
 
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 1955222376582492939L;
 
-		public ProvideRoomInfoBehavior(AgHotel2 agHotelWithOntology) {
-			// TODO Auto-generated constructor stub
-			super(agHotelWithOntology);
+		public ProvideRoomInfoBehavior(Agent a) {
+			super(a);
 		}
 
 		@Override
@@ -356,92 +201,49 @@ public class AgHotel2 extends MetaAgent {
 
 	}
 
-	/**
-	 * @author user
-	 *
-	 */
-	private final class CreateBankAccountBehavior extends SimpleBehaviour {
+	private final class CreateBankAccountBehavior extends MetaSimpleBehaviour {
 	
 		private static final long serialVersionUID = 1955222376582492939L;
-		private boolean done = false;
+		
+		private AID agBank;
 	
-		/**
-		 * @param agHotelWithOntology
-		 */
-		public CreateBankAccountBehavior(AgHotel2 agHotelWithOntology) {
-			super(agHotelWithOntology);
+		public CreateBankAccountBehavior(Agent a) {
+			super(a);
 		}
 	
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see jade.core.behaviours.Behaviour#action()
-		 */
 		@Override
 		public void action() {
 			// Create hotel account
-			if (agBank !=null ) {
+			if (agBank ==null ) {
+				locateAgent(Constants.CREATEACCOUNT_ACTION, myAgent);
+			} else {
 				createHotelAccount();
 			}
 		}
 	
 		private void createHotelAccount() {
-			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-			msg.addReceiver(agBank);
-			msg.setLanguage(codec.getName());
-			msg.setOntology(ontology.getName());
-	
 			CreateAccount action_account = new CreateAccount();
 			Hotel hotel = new Hotel();
 			hotel.setHotel_name(name);
 			action_account.setHotel(hotel);
 			action_account.setBalance(1000000);
-			sendRequest(this.getAgent(), agBank, action_account, codec,
+
+			sendRequest(myAgent, agBank, action_account, codec,
 					ontology, Constants.CREATEACCOUNT_PROTOCOL,
 					ACLMessage.REQUEST);
-			System.out.println(getLocalName() + ": REQUESTS CREATION ACCOUNT");
-	
-			}
-	
-		@Override
-		public boolean done() {
-			// TODO Auto-generated method stub
-			return done;
-		}
-	}
 
-	/*
-	private final class HireDailyStaffBehavior extends CyclicBehaviour 
-	{
-		private static final long serialVersionUID = -8769912917130729651L;
-	
-		public HireDailyStaffBehavior(AgHotel2 agHotel) {
-			super(agHotel);
-		}
-	
-		@Override
-		public void action() {
-//			hireDailyStaffBehaviorAction();
+			this.setDone(true);
 		}
 	
 	}
-	*/
-
+	
 	/**
 	 * Behavior for hiring the staff 
 	 */
-	void hireDailyStaffBehaviorAction() {
-		// Ensure I can contact agency
-		if (agAgency == null) {
-			return;
-		}
+	private void hireDailyStaffBehaviorAction() {
 		
-		ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-		msg.addReceiver(agAgency);
-		msg.setLanguage(codec.getName());
-		msg.setOntology(ontology.getName());
-		msg.setProtocol(Constants.SIGNCONTRACT_PROTOCOL);
-	
+		AID agAgency = locateAgent(Constants.SIGNCONTRACT_ACTION, this);
+		
 		SignContract request = new SignContract();
 		
 		Hotel hotel = new Hotel();
@@ -449,20 +251,8 @@ public class AgHotel2 extends MetaAgent {
 		request.setHotel(hotel);
 		request.setContract(hireDailyStaff(today+1));
 		
-		// As it is an action and the encoding language the SL,
-		// it must be wrapped into an Action
-		Action agAction = new Action(this.getAID(), request);
-		try {
-			// The ContentManager transforms the java objects into strings
-			getContentManager().fillContent(msg, agAction);
-			send(msg);
-			System.out.println(getLocalName() + ": REQUESTS "
-					+ request.getClass().getSimpleName());
-		} catch (CodecException ce) {
-			ce.printStackTrace();
-		} catch (OntologyException oe) {
-			oe.printStackTrace();
-		}
+		this.sendRequest(this, agAgency, request, codec, ontology, Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
+		
 	}
 
 	/**
@@ -509,55 +299,61 @@ public class AgHotel2 extends MetaAgent {
 		return c ;
 	}
 	
-	private final class ConsultHotelInfoBehavior extends SimpleBehaviour {
+	
+	private final class ConsultHotelInfoBehavior extends MetaSimpleBehaviour {
+		
 		private static final long serialVersionUID = 1L;
-		private boolean couldFindHotelMania = false;
+		private AID agHotelmania;
+		
 		private ConsultHotelInfoBehavior(Agent a) {
 			super(a);
 		}
 
 		@Override
 		public void action() {
-			AID hotelmania = locateAgent(Constants.CONSULTHOTELSINFO_ACTION, myAgent);
-			if (hotelmania != null) {// hotel found
-				this.consultHotelInfo(hotelmania);
-				this.couldFindHotelMania = true;
+			if (agHotelmania == null) {
+				agHotelmania = locateAgent(Constants.CONSULTHOTELSINFO_ACTION, myAgent);
 			} else {
-				System.out.println(getLocalName() + " couldn't locate hotelmania in behaviour ConsultHotelInfoBehavior");
+				this.consultHotelInfo(agHotelmania);
+				this.setDone(true);
 			}
 		}
 
 		private void consultHotelInfo(AID hotelmania) {
-			System.out.println(getLocalName() + ": REQUESTING INFORMATION ABOUT HOTELS TO HOTELMANIA");
 			HotelsInfoRequest request = new HotelsInfoRequest();
-
 			sendRequest(this.getAgent(), hotelmania, request, codec, ontology,Constants.CONSULTHOTELSINFO_PROTOCOL,ACLMessage.QUERY_REF);
-			System.out.println(getLocalName() + ": REQUESTS INFORMATION ABOUT HOTELS TO HOTELMANIA");
-		}
-
-		@Override
-		public boolean done() {
-			return this.couldFindHotelMania;
 		}
 
 	}
 
+	
 	@Override
 	public void receivedAcceptance(ACLMessage message) {
-		// TODO Auto-generated method stub
-		
+		//TODO switch by message.getProtocol()
 	}
 
 	@Override
 	public void receivedReject(ACLMessage message) {
 		// TODO Auto-generated method stub
-		
+		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
+			logRejectedMessage(Constants.REGISTRATION_PROTOCOL, message);
+			//TODO: DEFINE: addBehaviour(new RegisterInHotelmaniaBehavior(this));
+		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+			logRejectedMessage(Constants.CREATEACCOUNT_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+			logRejectedMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
+		}
 	}
 
 	@Override
 	public void receivedNotUnderstood(ACLMessage message) {
 		// TODO Auto-generated method stub
-		
+		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.REGISTRATION_ACTION, message);
+		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.CREATEACCOUNT_PROTOCOL, message);
+		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
+		}	
 	}
-
 }

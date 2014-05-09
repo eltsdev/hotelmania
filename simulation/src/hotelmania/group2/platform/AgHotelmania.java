@@ -17,13 +17,6 @@ public class AgHotelmania extends MetaAgent
 {
 	static final long serialVersionUID = -7762674314086577059L;
 	
-	//------------------------------------------------- 
-	// Agent Attributes
-	//-------------------------------------------------
-	
-	protected static final boolean registerForDayEvents = false;
-
-	
 	@Override
 	protected void setup() {
 		super.setup();
@@ -306,7 +299,7 @@ public class AgHotelmania extends MetaAgent
 						ACLMessage reply = msg.createReply();
 						reply.setPerformative(answer);
 						//String log = "";
-						//reply= this.treatReply(reply, this.log, answer);
+						//reply= this.treatReply(reply, this.log, answer); TODO!!! FALTA
 
 						myAgent.send(reply);
 
