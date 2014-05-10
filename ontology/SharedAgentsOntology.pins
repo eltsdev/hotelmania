@@ -1,9 +1,17 @@
-; Mon May 05 13:26:34 CEST 2014
+; Sat May 10 18:27:15 CEST 2014
 ; 
-;+ (version "3.4.8")
-;+ (build "Build 629")
+;+ (version "3.5")
+;+ (build "Build 663")
+
+([Account] of  %3AJADE-CLASS
+
+	(%3AJADE-IGNORE FALSE))
 
 ([AccountStatus] of  %3AJADE-CLASS
+
+	(%3AJADE-IGNORE FALSE))
+
+([AccountStatusQueryRef] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE FALSE))
 
@@ -55,7 +63,7 @@
 
 	(%3AJADE-IGNORE FALSE))
 
-([CreateAccount] of  %3AJADE-CLASS
+([CreateAccountRequest] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE FALSE))
 
@@ -95,13 +103,21 @@
 
 	(%3AJADE-IGNORE FALSE))
 
+([NumberOfClients] of  %3AJADE-CLASS
+
+	(%3AJADE-IGNORE FALSE))
+
+([NumberOfClientsQueryRef] of  %3AJADE-CLASS
+
+	(%3AJADE-IGNORE FALSE))
+
 ([Predicate] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE TRUE))
 
 ([project+annotation] of  %3APROJECT-ANNOTATION
 
-	(%3ALOCATION "E:\\elts\\Documentos\\GitHub\\hotelmania\\simulation\\src-gen")
+	(%3ALOCATION "C:\\Users\\user\\Documents\\GitHub\\hotelmania\\simulation\\src-gen")
 	(%3AONTOLOGYNAME "SharedAgents")
 	(%3APACKAGE "hotelmania.ontology")
 	(%3ASUPPORT "j2se"))

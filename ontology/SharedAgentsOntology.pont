@@ -1,12 +1,17 @@
-; Mon May 05 13:26:34 CEST 2014
+; Sat May 10 18:27:15 CEST 2014
 ; 
-;+ (version "3.4.8")
-;+ (build "Build 629")
+;+ (version "3.5")
+;+ (build "Build 663")
 
 
 (defclass %3ACLIPS_TOP_LEVEL_SLOT_CLASS "Fake class to save top-level slot information"
 	(is-a USER)
 	(role abstract)
+	(single-slot account
+		(type INSTANCE)
+;+		(allowed-classes Account)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
 	(single-slot room_service_staff
 		(type INTEGER)
 ;+		(cardinality 1 1)
@@ -141,6 +146,10 @@
 		(type INTEGER)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
+	(single-slot id_account
+		(type INTEGER)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
 	(single-slot dayEvent
 		(type INSTANCE)
 ;+		(allowed-classes DayEvent)
@@ -168,6 +177,10 @@
 		(type INSTANCE)
 ;+		(allowed-classes)
 ;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot num_clients
+		(type INTEGER)
+;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot cleanliness_rating
 		(type FLOAT)
@@ -407,13 +420,9 @@
 ;+		(cardinality 0 1)
 		(create-accessor read-write)))
 
-(defclass CreateAccount
+(defclass CreateAccountRequest
 	(is-a AgentAction)
 	(role concrete)
-	(single-slot balance
-		(type FLOAT)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
 	(single-slot hotel
 		(type INSTANCE)
 ;+		(allowed-classes Hotel)
@@ -437,6 +446,22 @@
 (defclass SubscribeToDayEvent
 	(is-a AgentAction)
 	(role concrete))
+
+(defclass NumberOfClientsQueryRef
+	(is-a AgentAction)
+	(role concrete)
+	(single-slot hotel_name
+		(type STRING)
+;+		(cardinality 1 1)
+		(create-accessor read-write)))
+
+(defclass AccountStatusQueryRef
+	(is-a AgentAction)
+	(role concrete)
+	(single-slot id_account
+		(type INTEGER)
+;+		(cardinality 1 1)
+		(create-accessor read-write)))
 
 (defclass Hotel
 	(is-a Concept)
@@ -557,14 +582,6 @@
 ;+		(cardinality 0 1)
 		(create-accessor read-write)))
 
-(defclass AccountStatus
-	(is-a Concept)
-	(role concrete)
-	(single-slot balance
-		(type FLOAT)
-;+		(cardinality 0 1)
-		(create-accessor read-write)))
-
 (defclass HotelInfoList
 	(is-a Concept)
 	(role concrete)
@@ -572,6 +589,23 @@
 		(type INSTANCE)
 ;+		(allowed-classes HotelInfo)
 		(cardinality 1 ?VARIABLE)
+		(create-accessor read-write)))
+
+(defclass Account
+	(is-a Concept)
+	(role concrete)
+	(single-slot balance
+		(type FLOAT)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot hotel
+		(type INSTANCE)
+;+		(allowed-classes Hotel)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot id_account
+		(type INTEGER)
+;+		(cardinality 1 1)
 		(create-accessor read-write)))
 
 (defclass Predicate "The common ancestor for all predicates in an ontology (e.g. FatherOf...)"
@@ -585,4 +619,21 @@
 		(type INSTANCE)
 ;+		(allowed-classes DayEvent)
 ;+		(cardinality 1 1)
+		(create-accessor read-write)))
+
+(defclass AccountStatus
+	(is-a Predicate)
+	(role concrete)
+	(single-slot account
+		(type INSTANCE)
+;+		(allowed-classes Account)
+;+		(cardinality 1 1)
+		(create-accessor read-write)))
+
+(defclass NumberOfClients
+	(is-a Predicate)
+	(role concrete)
+	(single-slot num_clients
+		(type INTEGER)
+;+		(cardinality 0 1)
 		(create-accessor read-write)))

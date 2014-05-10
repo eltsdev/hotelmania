@@ -8,7 +8,7 @@ import jade.core.*;
 /**
 * Protege name: ChargeAccount
 * @author ontology bean generator
-* @version 2014/05/5, 13:26:33
+* @version 2014/05/10, 18:26:54
 */
 public class ChargeAccount implements AgentAction {
 
