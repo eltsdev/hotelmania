@@ -3,6 +3,7 @@ package hotelmania.group2.platform;
 import hotelmania.group2.dao.AccountDAO;
 import hotelmania.ontology.ChargeAccount;
 import hotelmania.ontology.CreateAccount;
+import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.MakeDeposit;
 import jade.content.Concept;
 import jade.content.ContentElement;
@@ -14,15 +15,15 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
 public class AgBank extends MetaAgent {
-	
+
 	private static final long serialVersionUID = 2893904717857535232L;
-	
+
 	private AccountDAO accountDAO = new AccountDAO();
-	
+
 	@Override
 	protected void setup() {
 		super.setup();
-		
+
 		registerServices(Constants.CREATEACCOUNT_ACTION);
 
 		// Create hotel account
@@ -38,7 +39,7 @@ public class AgBank extends MetaAgent {
 		addBehaviour(new ProvideHotelAccountInfoBehavior(this));
 
 	}
-	
+
 	/**
 	 * This means: I am NOT interested on this event.
 	 */
@@ -52,7 +53,7 @@ public class AgBank extends MetaAgent {
 	// --------------------------------------------------------
 
 	private final class CreateAccountBehavior extends MetaCyclicBehaviour {
-		
+
 		private static final long serialVersionUID = 7390814510706022198L;
 
 		public CreateAccountBehavior(Agent a) {
@@ -110,13 +111,13 @@ public class AgBank extends MetaAgent {
 		 * @return
 		 */
 		private ACLMessage createAccount(ACLMessage msg, CreateAccount accountData) {
-			
+
 			System.out.println(myAgent.getLocalName()
 					+ ": received Account Request from "
 					+ (msg.getSender()).getLocalName());
 
 			ACLMessage reply = msg.createReply();
-			
+
 			if (accountData != null && accountData.getHotel() != null) {
 				if (registerNewAccount(accountData)) {
 					reply.setPerformative(ACLMessage.AGREE);
@@ -169,9 +170,17 @@ public class AgBank extends MetaAgent {
 				block();
 				return;
 			}
-			
-			//TODO to implement...
-			block();
+			Concept conc = this.getConceptFromMessage(msg);
+			// If the action is Registration Request...
+			if (conc instanceof HotelsInfoRequest) {
+				// execute request
+				//ACLMessage reply = answerHotelsInfoRequest(msg);
+				// send reply
+				//myAgent.send(reply);
+
+				System.out.println(myAgent.getLocalName()
+						+ ": answer sent -> " + this.log);
+			}
 		}
 
 	}
@@ -260,7 +269,7 @@ public class AgBank extends MetaAgent {
 	}
 
 	private final class MakeDepositBehavior extends MetaCyclicBehaviour {
-		
+
 		private static final long serialVersionUID = 5591566038041266929L;
 
 		public MakeDepositBehavior(Agent a) {
@@ -344,7 +353,7 @@ public class AgBank extends MetaAgent {
 
 	}
 
-	
+
 	@Override
 	public void receivedAcceptance(ACLMessage message) {
 		//TODO switch by message.getProtocol()

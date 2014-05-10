@@ -168,32 +168,16 @@ public class AgHotelmania extends MetaAgent
 				return;
 			} 
 			 //The ContentManager transforms the message content (string) in
+			Concept conc =  this.getConceptFromMessage(msg);
+			if (conc instanceof HotelsInfoRequest) {
+				// execute request
+				ACLMessage reply = answerHotelsInfoRequest(msg);
+				// send reply
+				myAgent.send(reply);
 
-			try {
-				ContentElement ce = getContentManager().extractContent(msg);
-
-				// We expect an action inside the message
-				if (ce instanceof Action) {
-					Action agAction = (Action) ce;
-					Concept conc = agAction.getAction();
-
-					// If the action is Registration Request...
-					if (conc instanceof HotelsInfoRequest) {
-						// execute request
-						ACLMessage reply = answerHotelsInfoRequest(msg);
-						// send reply
-						myAgent.send(reply);
-
-						System.out.println(myAgent.getLocalName()
-								+ ": answer sent -> " + this.log);
-					}
-				}
-
-			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println(myAgent.getLocalName()
+						+ ": answer sent -> " + this.log);
 			}
-
 		}
 		
 		private ACLMessage answerHotelsInfoRequest(ACLMessage msg) {

@@ -12,11 +12,11 @@ public class Constants {
 	public static final String CONSULTHOTELSINFO_PROTOCOL = "CONSULTHOTELSINFO";
 	public static final String CONSULTHOTELSSTAFF_PROTOCOL = "CONSULTHOTELSSTAFF";
 	public static final String CONSULTROOMPRICES_PROTOCOL = "CONSULTROOMPRICES";
-	public static final String CONSULTACCOUNTSTATUS_PROTOCOL = "CONSULTACCOUNTSTATUS";
+	public static final String CONSULTACCOUNTSTATUS_PROTOCOL = "AccountStatus";
 	public static final String CREATEACCOUNT_PROTOCOL = "CREATEACCOUNT";
 	public static final String CHARGEACCOUNT_PROTOCOL = "CHARGEACCOUNT";
 	public static final String SUBSCRIBETODAYEVENT_PROTOCOL = "SubscribeToDayEvent";	
-	
+	public static final String CONSULTNUMBEROFCLIENTS_PROTOCOL = "NumberOfClients";	
 
 	// Request Actions
 	public static final String BOOKROOM_ACTION = BOOKROOM_PROTOCOL;
@@ -32,6 +32,8 @@ public class Constants {
 	public static final String CONSULTHOTELSSTAFF_ACTION = CONSULTHOTELSSTAFF_PROTOCOL;
 	public static final String CONSULTROOMPRICES_ACTION = CONSULTROOMPRICES_PROTOCOL;
 	public static final String CONSULTACCOUNTSTATUS_ACTION = CONSULTACCOUNTSTATUS_PROTOCOL;
+	public static final String CONSULTNUMBEROFCLIENTS_ACTION = CONSULTNUMBEROFCLIENTS_PROTOCOL;	
+
 	
 	// Subscribe Actions
 	public static final String SUBSCRIBETODAYEVENT_ACTION = SUBSCRIBETODAYEVENT_PROTOCOL;
