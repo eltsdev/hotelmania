@@ -1,12 +1,16 @@
 package hotelmania.group2.platform;
 
+import hotelmania.group2.dao.Account;
 import hotelmania.group2.dao.AccountDAO;
+import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.ChargeAccount;
 import hotelmania.ontology.CreateAccount;
 import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.MakeDeposit;
+import hotelmania.ontology.RateHotel;
 import jade.content.Concept;
 import jade.content.ContentElement;
+import jade.content.abs.AbsContentElement;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
@@ -172,15 +176,55 @@ public class AgBank extends MetaAgent {
 			}
 			Concept conc = this.getConceptFromMessage(msg);
 			// If the action is Registration Request...
-			if (conc instanceof HotelsInfoRequest) {
+			if (conc instanceof AccountStatus) {
 				// execute request
-				//ACLMessage reply = answerHotelsInfoRequest(msg);
+				ACLMessage reply = answerGetInfoAccount(msg, (AccountStatus)conc);
 				// send reply
-				//myAgent.send(reply);
+				myAgent.send(reply);
 
 				System.out.println(myAgent.getLocalName()
 						+ ": answer sent -> " + this.log);
 			}
+		}
+		
+		private ACLMessage answerGetInfoAccount(ACLMessage msg, AccountStatus accountStatus) {
+			
+			System.out.println(myAgent.getLocalName()
+					+ ": received Rating Request from "
+					+ (msg.getSender()).getLocalName());
+
+			ACLMessage reply = msg.createReply();
+			int idToRequest = 0;
+			if (accountStatus != null) {
+				Account account = getAcountWithId(idToRequest);
+				if (account == null) {
+					this.log = Constants.REFUSE;
+					reply.setPerformative(ACLMessage.REFUSE);
+				} else {
+					try {
+						this.log = Constants.AGREE;
+						reply.setPerformative(ACLMessage.AGREE);
+						Action agAction = new Action(msg.getSender(), (Concept) account);
+						myAgent.getContentManager().fillContent(msg, agAction);
+					} catch (CodecException | OntologyException e) {
+						e.printStackTrace();
+					}
+				}
+				
+			} else {
+				this.log = Constants.NOT_UNDERSTOOD;
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+			}
+			return reply;
+		}
+		
+		private Account getAcountWithId(int accountId) {
+			for (Account account : accountDAO.getListAccount()) {
+				if (account.getId() == accountId) {
+					return account;
+				}
+			}
+			return null;
 		}
 
 	}

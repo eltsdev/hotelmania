@@ -11,6 +11,7 @@ public class Account {
 
 	private String hotel;
 	private float balance;
+	private int id;
 
 	public Account() {
 	}
@@ -19,9 +20,10 @@ public class Account {
 	 * @param hotel2
 	 * @param balance2
 	 */
-	public Account(String hot, float bal) {
-		hotel = hot;
-		balance = bal;
+	public Account(String hot, float bal, int id) {
+		this.hotel = hot;
+		this.balance = bal;
+		this.id = id;
 	}
 
 	/**
@@ -53,5 +55,15 @@ public class Account {
 	public void setBalance(float balance) {
 		this.balance = balance;
 	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	
 
 }

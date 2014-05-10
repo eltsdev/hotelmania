@@ -5,6 +5,15 @@ import java.util.ArrayList;
 public class AccountDAO {
 
 	private ArrayList<Account> listAccount = new ArrayList<Account>();
+	private int currentId = 0;
+	
+	public ArrayList<Account> getListAccount() {
+		return listAccount;
+	}
+
+	public void setListAccount(ArrayList<Account> listAccount) {
+		this.listAccount = listAccount;
+	}
 
 	/**
 	 * @param hotel_name
@@ -17,7 +26,8 @@ public class AccountDAO {
 			}
 
 		}
-		listAccount.add(new Account(hotel, balance));
+		listAccount.add(new Account(hotel, balance, this.currentId));
+		this.currentId++;
 		return true;
 	}
 
