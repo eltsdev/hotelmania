@@ -65,11 +65,11 @@ public class Account {
 	}
 	
 	public hotelmania.ontology.Account getConcept() {
-		hotelmania.ontology.Account conceptAccount = new hotelmania.ontology.Account();
-		conceptAccount.setBalance(this.balance);
-		conceptAccount.setHotel(this.hotel.getConcept());
-		conceptAccount.setId_account(this.id);
-		return conceptAccount;
+		hotelmania.ontology.Account concept = new hotelmania.ontology.Account();
+		concept.setBalance(this.balance);
+		concept.setHotel(this.hotel.getConcept());
+		concept.setId_account(this.id);
+		return concept;
 	}
 	
 
