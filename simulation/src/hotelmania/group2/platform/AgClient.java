@@ -187,13 +187,12 @@ public class AgClient extends MetaAgent {
 			if (hotel == null) {
 				hotel = locateAgent(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION, myAgent);
 			} else {
-				System.out.println("aaaaa enviando al hotel");
-				this.consultHotelInfo(hotel);
+				this.consultHotelInfo();
 				this.setDone(true);
 			}
 		}
 
-		private void consultHotelInfo(AID hotel) {
+		private void consultHotelInfo() {
 			NumberOfClientsQueryRef request = new NumberOfClientsQueryRef();
 			request.setHotel_name("hotelII");
 			sendRequest(hotel, request, Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL,ACLMessage.QUERY_REF);

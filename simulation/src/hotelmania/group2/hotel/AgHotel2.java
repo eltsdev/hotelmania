@@ -6,6 +6,7 @@ import hotelmania.group2.platform.MetaAgent;
 import hotelmania.group2.platform.MetaCyclicBehaviour;
 import hotelmania.group2.platform.MetaSimpleBehaviour;
 import hotelmania.ontology.AccountStatus;
+import hotelmania.ontology.AccountStatusQueryRef;
 import hotelmania.ontology.BookRoom;
 import hotelmania.ontology.Booking;
 import hotelmania.ontology.Contract;
@@ -42,11 +43,13 @@ public class AgHotel2 extends MetaAgent {
 
 		addBehaviour(new RegisterInHotelmaniaBehavior(this));
 		addBehaviour(new CreateBankAccountBehavior(this));
+		addBehaviour(new ConsultBankAccountInfoBehavior(this));
 		
 		// addBehaviour(new MakeRoomBookingBehavior(this));
 		// addBehaviour(new ProvideRoomInfoBehavior(this));
 
 		// addBehaviour(new ConsultHotelInfoBehavior(this));
+		
 		addBehaviour(new ProvideHotelNumberOfClientsBehavior(this));
 		this.registerServices(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION);
 		
@@ -251,6 +254,36 @@ public class AgHotel2 extends MetaAgent {
 		}
 
 	}
+	
+	private final class ConsultBankAccountInfoBehavior extends MetaSimpleBehaviour {
+
+		private static final long serialVersionUID = 1955222376582492939L;
+
+		private AID agBank;
+
+		public ConsultBankAccountInfoBehavior(Agent a) {
+			super(a);
+		}
+
+		@Override
+		public void action() {
+			// Create hotel account
+			if (agBank == null) {
+				agBank=locateAgent(Constants.CONSULTACCOUNTSTATUS_ACTION, myAgent);
+			} else {
+				consultHotelAccountInfo();
+			}
+		}
+
+		private void consultHotelAccountInfo() {
+			AccountStatusQueryRef request = new AccountStatusQueryRef();
+			request.setId_account(0);//TODO set real account id
+			sendRequest(agBank, request,Constants.CONSULTACCOUNTSTATUS_PROTOCOL, ACLMessage.QUERY_REF);
+
+			this.setDone(true);
+		}
+
+	}
 
 	/**
 	 * Behavior for hiring the staff
@@ -370,7 +403,6 @@ public class AgHotel2 extends MetaAgent {
 				block();
 				return;
 			}
-			System.out.println("aaaaa el hotel lo ha recibido");
 			Concept conc = this.getConceptFromMessage(msg);
 			// If the action is Registration Request...
 			if (conc instanceof NumberOfClientsQueryRef) {
@@ -379,7 +411,7 @@ public class AgHotel2 extends MetaAgent {
 				// send reply
 				myAgent.send(reply);
 
-				System.out.println(myAgent.getLocalName() + ": aaaaa answer sent -> "
+				System.out.println(myAgent.getLocalName() + ": answer sent -> "
 						+ this.log + " to " + msg.getSender().getLocalName());
 			}
 		}
@@ -387,7 +419,7 @@ public class AgHotel2 extends MetaAgent {
 		private ACLMessage answerGetNumberOfClients(ACLMessage msg, NumberOfClientsQueryRef numberOfClientsQueryRef) {
 
 			System.out.println(myAgent.getLocalName()
-					+ ": aaaaa received NumberOfClients Request from "
+					+ ": received " + msg.getProtocol() + " Request from "
 					+ (msg.getSender()).getLocalName());
 
 			ACLMessage reply = msg.createReply();

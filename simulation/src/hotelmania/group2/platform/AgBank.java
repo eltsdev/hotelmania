@@ -3,6 +3,7 @@ package hotelmania.group2.platform;
 import hotelmania.group2.dao.Account;
 import hotelmania.group2.dao.AccountDAO;
 import hotelmania.ontology.AccountStatus;
+import hotelmania.ontology.AccountStatusQueryRef;
 import hotelmania.ontology.ChargeAccount;
 import hotelmania.ontology.CreateAccountRequest;
 import hotelmania.ontology.MakeDeposit;
@@ -25,7 +26,7 @@ public class AgBank extends MetaAgent {
 	protected void setup() {
 		super.setup();
 
-		registerServices(Constants.CREATEACCOUNT_ACTION);
+		
 
 		// Create hotel account
 		addBehaviour(new CreateAccountBehavior(this));
@@ -38,6 +39,9 @@ public class AgBank extends MetaAgent {
 
 		// Provide info account to hotel
 		addBehaviour(new ProvideHotelAccountInfoBehavior(this));
+		
+		registerServices(Constants.CREATEACCOUNT_ACTION,
+				Constants.CONSULTACCOUNTSTATUS_ACTION);
 
 	}
 
@@ -70,9 +74,9 @@ public class AgBank extends MetaAgent {
 					MessageTemplate.and(
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate
+							MessageTemplate
 							.MatchProtocol(Constants.CREATEACCOUNT_PROTOCOL)),
-					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
 			 * If no message arrives
@@ -195,7 +199,7 @@ public class AgBank extends MetaAgent {
 	}
 
 	private final class ProvideHotelAccountInfoBehavior extends
-			MetaCyclicBehaviour {
+	MetaCyclicBehaviour {
 
 		private static final long serialVersionUID = -4414753731149819352L;
 
@@ -208,16 +212,11 @@ public class AgBank extends MetaAgent {
 			/*
 			 * Look for messages
 			 */
-			ACLMessage msg = receive(MessageTemplate
-					.and(MessageTemplate
-							.and(MessageTemplate.and(MessageTemplate
-									.MatchLanguage(codec.getName()),
-									MessageTemplate.MatchOntology(ontology
-											.getName())),
-									MessageTemplate
-											.MatchProtocol(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)),
-							MessageTemplate
-									.MatchPerformative(ACLMessage.QUERY_REF)));
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)),
+					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
 
 			/*
 			 * If no message arrives
@@ -226,12 +225,13 @@ public class AgBank extends MetaAgent {
 				block();
 				return;
 			}
+			System.out.println("-------------------------------------------------------------------------------------------------");
 			Concept conc = this.getConceptFromMessage(msg);
 			// If the action is Registration Request...
-			if (conc instanceof AccountStatus) {
+			if (conc instanceof AccountStatusQueryRef) {
 				// execute request
 				ACLMessage reply = answerGetInfoAccount(msg,
-						(AccountStatus) conc);
+						(AccountStatusQueryRef) conc);
 				// send reply
 				myAgent.send(reply);
 
@@ -240,16 +240,15 @@ public class AgBank extends MetaAgent {
 			}
 		}
 
-		private ACLMessage answerGetInfoAccount(ACLMessage msg,
-				AccountStatus accountStatus) {
+		private ACLMessage answerGetInfoAccount(ACLMessage msg, AccountStatusQueryRef accountStatus) {
 
 			System.out.println(myAgent.getLocalName()
-					+ ": received Rating Request from "
+					+ ": received " + msg.getProtocol() + " Request from "
 					+ (msg.getSender()).getLocalName());
 
-			ACLMessage reply = msg.createReply();
-			int idToRequest = 0;
+			ACLMessage reply = msg.createReply();	
 			if (accountStatus != null) {
+				int idToRequest = accountStatus.getId_account();
 				hotelmania.ontology.Account account = getAcountWithId(idToRequest);
 				if (account == null) {
 					this.log = Constants.REFUSE;
@@ -300,9 +299,9 @@ public class AgBank extends MetaAgent {
 					MessageTemplate.and(
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate
+							MessageTemplate
 							.MatchProtocol(Constants.CHARGEACCOUNT_PROTOCOL)),
-					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
 			 * If no message arrives
@@ -388,9 +387,9 @@ public class AgBank extends MetaAgent {
 					MessageTemplate.and(
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate
+							MessageTemplate
 							.MatchProtocol(Constants.MAKEDEPOSIT_PROTOCOL)),
-					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
 			 * If no message arrives
