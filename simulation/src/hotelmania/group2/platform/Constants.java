@@ -16,6 +16,7 @@ public class Constants {
 	public static final String CREATEACCOUNT_PROTOCOL = "CreateAccount";
 	public static final String CHARGEACCOUNT_PROTOCOL = "CHARGEACCOUNT";
 	public static final String SUBSCRIBETODAYEVENT_PROTOCOL = "SubscribeToDayEvent";	
+	public static final String CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL = "NumberOfClients";	
 	
 
 	// Request Actions
@@ -32,6 +33,7 @@ public class Constants {
 	public static final String CONSULTHOTELSSTAFF_ACTION = CONSULTHOTELSSTAFF_PROTOCOL;
 	public static final String CONSULTROOMPRICES_ACTION = CONSULTROOMPRICES_PROTOCOL;
 	public static final String CONSULTACCOUNTSTATUS_ACTION = CONSULTACCOUNTSTATUS_PROTOCOL;
+	public static final String CONSULTHOTELNUMBEROFCLIENTS_ACTION = CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL;
 	
 	// Subscribe Actions
 	public static final String SUBSCRIBETODAYEVENT_ACTION = SUBSCRIBETODAYEVENT_PROTOCOL;

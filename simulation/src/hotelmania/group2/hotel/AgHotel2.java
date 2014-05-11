@@ -5,12 +5,15 @@ import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.MetaAgent;
 import hotelmania.group2.platform.MetaCyclicBehaviour;
 import hotelmania.group2.platform.MetaSimpleBehaviour;
+import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.BookRoom;
 import hotelmania.ontology.Booking;
 import hotelmania.ontology.Contract;
 import hotelmania.ontology.CreateAccountRequest;
 import hotelmania.ontology.Hotel;
 import hotelmania.ontology.HotelsInfoRequest;
+import hotelmania.ontology.NumberOfClients;
+import hotelmania.ontology.NumberOfClientsQueryRef;
 import hotelmania.ontology.RegistrationRequest;
 import hotelmania.ontology.SignContract;
 import jade.content.Concept;
@@ -44,6 +47,9 @@ public class AgHotel2 extends MetaAgent {
 		// addBehaviour(new ProvideRoomInfoBehavior(this));
 
 		// addBehaviour(new ConsultHotelInfoBehavior(this));
+		addBehaviour(new ProvideHotelNumberOfClientsBehavior(this));
+		
+		
 		// TODO Consult account status
 	}
 
@@ -336,6 +342,83 @@ public class AgHotel2 extends MetaAgent {
 					Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
+	}
+	
+	private final class ProvideHotelNumberOfClientsBehavior extends MetaCyclicBehaviour {
+
+		private static final long serialVersionUID = -4414753731149819352L;
+
+		public ProvideHotelNumberOfClientsBehavior(Agent a) {
+			super(a);
+		}
+
+		@Override
+		public void action() {
+			/*
+			 * Look for messages
+			 */
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)),
+					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
+
+			/*
+			 * If no message arrives
+			 */
+			if (msg == null) {
+				block();
+				return;
+			}
+			Concept conc = this.getConceptFromMessage(msg);
+			// If the action is Registration Request...
+			if (conc instanceof NumberOfClientsQueryRef) {
+				// execute request
+				ACLMessage reply = answerGetNumberOfClients(msg, (NumberOfClientsQueryRef) conc);
+				// send reply
+				myAgent.send(reply);
+
+				System.out.println(myAgent.getLocalName() + ": answer sent -> "
+						+ this.log);
+			}
+		}
+
+		private ACLMessage answerGetNumberOfClients(ACLMessage msg, NumberOfClientsQueryRef numberOfClientsQueryRef) {
+
+			System.out.println(myAgent.getLocalName()
+					+ ": received Rating Request from "
+					+ (msg.getSender()).getLocalName());
+
+			ACLMessage reply = msg.createReply();
+			if (numberOfClientsQueryRef != null && numberOfClientsQueryRef.getHotel_name() == myAgent.getLocalName()) {
+				hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getHotel_name());
+				if (numberOfClients == null) {
+					this.log = Constants.REFUSE;
+					reply.setPerformative(ACLMessage.REFUSE);
+				} else {
+					try {
+						this.log = Constants.AGREE;
+						reply.setPerformative(ACLMessage.AGREE);
+						//Action agAction = new Action(msg.getSender(), (Concept) numberOfClients);// TODO numberOfClients should be a concept not a predicate
+						Action agAction = new Action();
+						myAgent.getContentManager().fillContent(msg, agAction);
+					} catch (CodecException | OntologyException e) {
+						e.printStackTrace();
+					}
+				}
+
+			} else {
+				this.log = Constants.NOT_UNDERSTOOD;
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+			}
+			return reply;
+		}
+
+		private hotelmania.ontology.NumberOfClients getNumberOfClients(String hotelName) {
+			hotelmania.ontology.NumberOfClients numberOfClients = new NumberOfClients();
+			numberOfClients.setNum_clients(2);//TODO get the real number of clients of this hotel
+			return numberOfClients;
+		}
 	}
 
 	@Override
