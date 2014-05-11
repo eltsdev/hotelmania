@@ -251,8 +251,8 @@ public class AgPlatform2 extends MetaAgent
 				ac = cc.createNewAgent("agency", "hotelmania.group2.platform.AgAgency", null);
 				ac.start();
 
-				//				ac = cc.createNewAgent("bank", "hotelmania.group2.platform.AgBank", null);
-				//				ac.start();
+				ac = cc.createNewAgent("bank", "hotelmania.group2.platform.AgBank", null);
+				ac.start();
 			} catch (StaleProxyException e) {
 				e.printStackTrace();
 				//				done = false;
