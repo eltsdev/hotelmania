@@ -18,7 +18,7 @@ import jade.lang.acl.MessageTemplate;
 public class AgBank extends MetaAgent {
 
 	private static final long serialVersionUID = 2893904717857535232L;
-	private hotelmania.ontology.Account accountOnto;
+
 	private AccountDAO accountDAO = new AccountDAO();
 
 	@Override
@@ -70,9 +70,9 @@ public class AgBank extends MetaAgent {
 					MessageTemplate.and(
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
-							MessageTemplate
+					MessageTemplate
 							.MatchProtocol(Constants.CREATEACCOUNT_PROTOCOL)),
-							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
 			 * If no message arrives
@@ -96,12 +96,9 @@ public class AgBank extends MetaAgent {
 					// If the action is Create Account...
 					if (conc instanceof CreateAccountRequest) {
 						// execute request
-						ACLMessage reply = createAccount(msg,
-								(CreateAccountRequest) conc);
-						myAgent.send(reply);
 
-						System.out.println(myAgent.getLocalName()
-								+ ": answer sent -> " + log);
+						hotelmania.ontology.Account accountOnto = createAccount(
+								msg, (CreateAccountRequest) conc);
 
 						/*
 						 * Inform Account Status
@@ -124,8 +121,8 @@ public class AgBank extends MetaAgent {
 
 			ACLMessage inform = request.createReply();
 			// Create predicate Account Status
-
 			AccountStatus predicate_account = new AccountStatus();
+
 			predicate_account.setAccount(accountOnto);
 			if (accountOnto == null) {
 				this.log = Constants.FAILURE;
@@ -149,17 +146,17 @@ public class AgBank extends MetaAgent {
 		 * @param accountData
 		 * @return
 		 */
-		private ACLMessage createAccount(ACLMessage msg,
+		private hotelmania.ontology.Account createAccount(ACLMessage msg,
 				CreateAccountRequest accountData) {
-
+			hotelmania.ontology.Account account = null;
 			System.out.println(myAgent.getLocalName()
 					+ ": received Create Account Request from "
 					+ (msg.getSender()).getLocalName());
 
 			ACLMessage reply = msg.createReply();
 			if (accountData != null && accountData.getHotel() != null) {
-				registerNewAccount(accountData);
-				if (accountOnto != null) {
+				account = registerNewAccount(accountData);
+				if (account != null) {
 					reply.setPerformative(ACLMessage.AGREE);
 					this.log = Constants.AGREE;
 				} else {
@@ -167,7 +164,12 @@ public class AgBank extends MetaAgent {
 					this.log = Constants.REFUSE;
 				}
 			}
-			return reply;
+
+			myAgent.send(reply);
+
+			System.out.println(myAgent.getLocalName() + ": answer sent -> "
+					+ log);
+			return account;
 
 		}
 
@@ -176,16 +178,11 @@ public class AgBank extends MetaAgent {
 		 * @return
 		 */
 
-		private void registerNewAccount(CreateAccountRequest account) {
+		private hotelmania.ontology.Account registerNewAccount(
+				CreateAccountRequest account) {
 			Account newAccount = accountDAO.registerNewAccount(account
 					.getHotel().getHotel_name(), 0);
-			accountOnto = new hotelmania.ontology.Account();
-			if (newAccount != null) {
-
-				accountOnto.setHotel(account.getHotel());
-				accountOnto.setBalance(0);
-				accountOnto.setId_account(newAccount.getId());
-			}
+			return newAccount.getConcept();
 
 		}
 
@@ -198,7 +195,7 @@ public class AgBank extends MetaAgent {
 	}
 
 	private final class ProvideHotelAccountInfoBehavior extends
-	MetaCyclicBehaviour {
+			MetaCyclicBehaviour {
 
 		private static final long serialVersionUID = -4414753731149819352L;
 
@@ -211,11 +208,16 @@ public class AgBank extends MetaAgent {
 			/*
 			 * Look for messages
 			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)),
-					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
+			ACLMessage msg = receive(MessageTemplate
+					.and(MessageTemplate
+							.and(MessageTemplate.and(MessageTemplate
+									.MatchLanguage(codec.getName()),
+									MessageTemplate.MatchOntology(ontology
+											.getName())),
+									MessageTemplate
+											.MatchProtocol(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)),
+							MessageTemplate
+									.MatchPerformative(ACLMessage.QUERY_REF)));
 
 			/*
 			 * If no message arrives
@@ -271,7 +273,8 @@ public class AgBank extends MetaAgent {
 		}
 
 		private hotelmania.ontology.Account getAcountWithId(int accountId) {
-			for (hotelmania.group2.dao.Account account : accountDAO.getListAccount()) {
+			for (hotelmania.group2.dao.Account account : accountDAO
+					.getListAccount()) {
 				if (account.getId() == accountId) {
 					return account.getConcept();
 				}
@@ -297,9 +300,9 @@ public class AgBank extends MetaAgent {
 					MessageTemplate.and(
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
-							MessageTemplate
+					MessageTemplate
 							.MatchProtocol(Constants.CHARGEACCOUNT_PROTOCOL)),
-							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
 			 * If no message arrives
@@ -385,9 +388,9 @@ public class AgBank extends MetaAgent {
 					MessageTemplate.and(
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
-							MessageTemplate
+					MessageTemplate
 							.MatchProtocol(Constants.MAKEDEPOSIT_PROTOCOL)),
-							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
 			 * If no message arrives
