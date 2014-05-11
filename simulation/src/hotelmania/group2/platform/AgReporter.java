@@ -93,4 +93,13 @@ public class AgReporter extends MetaAgent
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see hotelmania.group2.platform.MetaAgent#receiveInform()
+	 */
+	@Override
+	public void receivedInform(ACLMessage message) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

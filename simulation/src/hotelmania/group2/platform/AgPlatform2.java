@@ -358,4 +358,13 @@ public class AgPlatform2 extends MetaAgent
 //		TODO logs
 
 	}
+
+	/* (non-Javadoc)
+	 * @see hotelmania.group2.platform.MetaAgent#receiveInform()
+	 */
+	@Override
+	public void receivedInform(ACLMessage message) {
+		// TODO Auto-generated method stub
+		
+	}
 }

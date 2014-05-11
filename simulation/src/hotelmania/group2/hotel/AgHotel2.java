@@ -252,7 +252,7 @@ public class AgHotel2 extends MetaAgent {
 
 			this.setDone(true);
 		}
-
+		
 	}
 	
 	private final class ConsultBankAccountInfoBehavior extends MetaSimpleBehaviour {
@@ -501,5 +501,16 @@ public class AgHotel2 extends MetaAgent {
 		 * TODO include cases for: MakeRoomBookingBehavior
 		 * ProvideRoomInfoBehavior Consult account status
 		 */
+		
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see hotelmania.group2.platform.MetaAgent#receiveInform()
+	 */
+	@Override
+	public void receivedInform(ACLMessage message) {
+		// TODO Auto-generated method stub
+		
 	}
 }

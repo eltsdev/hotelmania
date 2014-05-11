@@ -188,7 +188,7 @@ public abstract class MetaAgent extends Agent {
 		}
 	}
 
-	private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour {
+private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour {
 		
 		private static final long serialVersionUID = -4878774871721189228L;
 
@@ -216,6 +216,35 @@ public abstract class MetaAgent extends Agent {
 
 		}
 	}
+
+	private final class ReceiveInformMsgBehavior extends CyclicBehaviour {
+	
+	private static final long serialVersionUID = -4878774871721189228L;
+
+	private ReceiveInformMsgBehavior(Agent a) {
+		super(a);
+	}
+
+	public void action() {
+		// Waits for acceptance messages
+		ACLMessage msg = receive(MessageTemplate.MatchPerformative(ACLMessage.INFORM));
+
+		if (msg != null) {
+			// If an acceptance arrives...
+			String request = "*Inform*" ;
+			System.out.println(myAgent.getLocalName()
+					+ ": received "+request +" acceptance from "
+					+ (msg.getSender()).getLocalName());
+			
+			receivedInform(msg);
+			
+		} else {
+			// If no message arrives
+			block();
+		}
+
+	}
+}
 
 	private final class ReceiveRejectionMsgBehavior extends CyclicBehaviour {
 		
@@ -303,5 +332,7 @@ public abstract class MetaAgent extends Agent {
 	public abstract void receivedReject(ACLMessage message);
 
 	public  abstract void receivedNotUnderstood(ACLMessage message);
+	
+	public abstract void receivedInform(ACLMessage message);
 	
 }
