@@ -225,7 +225,6 @@ public class AgBank extends MetaAgent {
 				block();
 				return;
 			}
-			System.out.println("-------------------------------------------------------------------------------------------------");
 			Concept conc = this.getConceptFromMessage(msg);
 			// If the action is Registration Request...
 			if (conc instanceof AccountStatusQueryRef) {
