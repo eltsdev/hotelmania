@@ -11,21 +11,14 @@ import java.util.Date;
 public class Booking {
 
 	private int days;
-	private Date startDate;
+	private String startDate;
 	/**
 	 * @param days2
 	 * @param startDate2
 	 */
-	public Booking(int days2, String startDate2) {
-		days = days2;
-		DateFormat day = null;
-		
-		try {
-			startDate = day.parse(startDate2);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+	public Booking(int days, String startDate) {
+		this.days = days;
+		this.startDate = startDate;
 	}
 	/**
 	 * @return the days
@@ -39,16 +32,14 @@ public class Booking {
 	public void setDays(int days) {
 		this.days = days;
 	}
-	/**
-	 * @return the startDate
-	 */
-	public Date getStartDate() {
+	
+	public String getStartDate() {
 		return startDate;
 	}
-	/**
-	 * @param startDate the startDate to set
-	 */
-	public void setStartDate(Date startDate) {
+	public void setStartDate(String startDate) {
 		this.startDate = startDate;
 	}
+
+	
+	
 }

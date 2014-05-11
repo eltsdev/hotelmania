@@ -450,7 +450,8 @@ public class AgHotel2 extends MetaAgent {
 
 		private hotelmania.ontology.NumberOfClientsQueryRef getNumberOfClients(String hotelName) {
 			hotelmania.ontology.NumberOfClientsQueryRef numberOfClients = new NumberOfClientsQueryRef();
-			numberOfClients.setHotel_name("2");//TODO get the real number of clients of this hotel
+			int clients = bookDAO.getClientsAtDay(day);
+			numberOfClients.setHotel_name(String.valueOf(clients));
 			return numberOfClients;
 		}
 		
