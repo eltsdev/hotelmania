@@ -111,6 +111,8 @@ public abstract class MetaAgent extends Agent {
 		System.out.println(getLocalName() + ": REQUESTS " + content.getClass().getSimpleName());
 	}
 	
+
+	
 	public void registerServices(String...services) {
 		DFAgentDescription dfd = new DFAgentDescription();
 		for (int i = 0; i < services.length; i++) {

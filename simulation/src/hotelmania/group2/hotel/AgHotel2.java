@@ -1,4 +1,5 @@
 package hotelmania.group2.hotel;
+
 import hotelmania.group2.dao.BookingDAO;
 import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.MetaAgent;
@@ -7,7 +8,7 @@ import hotelmania.group2.platform.MetaSimpleBehaviour;
 import hotelmania.ontology.BookRoom;
 import hotelmania.ontology.Booking;
 import hotelmania.ontology.Contract;
-import hotelmania.ontology.CreateAccount;
+import hotelmania.ontology.CreateAccountRequest;
 import hotelmania.ontology.Hotel;
 import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.RegistrationRequest;
@@ -23,12 +24,12 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
 public class AgHotel2 extends MetaAgent {
-	
+
 	private static final long serialVersionUID = 2893904717857535232L;
 
-	//------------------------------------------------- 
+	// -------------------------------------------------
 	// Agent Attributes
-	//-------------------------------------------------
+	// -------------------------------------------------
 
 	boolean registered;
 
@@ -37,14 +38,15 @@ public class AgHotel2 extends MetaAgent {
 		super.setup();
 
 		addBehaviour(new RegisterInHotelmaniaBehavior(this));
+		addBehaviour(new CreateBankAccountBehavior(this));
+		
+		// addBehaviour(new MakeRoomBookingBehavior(this));
+		// addBehaviour(new ProvideRoomInfoBehavior(this));
 
-//		addBehaviour(new MakeRoomBookingBehavior(this));
-//		addBehaviour(new ProvideRoomInfoBehavior(this));
-//		addBehaviour(new CreateBankAccountBehavior(this));
-//		addBehaviour(new ConsultHotelInfoBehavior(this));
-//		 TODO Consult account status
+		// addBehaviour(new ConsultHotelInfoBehavior(this));
+		// TODO Consult account status
 	}
-	
+
 	/**
 	 * This means: I AM interested on this event.
 	 */
@@ -62,7 +64,8 @@ public class AgHotel2 extends MetaAgent {
 	// BEHAVIOURS
 	// --------------------------------------------------------
 
-	private final class RegisterInHotelmaniaBehavior extends MetaSimpleBehaviour {
+	private final class RegisterInHotelmaniaBehavior extends
+			MetaSimpleBehaviour {
 		private static final long serialVersionUID = 1256090117313507535L;
 		private AID agHotelmania;
 
@@ -73,16 +76,17 @@ public class AgHotel2 extends MetaAgent {
 		@Override
 		public void action() {
 			// Register hotel
-			if (agHotelmania==null) {
+			if (agHotelmania == null) {
 				// Search hotelmania agent
-				agHotelmania = locateAgent(Constants.REGISTRATION_ACTION, myAgent);
-				//block();
-				//return;
+				agHotelmania = locateAgent(Constants.REGISTRATION_ACTION,
+						myAgent);
+				// block();
+				// return;
 			} else {
 				registerHotel();
 				this.setDone(true);
 			}
-			
+
 		}
 
 		private void registerHotel() {
@@ -90,8 +94,9 @@ public class AgHotel2 extends MetaAgent {
 			Hotel hotel = new Hotel();
 			hotel.setHotel_name(getLocalName());
 			register.setHotel(hotel);
-			
-			sendRequest(agHotelmania, register, Constants.REGISTRATION_PROTOCOL, ACLMessage.REQUEST);
+
+			sendRequest(agHotelmania, register,
+					Constants.REGISTRATION_PROTOCOL, ACLMessage.REQUEST);
 		}
 	}
 
@@ -99,7 +104,6 @@ public class AgHotel2 extends MetaAgent {
 
 		private static final long serialVersionUID = -390060690778340930L;
 		private BookingDAO bookDAO = new BookingDAO();
-		
 
 		public MakeRoomBookingBehavior(Agent a) {
 			super(a);
@@ -137,10 +141,12 @@ public class AgHotel2 extends MetaAgent {
 					// If the action is BookRoom...
 					if (conc instanceof BookRoom) {
 						// execute request
-						ACLMessage reply = answerBookingRequest(msg, (BookRoom) conc);
+						ACLMessage reply = answerBookingRequest(msg,
+								(BookRoom) conc);
 						myAgent.send(reply);
 
-						System.out.println(myAgent.getLocalName() + ": answer sent -> " + log);
+						System.out.println(myAgent.getLocalName()
+								+ ": answer sent -> " + log);
 					}
 				}
 
@@ -178,7 +184,7 @@ public class AgHotel2 extends MetaAgent {
 			}
 
 			return reply;
-			}
+		}
 
 		private boolean bookRoom(Booking book) {
 			bookDAO.booking(book.getDays(), book.getStartDay());
@@ -197,62 +203,66 @@ public class AgHotel2 extends MetaAgent {
 
 		@Override
 		public void action() {
-			//TODO
+			// TODO
 			block();
 		}
 
 	}
 
+	/**
+	 * @author user
+	 *
+	 */
 	private final class CreateBankAccountBehavior extends MetaSimpleBehaviour {
-	
+
 		private static final long serialVersionUID = 1955222376582492939L;
-		
+
 		private AID agBank;
-	
+
 		public CreateBankAccountBehavior(Agent a) {
 			super(a);
 		}
-	
+
 		@Override
 		public void action() {
 			// Create hotel account
-			if (agBank ==null ) {
-				locateAgent(Constants.CREATEACCOUNT_ACTION, myAgent);
+			if (agBank == null) {
+				agBank=locateAgent(Constants.CREATEACCOUNT_ACTION, myAgent);
 			} else {
 				createHotelAccount();
 			}
 		}
-	
+
 		private void createHotelAccount() {
-			CreateAccount action_account = new CreateAccount();
+			CreateAccountRequest action_account = new CreateAccountRequest();
 			Hotel hotel = new Hotel();
 			hotel.setHotel_name(getLocalName());
 			action_account.setHotel(hotel);
-			action_account.setBalance(1000000);
-
-			sendRequest(agBank, action_account, Constants.CREATEACCOUNT_PROTOCOL, ACLMessage.REQUEST);
+			sendRequest(agBank, action_account,
+					Constants.CREATEACCOUNT_PROTOCOL, ACLMessage.REQUEST);
 
 			this.setDone(true);
 		}
-	
+
 	}
-	
+
 	/**
-	 * Behavior for hiring the staff 
+	 * Behavior for hiring the staff
 	 */
 	private void hireDailyStaffBehaviorAction() {
-		
+
 		AID agAgency = locateAgent(Constants.SIGNCONTRACT_ACTION, this);
-		
+
 		SignContract request = new SignContract();
-		
+
 		Hotel hotel = new Hotel();
 		hotel.setHotel_name(getLocalName());
 		request.setHotel(hotel);
-		request.setContract(hireDailyStaff(day+1));
-		
-		this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
-		
+		request.setContract(hireDailyStaff(day + 1));
+
+		this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL,
+				ACLMessage.REQUEST);
+
 	}
 
 	/**
@@ -268,12 +278,12 @@ public class AgHotel2 extends MetaAgent {
 		} else {
 			contract = buildNewContract();
 		}
-	
+
 		return contract;
 	}
 
 	Contract buildNewContract() {
-		//Contract old = dao.getContractsByHotel(name).get(0);
+		// Contract old = dao.getContractsByHotel(name).get(0);
 		Contract c = new Contract();
 		c.setChef_1stars(5);
 		c.setChef_2stars(5);
@@ -281,11 +291,12 @@ public class AgHotel2 extends MetaAgent {
 		c.setRecepcionist_experienced(2);
 		c.setRecepcionist_novice(2);
 		c.setRoom_service_staff(20);
-		return c ;
+		return c;
 	}
 
 	/**
 	 * Default values for staff hiring
+	 * 
 	 * @return
 	 */
 	Contract getInitialContract() {
@@ -296,15 +307,14 @@ public class AgHotel2 extends MetaAgent {
 		c.setRecepcionist_experienced(2);
 		c.setRecepcionist_novice(2);
 		c.setRoom_service_staff(20);
-		return c ;
+		return c;
 	}
-	
-	
+
 	private final class ConsultHotelInfoBehavior extends MetaSimpleBehaviour {
-		
+
 		private static final long serialVersionUID = 1L;
 		private AID agHotelmania;
-		
+
 		private ConsultHotelInfoBehavior(Agent a) {
 			super(a);
 		}
@@ -312,7 +322,8 @@ public class AgHotel2 extends MetaAgent {
 		@Override
 		public void action() {
 			if (agHotelmania == null) {
-				agHotelmania = locateAgent(Constants.CONSULTHOTELSINFO_ACTION, myAgent);
+				agHotelmania = locateAgent(Constants.CONSULTHOTELSINFO_ACTION,
+						myAgent);
 			} else {
 				this.consultHotelInfo(agHotelmania);
 				this.setDone(true);
@@ -321,49 +332,51 @@ public class AgHotel2 extends MetaAgent {
 
 		private void consultHotelInfo(AID hotelmania) {
 			HotelsInfoRequest request = new HotelsInfoRequest();
-			sendRequest(hotelmania, request,Constants.CONSULTHOTELSINFO_PROTOCOL,ACLMessage.QUERY_REF);
+			sendRequest(hotelmania, request,
+					Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
 	}
 
-	
 	@Override
 	public void receivedAcceptance(ACLMessage message) {
-		//TODO switch by message.getProtocol()
+		// TODO switch by message.getProtocol()
 	}
 
 	@Override
 	public void receivedReject(ACLMessage message) {
 		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
 			logRejectedMessage(Constants.REGISTRATION_PROTOCOL, message);
-			//TODO: DEFINE: addBehaviour(new RegisterInHotelmaniaBehavior(this));
-		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+			// TODO: DEFINE: addBehaviour(new
+			// RegisterInHotelmaniaBehavior(this));
+		} else if (message.getProtocol().equals(
+				Constants.CREATEACCOUNT_PROTOCOL)) {
 			logRejectedMessage(Constants.CREATEACCOUNT_PROTOCOL, message);
-		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+		} else if (message.getProtocol().equals(
+				Constants.CONSULTHOTELSINFO_PROTOCOL)) {
 			logRejectedMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
 		}
 		/*
-		TODO include cases for: 
-		MakeRoomBookingBehavior
-		ProvideRoomInfoBehavior
-		Consult account status
-		*/
+		 * TODO include cases for: MakeRoomBookingBehavior
+		 * ProvideRoomInfoBehavior Consult account status
+		 */
 	}
 
 	@Override
 	public void receivedNotUnderstood(ACLMessage message) {
 		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
 			logNotUnderstoodMessage(Constants.REGISTRATION_ACTION, message);
-		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+		} else if (message.getProtocol().equals(
+				Constants.CREATEACCOUNT_PROTOCOL)) {
 			logNotUnderstoodMessage(Constants.CREATEACCOUNT_PROTOCOL, message);
-		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
-			logNotUnderstoodMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
+		} else if (message.getProtocol().equals(
+				Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+			logNotUnderstoodMessage(Constants.CONSULTHOTELSINFO_PROTOCOL,
+					message);
 		}
 		/*
-		TODO include cases for: 
-		MakeRoomBookingBehavior
-		ProvideRoomInfoBehavior
-		Consult account status
-		*/
+		 * TODO include cases for: MakeRoomBookingBehavior
+		 * ProvideRoomInfoBehavior Consult account status
+		 */
 	}
 }
