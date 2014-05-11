@@ -29,7 +29,7 @@ import jade.lang.acl.MessageTemplate;
 public class AgHotel2 extends MetaAgent {
 
 	private static final long serialVersionUID = 2893904717857535232L;
-
+	private BookingDAO bookDAO = new BookingDAO();
 	// -------------------------------------------------
 	// Agent Attributes
 	// -------------------------------------------------
@@ -48,7 +48,7 @@ public class AgHotel2 extends MetaAgent {
 
 		// addBehaviour(new ConsultHotelInfoBehavior(this));
 		addBehaviour(new ProvideHotelNumberOfClientsBehavior(this));
-		
+		this.registerServices(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION);
 		
 		// TODO Consult account status
 	}
@@ -109,7 +109,7 @@ public class AgHotel2 extends MetaAgent {
 	private final class MakeRoomBookingBehavior extends MetaCyclicBehaviour {
 
 		private static final long serialVersionUID = -390060690778340930L;
-		private BookingDAO bookDAO = new BookingDAO();
+		
 
 		public MakeRoomBookingBehavior(Agent a) {
 			super(a);
@@ -370,6 +370,7 @@ public class AgHotel2 extends MetaAgent {
 				block();
 				return;
 			}
+			System.out.println("aaaaa el hotel lo ha recibido");
 			Concept conc = this.getConceptFromMessage(msg);
 			// If the action is Registration Request...
 			if (conc instanceof NumberOfClientsQueryRef) {
@@ -378,20 +379,21 @@ public class AgHotel2 extends MetaAgent {
 				// send reply
 				myAgent.send(reply);
 
-				System.out.println(myAgent.getLocalName() + ": answer sent -> "
-						+ this.log);
+				System.out.println(myAgent.getLocalName() + ": aaaaa answer sent -> "
+						+ this.log + " to " + msg.getSender().getLocalName());
 			}
 		}
 
 		private ACLMessage answerGetNumberOfClients(ACLMessage msg, NumberOfClientsQueryRef numberOfClientsQueryRef) {
 
 			System.out.println(myAgent.getLocalName()
-					+ ": received Rating Request from "
+					+ ": aaaaa received NumberOfClients Request from "
 					+ (msg.getSender()).getLocalName());
 
 			ACLMessage reply = msg.createReply();
-			if (numberOfClientsQueryRef != null && numberOfClientsQueryRef.getHotel_name() == myAgent.getLocalName()) {
-				hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getHotel_name());
+			if (numberOfClientsQueryRef != null && numberOfClientsQueryRef.getHotel_name().equals(myAgent.getLocalName())) {
+				//hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getHotel_name());
+				hotelmania.ontology.NumberOfClientsQueryRef numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getHotel_name());
 				if (numberOfClients == null) {
 					this.log = Constants.REFUSE;
 					reply.setPerformative(ACLMessage.REFUSE);
@@ -399,8 +401,8 @@ public class AgHotel2 extends MetaAgent {
 					try {
 						this.log = Constants.AGREE;
 						reply.setPerformative(ACLMessage.AGREE);
-						//Action agAction = new Action(msg.getSender(), (Concept) numberOfClients);// TODO numberOfClients should be a concept not a predicate
-						Action agAction = new Action();
+						Action agAction = new Action(msg.getSender(),numberOfClients);// TODO numberOfClients should be a concept not a predicate
+						//Action agAction = new Action();
 						myAgent.getContentManager().fillContent(msg, agAction);
 					} catch (CodecException | OntologyException e) {
 						e.printStackTrace();
@@ -414,11 +416,17 @@ public class AgHotel2 extends MetaAgent {
 			return reply;
 		}
 
-		private hotelmania.ontology.NumberOfClients getNumberOfClients(String hotelName) {
+		private hotelmania.ontology.NumberOfClientsQueryRef getNumberOfClients(String hotelName) {
+			hotelmania.ontology.NumberOfClientsQueryRef numberOfClients = new NumberOfClientsQueryRef();
+			numberOfClients.setHotel_name("2");//TODO get the real number of clients of this hotel
+			return numberOfClients;
+		}
+		
+		/*private hotelmania.ontology.NumberOfClients getNumberOfClients(String hotelName) {
 			hotelmania.ontology.NumberOfClients numberOfClients = new NumberOfClients();
 			numberOfClients.setNum_clients(2);//TODO get the real number of clients of this hotel
 			return numberOfClients;
-		}
+		}*/
 	}
 
 	@Override

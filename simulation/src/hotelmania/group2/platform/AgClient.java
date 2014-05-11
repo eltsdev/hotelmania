@@ -5,6 +5,7 @@ import hotelmania.ontology.Booking;
 import hotelmania.ontology.Hotel;
 import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.MakeDeposit;
+import hotelmania.ontology.NumberOfClientsQueryRef;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;
 import jade.core.AID;
@@ -29,7 +30,8 @@ public class AgClient extends MetaAgent {
 		// Behaviors
 
 		//addBehaviour(new RequestBookingInHotelBehavior(this));
-		addBehaviour(new ConsultHotelInfoBehavior(this));
+		//addBehaviour(new ConsultHotelInfoBehavior(this));
+		addBehaviour(new ConsultHotelNumberOfClientsBehavior(this));
 		// TODO refuse offer
 	}
 
@@ -170,10 +172,41 @@ public class AgClient extends MetaAgent {
 		}
 
 	}
+	
+	private final class ConsultHotelNumberOfClientsBehavior extends MetaSimpleBehaviour {
+
+		private static final long serialVersionUID = 1L;
+		private AID hotel;
+		
+		private ConsultHotelNumberOfClientsBehavior(Agent a) {
+			super(a);
+		}
+
+		@Override
+		public void action() {
+			if (hotel == null) {
+				hotel = locateAgent(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION, myAgent);
+			} else {
+				System.out.println("aaaaa enviando al hotel");
+				this.consultHotelInfo(hotel);
+				this.setDone(true);
+			}
+		}
+
+		private void consultHotelInfo(AID hotel) {
+			NumberOfClientsQueryRef request = new NumberOfClientsQueryRef();
+			request.setHotel_name("hotelII");
+			sendRequest(hotel, request, Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL,ACLMessage.QUERY_REF);
+		}
+
+	}
 
 
 	@Override
 	public void receivedAcceptance(ACLMessage message) {
+		if (message.getProtocol().equals(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)) {
+			System.out.println("aaaaa recibido");
+		}
 		//TODO switch by message.getProtocol()
 	}
 

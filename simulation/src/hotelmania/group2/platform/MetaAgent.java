@@ -84,7 +84,7 @@ public abstract class MetaAgent extends Agent {
 			e.printStackTrace();
 		}
 
-		System.out.println("Agent not found:" + type);
+		//System.out.println(this.getLocalName() + ": Agent not found:" + type);
 		return null;
 	}
 
