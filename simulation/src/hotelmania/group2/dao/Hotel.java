@@ -29,7 +29,11 @@ public class Hotel {
 		this.name = name;
 	}
 		
-	
+	public hotelmania.ontology.Hotel getConcept() {
+		hotelmania.ontology.Hotel concept = new hotelmania.ontology.Hotel();
+		concept.setHotel_name(this.name);
+		return concept;
+	}
 	
 
 }

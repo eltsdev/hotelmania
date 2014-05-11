@@ -123,7 +123,7 @@ public class AgBank extends MetaAgent {
 			ACLMessage reply = msg.createReply();
 
 			if (accountData != null && accountData.getHotel() != null) {
-				if (registerNewAccount(accountData)) {
+				if (registerNewAccount(accountData) != null) {
 					reply.setPerformative(ACLMessage.AGREE);
 					this.log = Constants.AGREE;
 				} else {
@@ -142,13 +142,14 @@ public class AgBank extends MetaAgent {
 		 * @param account
 		 * @return
 		 */
-		private boolean registerNewAccount(CreateAccount account) {
+		private Account registerNewAccount(CreateAccount account) {
 			return accountDAO .registerNewAccount(account.getHotel()
 					.getHotel_name(), account.getBalance());
 		}
 	}
 
-	private final class ProvideHotelAccountInfoBehavior extends MetaCyclicBehaviour {
+	private final class ProvideHotelAccountInfoBehavior extends
+			MetaCyclicBehaviour {
 
 		private static final long serialVersionUID = -4414753731149819352L;
 
@@ -161,11 +162,16 @@ public class AgBank extends MetaAgent {
 			/*
 			 * Look for messages
 			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)),
-					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
+			ACLMessage msg = receive(MessageTemplate
+					.and(MessageTemplate
+							.and(MessageTemplate.and(MessageTemplate
+									.MatchLanguage(codec.getName()),
+									MessageTemplate.MatchOntology(ontology
+											.getName())),
+									MessageTemplate
+											.MatchProtocol(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)),
+							MessageTemplate
+									.MatchPerformative(ACLMessage.QUERY_REF)));
 
 			/*
 			 * If no message arrives
@@ -178,17 +184,19 @@ public class AgBank extends MetaAgent {
 			// If the action is Registration Request...
 			if (conc instanceof AccountStatus) {
 				// execute request
-				ACLMessage reply = answerGetInfoAccount(msg, (AccountStatus)conc);
+				ACLMessage reply = answerGetInfoAccount(msg,
+						(AccountStatus) conc);
 				// send reply
 				myAgent.send(reply);
 
-				System.out.println(myAgent.getLocalName()
-						+ ": answer sent -> " + this.log);
+				System.out.println(myAgent.getLocalName() + ": answer sent -> "
+						+ this.log);
 			}
 		}
-		
-		private ACLMessage answerGetInfoAccount(ACLMessage msg, AccountStatus accountStatus) {
-			
+
+		private ACLMessage answerGetInfoAccount(ACLMessage msg,
+				AccountStatus accountStatus) {
+
 			System.out.println(myAgent.getLocalName()
 					+ ": received Rating Request from "
 					+ (msg.getSender()).getLocalName());
@@ -196,7 +204,7 @@ public class AgBank extends MetaAgent {
 			ACLMessage reply = msg.createReply();
 			int idToRequest = 0;
 			if (accountStatus != null) {
-				Account account = getAcountWithId(idToRequest);
+				hotelmania.ontology.Account account = getAcountWithId(idToRequest);
 				if (account == null) {
 					this.log = Constants.REFUSE;
 					reply.setPerformative(ACLMessage.REFUSE);
@@ -204,24 +212,24 @@ public class AgBank extends MetaAgent {
 					try {
 						this.log = Constants.AGREE;
 						reply.setPerformative(ACLMessage.AGREE);
-						Action agAction = new Action(msg.getSender(), (Concept) account);
+						Action agAction = new Action(msg.getSender(), account);
 						myAgent.getContentManager().fillContent(msg, agAction);
 					} catch (CodecException | OntologyException e) {
 						e.printStackTrace();
 					}
 				}
-				
+
 			} else {
 				this.log = Constants.NOT_UNDERSTOOD;
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 			}
 			return reply;
 		}
-		
-		private Account getAcountWithId(int accountId) {
-			for (Account account : accountDAO.getListAccount()) {
+
+		private hotelmania.ontology.Account getAcountWithId(int accountId) {
+			for (hotelmania.group2.dao.Account account : accountDAO.getListAccount()) {
 				if (account.getId() == accountId) {
-					return account;
+					return account.getConcept();
 				}
 			}
 			return null;

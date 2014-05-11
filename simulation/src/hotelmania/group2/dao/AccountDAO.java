@@ -19,16 +19,18 @@ public class AccountDAO {
 	 * @param hotel_name
 	 * @return
 	 */
-	public boolean registerNewAccount(String hotel, float balance) {
+	public Account registerNewAccount(String hotel,float balance) {
+		Account account=null;
 		for (int i = 0; i < listAccount.size(); i++) {
 			if (listAccount.get(i).getHotel().equals(hotel)) {
-				return false;
+				return account;
 			}
 
 		}
-		listAccount.add(new Account(hotel, balance, this.currentId));
+		account = new Account(new Hotel(hotel), balance, this.currentId);
+		listAccount.add(account);
 		this.currentId++;
-		return true;
+		return account;
 	}
 
 	/**

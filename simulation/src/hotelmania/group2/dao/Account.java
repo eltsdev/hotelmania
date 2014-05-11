@@ -9,7 +9,7 @@ package hotelmania.group2.dao;
  */
 public class Account {
 
-	private String hotel;
+	private Hotel hotel;
 	private float balance;
 	private int id;
 
@@ -20,16 +20,16 @@ public class Account {
 	 * @param hotel2
 	 * @param balance2
 	 */
-	public Account(String hot, float bal, int id) {
-		this.hotel = hot;
-		this.balance = bal;
+	public Account(Hotel hotel, float balance, int id) {
+		this.hotel = hotel;
+		this.balance = balance;
 		this.id = id;
 	}
 
 	/**
 	 * @return the hotel
 	 */
-	public String getHotel() {
+	public Hotel getHotel() {
 		return hotel;
 	}
 
@@ -37,7 +37,7 @@ public class Account {
 	 * @param hotel
 	 *            the hotel to set
 	 */
-	public void setHotel(String hotel) {
+	public void setHotel(Hotel hotel) {
 		this.hotel = hotel;
 	}
 
@@ -64,6 +64,13 @@ public class Account {
 		this.id = id;
 	}
 	
+	public hotelmania.ontology.Account getConcept() {
+		hotelmania.ontology.Account conceptAccount = new hotelmania.ontology.Account();
+		conceptAccount.setBalance(this.balance);
+		conceptAccount.setHotel(this.hotel.getConcept());
+		conceptAccount.setId_account(this.id);
+		return conceptAccount;
+	}
 	
 
 }
