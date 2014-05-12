@@ -96,6 +96,7 @@ public class AgBank extends MetaAgent {
 					// If the action is Create Account...
 					if (conc instanceof CreateAccountRequest) {
 						
+						this.createAccount(msg, (CreateAccountRequest)conc);
 						// execute request
 						hotelmania.ontology.Account account = registerNewAccount((CreateAccountRequest)conc);
 
@@ -147,7 +148,6 @@ public class AgBank extends MetaAgent {
 		 * @param accountData
 		 * @return
 		 */
-		@Deprecated
 		private void createAccount(ACLMessage msg,
 				CreateAccountRequest accountData) {
 			System.out.println(myAgent.getLocalName()
