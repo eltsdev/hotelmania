@@ -182,7 +182,7 @@ public class AgClient extends MetaAgent {
 	private final class ConsultHotelNumberOfClientsBehavior extends MetaSimpleBehaviour {
 
 		private static final long serialVersionUID = 1L;
-		private AID hotel;
+		private AID hotel = myHotel;
 		
 		private ConsultHotelNumberOfClientsBehavior(Agent a) {
 			super(a);
@@ -191,7 +191,7 @@ public class AgClient extends MetaAgent {
 		@Override
 		public void action() {
 			if (hotel == null) {
-				hotel = locateAgent(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION, myAgent);
+				hotel = locateAgent(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION, myAgent);//TODO quitarlo una vez que el booking cambie el valor de la variable myHotel
 			} else {
 				this.consultHotelInfo();
 				this.setDone(true);

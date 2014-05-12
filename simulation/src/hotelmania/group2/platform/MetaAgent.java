@@ -228,6 +228,11 @@ public abstract class MetaAgent extends Agent {
 	
 			if (msg != null) {
 				logInformMessage(msg.getProtocol(), msg);
+				if (msg.getProtocol().equals(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)) {
+					day++;
+					doOnNewDay();
+				}
+				
 				receivedInform(msg);
 	
 			} else {
