@@ -200,7 +200,8 @@ public class AgClient extends MetaAgent {
 
 		private void consultHotelInfo() {
 			NumberOfClientsQueryRef request = new NumberOfClientsQueryRef();
-			request.setHotel_name("hotelII");
+			//request.setHotel_name("hotelII");
+			request.setHotel_name(actualHotel);
 			sendRequest(hotel, request, Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL,ACLMessage.QUERY_REF);
 		}
 
