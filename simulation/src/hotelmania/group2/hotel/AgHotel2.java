@@ -437,9 +437,9 @@ public class AgHotel2 extends MetaAgent {
 			ACLMessage reply = msg.createReply();
 			if (numberOfClientsQueryRef != null) {
 				hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getHotel_name());
-				if (numberOfClients == null) {
-					this.log = Constants.FAILURE;
-					reply.setPerformative(ACLMessage.FAILURE);
+				if (numberOfClients.getNum_clients() < 0) {
+					this.log = Constants.REFUSE;
+					reply.setPerformative(ACLMessage.REFUSE);
 				} else {
 					try {
 						this.log = Constants.INFORM;
@@ -451,8 +451,8 @@ public class AgHotel2 extends MetaAgent {
 				}
 
 			} else {
-				this.log = Constants.FAILURE;
-				reply.setPerformative(ACLMessage.FAILURE);
+				this.log = Constants.NOT_UNDERSTOOD;
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 			}
 			return reply;
 		}
