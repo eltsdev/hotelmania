@@ -317,22 +317,23 @@ public class AgHotelmania extends MetaAgent
 	@Override
 	public void receivedReject(ACLMessage message) {
 		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
-			logRejectedMessage(Constants.REGISTRATION_PROTOCOL, message);
+
 		} else if (message.getProtocol().equals(Constants.RATEHOTEL_PROTOCOL)) {
-			logRejectedMessage(Constants.RATEHOTEL_PROTOCOL, message);
+		
 		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
-			logRejectedMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
+
+
 		}
 	}
 
 	@Override
 	public void receivedNotUnderstood(ACLMessage message) {
 		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
-			logNotUnderstoodMessage(Constants.REGISTRATION_ACTION, message);
+
 		} else if (message.getProtocol().equals(Constants.RATEHOTEL_PROTOCOL)) {
-			logNotUnderstoodMessage(Constants.RATEHOTEL_PROTOCOL, message);
+
 		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
-			logNotUnderstoodMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
+
 		}
 	}
 

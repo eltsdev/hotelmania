@@ -174,9 +174,7 @@ public class AgAgency extends MetaAgent
 	public void receivedReject(ACLMessage message) {
 		// TODO Auto-generated method stub
 		if (message.getProtocol().equals(Constants.SIGNCONTRACT_PROTOCOL)) {
-			logRejectedMessage(Constants.SIGNCONTRACT_PROTOCOL, message);
 		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSSTAFF_PROTOCOL)) {
-			logRejectedMessage(Constants.CONSULTHOTELSSTAFF_PROTOCOL, message);
 		}
 	}
 
@@ -184,9 +182,7 @@ public class AgAgency extends MetaAgent
 	public void receivedNotUnderstood(ACLMessage message) {
 		// TODO Auto-generated method stub
 		if (message.getProtocol().equals(Constants.SIGNCONTRACT_PROTOCOL)) {
-			logNotUnderstoodMessage(Constants.SIGNCONTRACT_PROTOCOL, message);
 		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSSTAFF_PROTOCOL)) {
-			logNotUnderstoodMessage(Constants.CONSULTHOTELSSTAFF_PROTOCOL, message);
 		}	
 	}
 

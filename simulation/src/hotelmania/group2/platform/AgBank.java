@@ -37,7 +37,7 @@ public class AgBank extends MetaAgent {
 
 		// Provide info account to hotel
 		addBehaviour(new ProvideHotelAccountInfoBehavior(this));
-
+		
 		registerServices(Constants.CREATEACCOUNT_ACTION,
 				Constants.CONSULTACCOUNTSTATUS_ACTION);
 
@@ -68,13 +68,11 @@ public class AgBank extends MetaAgent {
 			/*
 			 * Look for messages
 			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.and(
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate
-							.MatchProtocol(Constants.CREATEACCOUNT_PROTOCOL)),
-					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+							MessageTemplate.MatchProtocol(Constants.CREATEACCOUNT_PROTOCOL)),
+							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
 			 * If no message arrives
@@ -97,18 +95,17 @@ public class AgBank extends MetaAgent {
 
 					// If the action is Create Account...
 					if (conc instanceof CreateAccountRequest) {
+						
 						// execute request
-
-						hotelmania.ontology.Account accountOnto = createAccount(
-								msg, (CreateAccountRequest) conc);
+						hotelmania.ontology.Account account = registerNewAccount((CreateAccountRequest)conc);
 
 						/*
 						 * Inform Account Status
 						 */
-						sendResponse(msg, accountOnto);
+						sendResponse(msg, account);
 
-						System.out.println(myAgent.getLocalName() + ": " + log
-								+ " Account Status");
+						System.out.println(getLocalName() + ": " + log
+								+ " Create Account success");
 
 					}
 				}
@@ -124,8 +121,8 @@ public class AgBank extends MetaAgent {
 			ACLMessage inform = request.createReply();
 			// Create predicate Account Status
 			AccountStatus predicate_account = new AccountStatus();
-
 			predicate_account.setAccount(accountOnto);
+			
 			if (accountOnto == null) {
 				this.log = Constants.FAILURE;
 				inform.setPerformative(ACLMessage.FAILURE);
@@ -135,6 +132,8 @@ public class AgBank extends MetaAgent {
 					this.log = Constants.INFORM;
 					inform.setPerformative(ACLMessage.INFORM);
 					getContentManager().fillContent(inform, predicate_account);
+					send(inform);
+					
 				} catch (CodecException | OntologyException e) {
 					e.printStackTrace();
 				}
@@ -148,31 +147,27 @@ public class AgBank extends MetaAgent {
 		 * @param accountData
 		 * @return
 		 */
-		private hotelmania.ontology.Account createAccount(ACLMessage msg,
+		@Deprecated
+		private void createAccount(ACLMessage msg,
 				CreateAccountRequest accountData) {
-			hotelmania.ontology.Account account = null;
 			System.out.println(myAgent.getLocalName()
 					+ ": received Create Account Request from "
 					+ (msg.getSender()).getLocalName());
 
 			ACLMessage reply = msg.createReply();
+			
 			if (accountData != null && accountData.getHotel() != null) {
-				account = registerNewAccount(accountData);
-				if (account != null) {
-					reply.setPerformative(ACLMessage.AGREE);
-					this.log = Constants.AGREE;
-				} else {
-					reply.setPerformative(ACLMessage.REFUSE);
-					this.log = Constants.REFUSE;
-				}
+				reply.setPerformative(ACLMessage.AGREE);
+				this.log = Constants.AGREE;
+			} else {
+				reply.setPerformative(ACLMessage.REFUSE);
+				this.log = Constants.REFUSE;
 			}
 
 			myAgent.send(reply);
 
 			System.out.println(myAgent.getLocalName() + ": answer sent -> "
 					+ log);
-			return account;
-
 		}
 
 		/**
@@ -184,20 +179,12 @@ public class AgBank extends MetaAgent {
 				CreateAccountRequest account) {
 			Account newAccount = accountDAO.registerNewAccount(account
 					.getHotel().getHotel_name(), 0);
-			return newAccount.getConcept();
+			return newAccount.getConcept();//TODO move to caller
 
 		}
-
-		/**
-		 * @param request
-		 * @param accountOnto
-		 * @return
-		 */
-
 	}
 
-	private final class ProvideHotelAccountInfoBehavior extends
-			MetaCyclicBehaviour {
+	private final class ProvideHotelAccountInfoBehavior extends  MetaCyclicBehaviour {
 
 		private static final long serialVersionUID = -4414753731149819352L;
 
@@ -210,16 +197,11 @@ public class AgBank extends MetaAgent {
 			/*
 			 * Look for messages
 			 */
-			ACLMessage msg = receive(MessageTemplate
-					.and(MessageTemplate
-							.and(MessageTemplate.and(MessageTemplate
-									.MatchLanguage(codec.getName()),
-									MessageTemplate.MatchOntology(ontology
-											.getName())),
-									MessageTemplate
-											.MatchProtocol(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)),
-							MessageTemplate
-									.MatchPerformative(ACLMessage.QUERY_REF)));
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)),
+					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
 
 			/*
 			 * If no message arrives
@@ -242,14 +224,13 @@ public class AgBank extends MetaAgent {
 			}
 		}
 
-		private ACLMessage answerGetInfoAccount(ACLMessage msg,
-				AccountStatusQueryRef accountStatus) {
+		private ACLMessage answerGetInfoAccount(ACLMessage msg, AccountStatusQueryRef accountStatus) {
 
-			System.out.println(myAgent.getLocalName() + ": received "
-					+ msg.getProtocol() + " Request from "
+			System.out.println(myAgent.getLocalName()
+					+ ": received " + msg.getProtocol() + " Request from "
 					+ (msg.getSender()).getLocalName());
 
-			ACLMessage reply = msg.createReply();
+			ACLMessage reply = msg.createReply();	
 			if (accountStatus != null) {
 				int idToRequest = accountStatus.getId_account();
 				hotelmania.ontology.Account account = getAcountWithId(idToRequest);
@@ -302,9 +283,9 @@ public class AgBank extends MetaAgent {
 					MessageTemplate.and(
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate
+							MessageTemplate
 							.MatchProtocol(Constants.CHARGEACCOUNT_PROTOCOL)),
-					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
 			 * If no message arrives
@@ -390,9 +371,9 @@ public class AgBank extends MetaAgent {
 					MessageTemplate.and(
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate
+							MessageTemplate
 							.MatchProtocol(Constants.MAKEDEPOSIT_PROTOCOL)),
-					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
 			 * If no message arrives
@@ -469,15 +450,11 @@ public class AgBank extends MetaAgent {
 	public void receivedReject(ACLMessage message) {
 		// TODO Auto-generated method stub
 		if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
-			logRejectedMessage(Constants.CREATEACCOUNT_PROTOCOL, message);
 		} else if (message.getProtocol().equals(
 				Constants.CONSULTACCOUNTSTATUS_PROTOCOL)) {
-			logRejectedMessage(Constants.CONSULTACCOUNTSTATUS_PROTOCOL, message);
 		} else if (message.getProtocol().equals(
 				Constants.CHARGEACCOUNT_PROTOCOL)) {
-			logRejectedMessage(Constants.CHARGEACCOUNT_PROTOCOL, message);
 		} else if (message.getProtocol().equals(Constants.MAKEDEPOSIT_PROTOCOL)) {
-			logRejectedMessage(Constants.MAKEDEPOSIT_PROTOCOL, message);
 		}
 	}
 
@@ -485,28 +462,25 @@ public class AgBank extends MetaAgent {
 	public void receivedNotUnderstood(ACLMessage message) {
 		// TODO Auto-generated method stub
 		if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
-			logNotUnderstoodMessage(Constants.CREATEACCOUNT_PROTOCOL, message);
+			
 		} else if (message.getProtocol().equals(
 				Constants.CONSULTACCOUNTSTATUS_PROTOCOL)) {
-			logNotUnderstoodMessage(Constants.CONSULTACCOUNTSTATUS_PROTOCOL,
-					message);
+			
 		} else if (message.getProtocol().equals(
 				Constants.CHARGEACCOUNT_PROTOCOL)) {
-			logNotUnderstoodMessage(Constants.CHARGEACCOUNT_PROTOCOL, message);
+			
 		} else if (message.getProtocol().equals(Constants.MAKEDEPOSIT_PROTOCOL)) {
-			logNotUnderstoodMessage(Constants.MAKEDEPOSIT_PROTOCOL, message);
+			
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see hotelmania.group2.platform.MetaAgent#receiveInform()
 	 */
 	@Override
 	public void receivedInform(ACLMessage message) {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 }

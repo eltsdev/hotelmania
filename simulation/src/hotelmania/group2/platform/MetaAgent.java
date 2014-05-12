@@ -40,6 +40,8 @@ public abstract class MetaAgent extends Agent {
 		super.setup();
 		
 		System.out.println(getLocalName() + ": HAS ENTERED");
+		
+		addBehaviour(new ReceiveInformMsgBehavior(this));
 		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
 		addBehaviour(new ReceiveRejectionMsgBehavior(this));
 		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
@@ -168,12 +170,12 @@ public abstract class MetaAgent extends Agent {
 		}
 
 		protected void handleInform(ACLMessage inform) {
+			logInformMessage(inform.getProtocol(), inform);
 			doOnNewDay();
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
-			System.out.println("Agent " + refuse.getSender().getLocalName()
-					+ " refused to perform the requested action");
+			logRefuseMessage(refuse.getProtocol(), refuse);
 		}
 
 		protected void handleFailure(ACLMessage failure) {
@@ -188,63 +190,51 @@ public abstract class MetaAgent extends Agent {
 		}
 	}
 
-private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour {
-		
-		private static final long serialVersionUID = -4878774871721189228L;
-
-		private ReceiveAcceptanceMsgBehavior(Agent a) {
-			super(a);
+	private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour {
+			
+			private static final long serialVersionUID = -4878774871721189228L;
+	
+			private ReceiveAcceptanceMsgBehavior(Agent a) {
+				super(a);
+			}
+	
+			public void action() {
+				ACLMessage msg = receive(MessageTemplate.MatchPerformative(ACLMessage.AGREE));
+	
+				if (msg != null) {
+					logAgreeMessage(msg.getProtocol(), msg);
+					receivedAcceptance(msg);
+					
+				} else {
+					// If no message arrives
+					block();
+				}
+	
+			}
 		}
 
+	private final class ReceiveInformMsgBehavior extends CyclicBehaviour {
+	
+		private static final long serialVersionUID = -4878774871721189228L;
+	
+		private ReceiveInformMsgBehavior(Agent a) {
+			super(a);
+		}
+	
 		public void action() {
-			// Waits for acceptance messages
-			ACLMessage msg = receive(MessageTemplate.MatchPerformative(ACLMessage.AGREE));
-
+			ACLMessage msg = receive(MessageTemplate.MatchPerformative(ACLMessage.INFORM));
+	
 			if (msg != null) {
-				// If an acceptance arrives...
-				String request = "*Request*" ;
-				System.out.println(myAgent.getLocalName()
-						+ ": received "+request +" acceptance from "
-						+ (msg.getSender()).getLocalName());
-				
-				receivedAcceptance(msg);
-				
+				logInformMessage(msg.getProtocol(), msg);
+				receivedInform(msg);
+	
 			} else {
 				// If no message arrives
 				block();
 			}
-
-		}
-	}
-
-	private final class ReceiveInformMsgBehavior extends CyclicBehaviour {
 	
-	private static final long serialVersionUID = -4878774871721189228L;
-
-	private ReceiveInformMsgBehavior(Agent a) {
-		super(a);
-	}
-
-	public void action() {
-		// Waits for acceptance messages
-		ACLMessage msg = receive(MessageTemplate.MatchPerformative(ACLMessage.INFORM));
-
-		if (msg != null) {
-			// If an acceptance arrives...
-			String request = "*Inform*" ;
-			System.out.println(myAgent.getLocalName()
-					+ ": received "+request +" acceptance from "
-					+ (msg.getSender()).getLocalName());
-			
-			receivedInform(msg);
-			
-		} else {
-			// If no message arrives
-			block();
 		}
-
 	}
-}
 
 	private final class ReceiveRejectionMsgBehavior extends CyclicBehaviour {
 		
@@ -255,14 +245,10 @@ private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour {
 		}
 
 		public void action() {
-			// Waits for rejection message
 			ACLMessage msg = receive(MessageTemplate.MatchPerformative(ACLMessage.REFUSE));
 
 			if (msg != null) {
-				// If a rejection arrives...
-				System.out.println(myAgent.getLocalName()
-						+ ": received work rejection from "
-						+ (msg.getSender()).getLocalName());
+				logRejectedMessage(msg.getProtocol(), msg);
 				receivedReject(msg);
 			} else {
 				// If no message arrives
@@ -281,13 +267,9 @@ private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour {
 		}
 
 		public void action() {
-			// Waits for estimations not understood
 			ACLMessage msg = receive(MessageTemplate.MatchPerformative(ACLMessage.NOT_UNDERSTOOD));
 			if (msg != null) {
-				// If a not understood message arrives...
-				System.out.println(myAgent.getLocalName()
-						+ ": received NOT_UNDERSTOOD from "
-						+ (msg.getSender()).getLocalName());
+				logNotUnderstoodMessage(msg.getProtocol(), msg);
 				receivedNotUnderstood(msg);
 			} else {
 				// If no message arrives
@@ -316,15 +298,26 @@ private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour {
 			}
 		}
 	}
-
 	
-	public void logNotUnderstoodMessage(String action, ACLMessage message) {
-		System.out.println(this.getLocalName()+": Receive <NotUnderstood> for Action: "+action); //TODO define format
+	public void logInformMessage(String protocol, ACLMessage message) {
+		System.out.println(this.getLocalName()+": Received <Inform> for Protocol: "+protocol); //TODO define format		
+	}
+
+	public void logAgreeMessage(String protocol, ACLMessage refuse) {
+		System.out.println(this.getLocalName()+": Received <Agree> for Protocol: "+protocol); //TODO define format		
+	}
+
+	public void logRefuseMessage(String protocol, ACLMessage refuse) {
+		System.out.println(this.getLocalName()+": Received <Refuse> for Protocol: "+protocol); //TODO define format				
+	}
+
+	public void logNotUnderstoodMessage(String protocol, ACLMessage message) {
+		System.out.println(this.getLocalName()+": Received <NotUnderstood> for Protocol: "+protocol); //TODO define format
 	}
 
 
-	public void logRejectedMessage(String action, ACLMessage message) {
-		System.out.println(this.getLocalName()+": Receive <Rejected> for Action: "+action); //TODO define format
+	public void logRejectedMessage(String protocol, ACLMessage message) {
+		System.out.println(this.getLocalName()+": Received <Rejected> for Protocol: "+protocol); //TODO define format
 	}
 
 	public abstract void receivedAcceptance(ACLMessage message);
