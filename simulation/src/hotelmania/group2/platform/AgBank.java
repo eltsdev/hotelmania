@@ -26,8 +26,6 @@ public class AgBank extends MetaAgent {
 	protected void setup() {
 		super.setup();
 
-		
-
 		// Create hotel account
 		addBehaviour(new CreateAccountBehavior(this));
 
@@ -39,7 +37,7 @@ public class AgBank extends MetaAgent {
 
 		// Provide info account to hotel
 		addBehaviour(new ProvideHotelAccountInfoBehavior(this));
-		
+
 		registerServices(Constants.CREATEACCOUNT_ACTION,
 				Constants.CONSULTACCOUNTSTATUS_ACTION);
 
@@ -74,9 +72,9 @@ public class AgBank extends MetaAgent {
 					MessageTemplate.and(
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
-							MessageTemplate
+					MessageTemplate
 							.MatchProtocol(Constants.CREATEACCOUNT_PROTOCOL)),
-							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
 			 * If no message arrives
@@ -199,7 +197,7 @@ public class AgBank extends MetaAgent {
 	}
 
 	private final class ProvideHotelAccountInfoBehavior extends
-	MetaCyclicBehaviour {
+			MetaCyclicBehaviour {
 
 		private static final long serialVersionUID = -4414753731149819352L;
 
@@ -212,11 +210,16 @@ public class AgBank extends MetaAgent {
 			/*
 			 * Look for messages
 			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)),
-					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
+			ACLMessage msg = receive(MessageTemplate
+					.and(MessageTemplate
+							.and(MessageTemplate.and(MessageTemplate
+									.MatchLanguage(codec.getName()),
+									MessageTemplate.MatchOntology(ontology
+											.getName())),
+									MessageTemplate
+											.MatchProtocol(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)),
+							MessageTemplate
+									.MatchPerformative(ACLMessage.QUERY_REF)));
 
 			/*
 			 * If no message arrives
@@ -239,13 +242,14 @@ public class AgBank extends MetaAgent {
 			}
 		}
 
-		private ACLMessage answerGetInfoAccount(ACLMessage msg, AccountStatusQueryRef accountStatus) {
+		private ACLMessage answerGetInfoAccount(ACLMessage msg,
+				AccountStatusQueryRef accountStatus) {
 
-			System.out.println(myAgent.getLocalName()
-					+ ": received " + msg.getProtocol() + " Request from "
+			System.out.println(myAgent.getLocalName() + ": received "
+					+ msg.getProtocol() + " Request from "
 					+ (msg.getSender()).getLocalName());
 
-			ACLMessage reply = msg.createReply();	
+			ACLMessage reply = msg.createReply();
 			if (accountStatus != null) {
 				int idToRequest = accountStatus.getId_account();
 				hotelmania.ontology.Account account = getAcountWithId(idToRequest);
@@ -298,9 +302,9 @@ public class AgBank extends MetaAgent {
 					MessageTemplate.and(
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
-							MessageTemplate
+					MessageTemplate
 							.MatchProtocol(Constants.CHARGEACCOUNT_PROTOCOL)),
-							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
 			 * If no message arrives
@@ -386,9 +390,9 @@ public class AgBank extends MetaAgent {
 					MessageTemplate.and(
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
-							MessageTemplate
+					MessageTemplate
 							.MatchProtocol(Constants.MAKEDEPOSIT_PROTOCOL)),
-							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
 
 			/*
 			 * If no message arrives
@@ -494,13 +498,15 @@ public class AgBank extends MetaAgent {
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see hotelmania.group2.platform.MetaAgent#receiveInform()
 	 */
 	@Override
 	public void receivedInform(ACLMessage message) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

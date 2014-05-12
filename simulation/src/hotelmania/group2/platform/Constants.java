@@ -12,7 +12,7 @@ public class Constants {
 	public static final String CONSULTHOTELSINFO_PROTOCOL = "CONSULTHOTELSINFO";
 	public static final String CONSULTHOTELSSTAFF_PROTOCOL = "CONSULTHOTELSSTAFF";
 	public static final String CONSULTROOMPRICES_PROTOCOL = "CONSULTROOMPRICES";
-	public static final String CONSULTACCOUNTSTATUS_PROTOCOL = "CONSULTACCOUNTSTATUS";
+	public static final String CONSULTACCOUNTSTATUS_PROTOCOL = "AccountStatus";
 	public static final String CREATEACCOUNT_PROTOCOL = "CreateAccount";
 	public static final String CHARGEACCOUNT_PROTOCOL = "CHARGEACCOUNT";
 	public static final String SUBSCRIBETODAYEVENT_PROTOCOL = "SubscribeToDayEvent";	
