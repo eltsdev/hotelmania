@@ -9,7 +9,7 @@ import jade.core.*;
    * Describes the total employees to be hired (or actually hired) of each staff category.
 * Protege name: Contract
 * @author ontology bean generator
-* @version 2014/05/10, 18:26:54
+* @version 2014/05/12, 15:46:57
 */
 public class Contract implements Concept {
 
@@ -33,6 +33,17 @@ public class Contract implements Concept {
    }
    public int getRecepcionist_experienced() {
      return this.recepcionist_experienced;
+   }
+
+   /**
+* Protege name: day
+   */
+   private int day;
+   public void setDay(int value) { 
+    this.day=value;
+   }
+   public int getDay() {
+     return this.day;
    }
 
    /**

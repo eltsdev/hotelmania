@@ -319,15 +319,15 @@ public class AgHotel2 extends MetaAgent {
 		if (day == Constants.FIRST_DAY) {
 			contract = getInitialContract();
 		} else {
-			contract = buildNewContract();
+			contract = buildNewContract(day);
 		}
 
 		return contract;
 	}
 
-	Contract buildNewContract() {
-		// Contract old = dao.getContractsByHotel(name).get(0);
+	Contract buildNewContract(int day) {
 		Contract c = new Contract();
+		c.setDay(day);		
 		c.setChef_1stars(5);
 		c.setChef_2stars(5);
 		c.setChef_3stars(5);
@@ -344,6 +344,7 @@ public class AgHotel2 extends MetaAgent {
 	 */
 	Contract getInitialContract() {
 		Contract c = new Contract();
+		c.setDay(1);
 		c.setChef_1stars(5);
 		c.setChef_2stars(5);
 		c.setChef_3stars(5);

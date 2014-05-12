@@ -8,7 +8,7 @@ import jade.core.*;
 /**
 * Protege name: AccountStatusQueryRef
 * @author ontology bean generator
-* @version 2014/05/10, 18:26:54
+* @version 2014/05/12, 15:46:57
 */
 public class AccountStatusQueryRef implements AgentAction {
 
