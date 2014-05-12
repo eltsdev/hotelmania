@@ -65,5 +65,15 @@ public class AccountDAO {
 
 		}
 		return false;
-	}	
+	}
+
+	public Account getAcountWithId(int accountId) {
+		for (hotelmania.group2.dao.Account account : this.listAccount) {
+			if (account.getId() == accountId) {
+				return account;
+			}
+		}
+		return null;
+	}
+
 }

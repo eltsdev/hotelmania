@@ -1,13 +1,19 @@
 package hotelmania.group2.platform;
 
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+
 import hotelmania.ontology.BookRoom;
 import hotelmania.ontology.Booking;
 import hotelmania.ontology.Hotel;
 import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.MakeDeposit;
+import hotelmania.ontology.NumberOfClients;
 import hotelmania.ontology.NumberOfClientsQueryRef;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;
+import jade.content.ContentElement;
+import jade.content.lang.Codec.CodecException;
+import jade.content.onto.OntologyException;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
@@ -203,10 +209,9 @@ public class AgClient extends MetaAgent {
 
 	@Override
 	public void receivedAcceptance(ACLMessage message) {
-		if (message.getProtocol().equals(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)) {
-			System.out.println("aaaaa recibido");
-		}
 		//TODO switch by message.getProtocol()
+		if (message.getProtocol().equals(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)) {
+		}
 	}
 
 	@Override
@@ -235,7 +240,21 @@ public class AgClient extends MetaAgent {
 	@Override
 	public void receivedInform(ACLMessage message) {
 		// TODO Auto-generated method stub
-		
+		if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)) {
+			try {
+				NumberOfClients content = (NumberOfClients) getContentManager().extractContent(message);
+				if (content != null) {
+					System.out.println("Number of clients: "+content.getNum_clients());					
+				}else {
+					System.out.println("Number of clients: Not found (null)");
+				}
+			} catch (CodecException | OntologyException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+
+		}
 	}
 
 }

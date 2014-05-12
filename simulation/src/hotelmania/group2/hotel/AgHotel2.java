@@ -279,6 +279,7 @@ public class AgHotel2 extends MetaAgent {
 		private void consultHotelAccountInfo() {
 			AccountStatusQueryRef request = new AccountStatusQueryRef();
 			request.setId_account(0);// TODO set real account id
+			
 			sendRequest(agBank, request,
 					Constants.CONSULTACCOUNTSTATUS_PROTOCOL,
 					ACLMessage.QUERY_REF);
@@ -523,7 +524,22 @@ public class AgHotel2 extends MetaAgent {
 	@Override
 	public void receivedInform(ACLMessage message) {
 		if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+			try {
+				AccountStatus account = (AccountStatus) getContentManager().extractContent(message);
+				System.out.println(account.getAccount().getBalance());
+			} catch (CodecException | OntologyException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
+		}else if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_ACTION)) {
+			try {
+				AccountStatus account = (AccountStatus) getContentManager().extractContent(message);
+				System.out.println(account.getAccount().getBalance());
+			} catch (CodecException | OntologyException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

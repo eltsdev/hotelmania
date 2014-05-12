@@ -210,13 +210,19 @@ public class AgBank extends MetaAgent {
 				block();
 				return;
 			}
+			
 			Concept conc = this.getConceptFromMessage(msg);
-			// If the action is Registration Request...
+
 			if (conc instanceof AccountStatusQueryRef) {
-				// execute request
-				ACLMessage reply = answerGetInfoAccount(msg,
-						(AccountStatusQueryRef) conc);
+				//TODO manage NOT_UNDERSTOOD
+				
+				// Search the account
+				AccountStatusQueryRef action = (AccountStatusQueryRef) conc;
+				int idToRequest = action.getId_account();
+				Account account = accountDAO.getAcountWithId(idToRequest);
+				
 				// send reply
+				ACLMessage reply = answerGetInfoAccount(msg, account);
 				myAgent.send(reply);
 
 				System.out.println(myAgent.getLocalName() + ": answer sent -> "
@@ -224,45 +230,30 @@ public class AgBank extends MetaAgent {
 			}
 		}
 
-		private ACLMessage answerGetInfoAccount(ACLMessage msg, AccountStatusQueryRef accountStatus) {
+		private ACLMessage answerGetInfoAccount(ACLMessage msg, Account account) {
 
 			System.out.println(myAgent.getLocalName()
 					+ ": received " + msg.getProtocol() + " Request from "
 					+ (msg.getSender()).getLocalName());
 
-			ACLMessage reply = msg.createReply();	
-			if (accountStatus != null) {
-				int idToRequest = accountStatus.getId_account();
-				hotelmania.ontology.Account account = getAcountWithId(idToRequest);
-				if (account == null) {
-					this.log = Constants.REFUSE;
-					reply.setPerformative(ACLMessage.REFUSE);
-				} else {
-					try {
-						this.log = Constants.AGREE;
-						reply.setPerformative(ACLMessage.AGREE);
-						Action agAction = new Action(msg.getSender(), account);
-						myAgent.getContentManager().fillContent(msg, agAction);
-					} catch (CodecException | OntologyException e) {
-						e.printStackTrace();
-					}
-				}
+			ACLMessage reply = msg.createReply();
 
+			// Send the response
+			if (account == null) {
+				this.log = Constants.FAILURE;
+				reply.setPerformative(ACLMessage.FAILURE);
 			} else {
-				this.log = Constants.NOT_UNDERSTOOD;
-				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				AccountStatus accountStatus = new AccountStatus();
+				accountStatus.setAccount(account.getConcept());
+				try {
+					this.log = Constants.INFORM;
+					reply.setPerformative(ACLMessage.INFORM);
+					myAgent.getContentManager().fillContent(reply, accountStatus);
+				} catch (CodecException | OntologyException e) {
+					e.printStackTrace();
+				}
 			}
 			return reply;
-		}
-
-		private hotelmania.ontology.Account getAcountWithId(int accountId) {
-			for (hotelmania.group2.dao.Account account : accountDAO
-					.getListAccount()) {
-				if (account.getId() == accountId) {
-					return account.getConcept();
-				}
-			}
-			return null;
 		}
 	}
 
