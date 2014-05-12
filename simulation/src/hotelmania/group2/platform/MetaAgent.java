@@ -149,7 +149,8 @@ public abstract class MetaAgent extends Agent {
 			msg.setLanguage(this.codec.getName());
 			msg.setOntology(this.ontology.getName());
 			
-			SubscribeToDayEvent action = new SubscribeToDayEvent();
+			SubscribeToDayEvent subscribeToDayEvent = new SubscribeToDayEvent();
+			Action action = new Action(agSimulator, subscribeToDayEvent);
 			try {
 				this.getContentManager().fillContent(msg, action);
 			} catch (CodecException e) {
