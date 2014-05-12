@@ -948,9 +948,7 @@ public class AgHotel2 extends MetaAgent {
 					+ (msg.getSender()).getLocalName());
 
 			ACLMessage reply = msg.createReply();
-			if (numberOfClientsQueryRef != null
-					&& numberOfClientsQueryRef.getHotel_name().equals(
-							myAgent.getLocalName())) {
+			if (numberOfClientsQueryRef != null) {
 				// hotelmania.ontology.NumberOfClients numberOfClients =
 				// getNumberOfClients(numberOfClientsQueryRef.getHotel_name());
 				hotelmania.ontology.NumberOfClientsQueryRef numberOfClients = getNumberOfClients(numberOfClientsQueryRef

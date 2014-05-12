@@ -1,9 +1,7 @@
 package hotelmania.ontology;
 
 
-import jade.content.*;
-import jade.util.leap.*;
-import jade.core.*;
+import jade.content.AgentAction;
 
 /**
 * Protege name: NumberOfClientsQueryRef
@@ -13,6 +11,10 @@ import jade.core.*;
 public class NumberOfClientsQueryRef implements AgentAction {
 
    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5242818852065398394L;
+/**
 * Protege name: hotel_name
    */
    private String hotel_name;
