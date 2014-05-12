@@ -74,7 +74,7 @@ public class AgHotel2 extends MetaAgent {
 	// --------------------------------------------------------
 
 	private final class RegisterInHotelmaniaBehavior extends
-			MetaSimpleBehaviour {
+	MetaSimpleBehaviour {
 		private static final long serialVersionUID = 1256090117313507535L;
 		private AID agHotelmania;
 
@@ -255,7 +255,7 @@ public class AgHotel2 extends MetaAgent {
 	}
 
 	private final class ConsultBankAccountInfoBehavior extends
-			MetaSimpleBehaviour {
+	MetaSimpleBehaviour {
 
 		private static final long serialVersionUID = 1955222376582492939L;
 
@@ -279,7 +279,7 @@ public class AgHotel2 extends MetaAgent {
 		private void consultHotelAccountInfo() {
 			AccountStatusQueryRef request = new AccountStatusQueryRef();
 			request.setId_account(0);// TODO set real account id
-			
+
 			sendRequest(agBank, request,
 					Constants.CONSULTACCOUNTSTATUS_PROTOCOL,
 					ACLMessage.QUERY_REF);
@@ -382,7 +382,7 @@ public class AgHotel2 extends MetaAgent {
 	}
 
 	private final class ProvideHotelNumberOfClientsBehavior extends
-			MetaCyclicBehaviour {
+	MetaCyclicBehaviour {
 
 		private static final long serialVersionUID = -4414753731149819352L;
 
@@ -401,10 +401,10 @@ public class AgHotel2 extends MetaAgent {
 									.MatchLanguage(codec.getName()),
 									MessageTemplate.MatchOntology(ontology
 											.getName())),
-									MessageTemplate
+											MessageTemplate
 											.MatchProtocol(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)),
-							MessageTemplate
-									.MatchPerformative(ACLMessage.QUERY_REF)));
+											MessageTemplate
+											.MatchPerformative(ACLMessage.QUERY_REF)));
 
 			/*
 			 * If no message arrives
@@ -436,49 +436,33 @@ public class AgHotel2 extends MetaAgent {
 
 			ACLMessage reply = msg.createReply();
 			if (numberOfClientsQueryRef != null) {
-				// hotelmania.ontology.NumberOfClients numberOfClients =
-				// getNumberOfClients(numberOfClientsQueryRef.getHotel_name());
-				hotelmania.ontology.NumberOfClientsQueryRef numberOfClients = getNumberOfClients(numberOfClientsQueryRef
-						.getHotel_name());
+				hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getHotel_name());
 				if (numberOfClients == null) {
-					this.log = Constants.REFUSE;
-					reply.setPerformative(ACLMessage.REFUSE);
+					this.log = Constants.FAILURE;
+					reply.setPerformative(ACLMessage.FAILURE);
 				} else {
 					try {
-						this.log = Constants.AGREE;
-						reply.setPerformative(ACLMessage.AGREE);
-						Action agAction = new Action(msg.getSender(),
-								numberOfClients);// TODO numberOfClients should
-													// be a concept not a
-													// predicate
-						// Action agAction = new Action();
-						myAgent.getContentManager().fillContent(msg, agAction);
+						this.log = Constants.INFORM;
+						reply.setPerformative(ACLMessage.INFORM);
+						myAgent.getContentManager().fillContent(reply, numberOfClients);
 					} catch (CodecException | OntologyException e) {
 						e.printStackTrace();
 					}
 				}
 
 			} else {
-				this.log = Constants.NOT_UNDERSTOOD;
-				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				this.log = Constants.FAILURE;
+				reply.setPerformative(ACLMessage.FAILURE);
 			}
 			return reply;
 		}
 
-		private hotelmania.ontology.NumberOfClientsQueryRef getNumberOfClients(
-				String hotelName) {
-			hotelmania.ontology.NumberOfClientsQueryRef numberOfClients = new NumberOfClientsQueryRef();
+		private hotelmania.ontology.NumberOfClients getNumberOfClients(String hotelName) { 
+			hotelmania.ontology.NumberOfClients numberOfClients = new NumberOfClients(); 
 			int clients = bookDAO.getClientsAtDay(day);
-			numberOfClients.setHotel_name(String.valueOf(clients));
+			numberOfClients.setNum_clients(clients);
 			return numberOfClients;
 		}
-
-		/*
-		 * private hotelmania.ontology.NumberOfClients getNumberOfClients(String
-		 * hotelName) { hotelmania.ontology.NumberOfClients numberOfClients =
-		 * new NumberOfClients(); numberOfClients.setNum_clients(2);//TODO get
-		 * the real number of clients of this hotel return numberOfClients; }
-		 */
 	}
 
 	@Override
@@ -526,7 +510,7 @@ public class AgHotel2 extends MetaAgent {
 		if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
 			try {
 				AccountStatus account = (AccountStatus) getContentManager().extractContent(message);
-				System.out.println(account.getAccount().getBalance());
+				System.out.println(getLocalName() + ": Balance:" + account.getAccount().getBalance());
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -535,7 +519,7 @@ public class AgHotel2 extends MetaAgent {
 		}else if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_ACTION)) {
 			try {
 				AccountStatus account = (AccountStatus) getContentManager().extractContent(message);
-				System.out.println(account.getAccount().getBalance());
+				System.out.println(getLocalName() + ": Balance:" + account.getAccount().getBalance());
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

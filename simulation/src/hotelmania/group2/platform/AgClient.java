@@ -201,7 +201,12 @@ public class AgClient extends MetaAgent {
 		private void consultHotelInfo() {
 			NumberOfClientsQueryRef request = new NumberOfClientsQueryRef();
 			//request.setHotel_name("hotelII");
-			request.setHotel_name(actualHotel);
+			if (actualHotel == null) {
+				request.setHotel_name("hotelII");
+			} else {
+				request.setHotel_name(actualHotel);
+			}
+			
 			sendRequest(hotel, request, Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL,ACLMessage.QUERY_REF);
 		}
 
@@ -212,6 +217,7 @@ public class AgClient extends MetaAgent {
 	public void receivedAcceptance(ACLMessage message) {
 		//TODO switch by message.getProtocol()
 		if (message.getProtocol().equals(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)) {
+			System.out.println();
 		}
 	}
 
@@ -241,20 +247,18 @@ public class AgClient extends MetaAgent {
 	@Override
 	public void receivedInform(ACLMessage message) {
 		// TODO Auto-generated method stub
-		if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)) {
+		if (message.getProtocol().equals(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)) {
 			try {
 				NumberOfClients content = (NumberOfClients) getContentManager().extractContent(message);
 				if (content != null) {
-					System.out.println("Number of clients: "+content.getNum_clients());					
+					System.out.println(getLocalName() + ": Number of clients: "+content.getNum_clients());					
 				}else {
-					System.out.println("Number of clients: Not found (null)");
+					System.out.println(getLocalName() + ": Number of clients: Not found (null)");
 				}
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-
 		}
 	}
 

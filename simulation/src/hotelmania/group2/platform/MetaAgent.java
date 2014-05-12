@@ -32,7 +32,7 @@ public abstract class MetaAgent extends Agent {
 	/**
 	 * This value is updated by simulator only if the subscription is TRUE
 	 */
-	protected int day;
+	protected int day = 1;
 	
 
 	@Override
@@ -171,6 +171,7 @@ public abstract class MetaAgent extends Agent {
 
 		protected void handleInform(ACLMessage inform) {
 			logInformMessage(inform.getProtocol(), inform);
+			day++;
 			doOnNewDay();
 		}
 

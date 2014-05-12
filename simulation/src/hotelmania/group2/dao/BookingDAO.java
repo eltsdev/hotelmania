@@ -22,7 +22,7 @@ public class BookingDAO {
 	}
 	
 	public int getClientsAtDay(int day) {
-		if (day > 1) {
+		if (day > 0 && day < Constants.SIMULATION_DAYS) {
 			return this.daysClientsArray[day-1];
 		}
 		return -1;
