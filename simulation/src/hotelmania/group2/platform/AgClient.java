@@ -23,8 +23,8 @@ public class AgClient extends MetaAgent {
 	private static final long serialVersionUID = 6748170421157254696L;
 
 	private boolean bookingDone;
-	private String actualHotel;
-
+	//private String actualHotel;
+	private AID myHotel;
 	// -------------------------------------------------
 	// Setup
 	// -------------------------------------------------
@@ -142,7 +142,7 @@ public class AgClient extends MetaAgent {
 		private void makeDeposit(AID bank) {
 			// Hotel
 			Hotel hotel = new Hotel();
-			hotel.setHotel_name(actualHotel);
+			hotel.setHotel_name(myHotel.getLocalName());
 
 			// TODO This part must be dynamic
 			MakeDeposit action_deposit = new MakeDeposit();
@@ -201,10 +201,10 @@ public class AgClient extends MetaAgent {
 		private void consultHotelInfo() {
 			NumberOfClientsQueryRef request = new NumberOfClientsQueryRef();
 			//request.setHotel_name("hotelII");
-			if (actualHotel == null) {
+			if (myHotel == null) {
 				request.setHotel_name("hotelII");
 			} else {
-				request.setHotel_name(actualHotel);
+				request.setHotel_name(myHotel.getLocalName());
 			}
 			
 			sendRequest(hotel, request, Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL,ACLMessage.QUERY_REF);
