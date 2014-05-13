@@ -1,8 +1,5 @@
 package hotelmania.group2.dao;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.Date;
 
 /**
  * @author user

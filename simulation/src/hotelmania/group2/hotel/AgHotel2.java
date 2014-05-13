@@ -5,6 +5,7 @@ import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.MetaAgent;
 import hotelmania.group2.platform.MetaCyclicBehaviour;
 import hotelmania.group2.platform.MetaSimpleBehaviour;
+import hotelmania.ontology.Account;
 import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.AccountStatusQueryRef;
 import hotelmania.ontology.BookRoom;
@@ -31,6 +32,9 @@ public class AgHotel2 extends MetaAgent {
 
 	private static final long serialVersionUID = 2893904717857535232L;
 	private BookingDAO bookDAO = new BookingDAO();
+	
+	// Used in Create Account (when receive the Inform) and consultHotelAccountInfo
+	private Integer id_account;
 	// -------------------------------------------------
 	// Agent Attributes
 	// -------------------------------------------------
@@ -40,19 +44,18 @@ public class AgHotel2 extends MetaAgent {
 	@Override
 	protected void setup() {
 		super.setup();
-
+		this.registerServices(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION);
+		addBehaviour(new CreateBankAccountBehavior(this));
 		addBehaviour(new RegisterInHotelmaniaBehavior(this));
 		addBehaviour(new CreateBankAccountBehavior(this));
-		addBehaviour(new ConsultBankAccountInfoBehavior(this));
+		
 
 		// addBehaviour(new MakeRoomBookingBehavior(this));
 		// addBehaviour(new ProvideRoomInfoBehavior(this));
-
 		// addBehaviour(new ConsultHotelInfoBehavior(this));
 
 		addBehaviour(new ProvideHotelNumberOfClientsBehavior(this));
-		this.registerServices(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION);
-
+		
 		// TODO Consult account status
 	}
 
@@ -278,8 +281,11 @@ public class AgHotel2 extends MetaAgent {
 
 		private void consultHotelAccountInfo() {
 			AccountStatusQueryRef request = new AccountStatusQueryRef();
-			request.setId_account(0);// TODO set real account id
-
+			if(id_account!=null){
+				System.out.println(id_account);
+				request.setId_account(id_account);// TODO set real account id
+			}
+			System.out.println(request.getId_account());
 			sendRequest(agBank, request,
 					Constants.CONSULTACCOUNTSTATUS_PROTOCOL,
 					ACLMessage.QUERY_REF);
@@ -510,8 +516,11 @@ public class AgHotel2 extends MetaAgent {
 	public void receivedInform(ACLMessage message) {
 		if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
 			try {
-				AccountStatus account = (AccountStatus) getContentManager().extractContent(message);
-				System.out.println(getLocalName() + ": Balance:" + account.getAccount().getBalance());
+				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
+				this.id_account = accountStatus.getAccount().getId_account();
+				addBehaviour(new ConsultBankAccountInfoBehavior(this));
+				System.out.println(getLocalName() + ": Id:" + accountStatus.getAccount().getId_account());
+				System.out.println(getLocalName() + ": Balance:" + accountStatus.getAccount().getBalance());
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -519,8 +528,9 @@ public class AgHotel2 extends MetaAgent {
 
 		}else if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_ACTION)) {
 			try {
-				AccountStatus account = (AccountStatus) getContentManager().extractContent(message);
-				System.out.println(getLocalName() + ": Balance:" + account.getAccount().getBalance());
+				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
+				
+				System.out.println(getLocalName() + ": Balance:" + accountStatus.getAccount().getBalance());
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
