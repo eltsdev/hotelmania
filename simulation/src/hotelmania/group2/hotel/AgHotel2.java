@@ -45,16 +45,15 @@ public class AgHotel2 extends MetaAgent {
 	protected void setup() {
 		super.setup();
 		this.registerServices(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION);
-		addBehaviour(new CreateBankAccountBehavior(this));
 		addBehaviour(new RegisterInHotelmaniaBehavior(this));
 		addBehaviour(new CreateBankAccountBehavior(this));
+		addBehaviour(new ConsultBankAccountInfoBehavior(this));
+		addBehaviour(new ProvideHotelNumberOfClientsBehavior(this));
 		
-
 		// addBehaviour(new MakeRoomBookingBehavior(this));
 		// addBehaviour(new ProvideRoomInfoBehavior(this));
 		// addBehaviour(new ConsultHotelInfoBehavior(this));
 
-		addBehaviour(new ProvideHotelNumberOfClientsBehavior(this));
 		
 		// TODO Consult account status
 	}
@@ -249,8 +248,7 @@ public class AgHotel2 extends MetaAgent {
 			Hotel hotel = new Hotel();
 			hotel.setHotel_name(getLocalName());
 			action_account.setHotel(hotel);
-			sendRequest(agBank, action_account,
-					Constants.CREATEACCOUNT_PROTOCOL, ACLMessage.REQUEST);
+			sendRequest(agBank, action_account, Constants.CREATEACCOUNT_PROTOCOL, ACLMessage.REQUEST);
 
 			this.setDone(true);
 		}
@@ -275,17 +273,18 @@ public class AgHotel2 extends MetaAgent {
 				agBank = locateAgent(Constants.CONSULTACCOUNTSTATUS_ACTION,
 						myAgent);
 			} else {
-				consultHotelAccountInfo();
+				if(id_account!=null){
+					consultHotelAccountInfo();
+				}
+				
 			}
 		}
 
 		private void consultHotelAccountInfo() {
 			AccountStatusQueryRef request = new AccountStatusQueryRef();
-			if(id_account!=null){
-				System.out.println(id_account);
-				request.setId_account(id_account);// TODO set real account id
-			}
-			System.out.println(request.getId_account());
+			request.setId_account(id_account);// TODO set real account id
+
+			System.out.println("Requesting status of Account id:"+request.getId_account());
 			sendRequest(agBank, request,
 					Constants.CONSULTACCOUNTSTATUS_PROTOCOL,
 					ACLMessage.QUERY_REF);
@@ -518,9 +517,8 @@ public class AgHotel2 extends MetaAgent {
 			try {
 				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
 				this.id_account = accountStatus.getAccount().getId_account();
-				addBehaviour(new ConsultBankAccountInfoBehavior(this));
-				System.out.println(getLocalName() + ": Id:" + accountStatus.getAccount().getId_account());
-				System.out.println(getLocalName() + ": Balance:" + accountStatus.getAccount().getBalance());
+				System.out.println(getLocalName() + ": Account Id:" + accountStatus.getAccount().getId_account());
+				System.out.println(getLocalName() + ": Account Balance:" + accountStatus.getAccount().getBalance());
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -530,7 +528,7 @@ public class AgHotel2 extends MetaAgent {
 			try {
 				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
 				
-				System.out.println(getLocalName() + ": Balance:" + accountStatus.getAccount().getBalance());
+				System.out.println(getLocalName() + ": Account Balance:" + accountStatus.getAccount().getBalance());
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
