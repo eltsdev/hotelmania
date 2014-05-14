@@ -177,8 +177,8 @@ public abstract class MetaAgent extends Agent {
 
 		protected void handleInform(ACLMessage inform) {
 			logInformMessage(inform.getProtocol(), inform);
-			day++;
 			doOnNewDay();
+			day++;
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
@@ -234,8 +234,8 @@ public abstract class MetaAgent extends Agent {
 			if (msg != null) {
 				logInformMessage(msg.getProtocol(), msg);
 				if (msg.getProtocol().equals(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)) {
-					day++;
 					doOnNewDay();
+					day++;
 				}
 				
 				receivedInform(msg);

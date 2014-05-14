@@ -314,8 +314,9 @@ public class AgHotel2 extends MetaAgent {
 		Hotel hotel = new Hotel();
 		hotel.setHotel_name(myName());
 		request.setHotel(hotel);
-		request.setContract(hireDailyStaff(day + 1));
+		request.setContract(hireDailyStaff(day+1));
 
+		System.out.println("[HOTEL] Wants to hire staff for day: "+(request.getContract().getDay())+ " Today is:"+day);
 		this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL,
 				ACLMessage.REQUEST);
 
@@ -340,7 +341,7 @@ public class AgHotel2 extends MetaAgent {
 
 	Contract buildNewContract(int day) {
 		Contract c = new Contract();
-		c.setDay(day);		
+		c.setDay(day);
 		c.setChef_1stars(5);
 		c.setChef_2stars(5);
 		c.setChef_3stars(5);
