@@ -73,10 +73,20 @@ public class AgPlatform2 extends MetaAgent
 			super(a, period);
 		}
 
+		@Override
+		public void stop() {
+			System.out.println("*************************************************************");
+			System.out.println("Stopping Simulation.");
+			System.out.println("*************************************************************");
+			super.stop();
+			
+			//TODO stop/delete all agents
+		}
 		public void onTick() 
 		{
 			//Day number
 			int day = getTickCount();
+			
 			NotificationDayEvent notificationDayEvent = new NotificationDayEvent();
 			DayEvent dayEvent = new DayEvent();
 			dayEvent.setDay(day);
@@ -94,8 +104,13 @@ public class AgPlatform2 extends MetaAgent
 				if (subscriptionObj instanceof Subscription) {
 					Subscription subscription = (Subscription) subscriptionObj;
 					notify(subscription, notificationDayEvent);
-					System.out.println(getLocalName()+": sending day event to: "+subscription.getMessage().getSender().getLocalName());
+					System.out.println(myName()+": sending day event to: "+subscription.getMessage().getSender().getLocalName());
 				}
+			}
+
+			if (!subscriptionActive(day)) {
+				stop();
+				return;
 			}
 		}
 
@@ -127,7 +142,7 @@ public class AgPlatform2 extends MetaAgent
 
 		 protected ACLMessage handleSubscription(ACLMessage proposal) throws NotUnderstoodException ,RefuseException 
 		 {
-			 System.out.println(myAgent.getLocalName()+": subscription received from "+proposal.getSender().getLocalName());
+			 System.out.println(myName()+": subscription received from "+proposal.getSender().getLocalName());
 
 			 if (checkAction(proposal)) {
 
@@ -148,7 +163,7 @@ public class AgPlatform2 extends MetaAgent
 
 			 } else {
 				 // We refuse to perform the action
-				 //System.out.println("Agent "+getLocalName()+": Refuse");
+				 //System.out.println("Agent "+myName()+": Refuse");
 				 //throw new RefuseException("check-failed");
 				 ACLMessage refuse = proposal.createReply();
 				 refuse.setPerformative(ACLMessage.REFUSE);
@@ -185,8 +200,9 @@ public class AgPlatform2 extends MetaAgent
 
 	 }
 	
-	private boolean subscriptionActive() {
-		return day >= Constants.SIMULATION_DAYS; //TODO || cancelled ;
+	private boolean subscriptionActive(int day) {
+		//TODO || cancelled ;
+		return day < Constants.SIMULATION_DAYS; 
 	}
 
 	private void loadProperties() {
@@ -196,7 +212,10 @@ public class AgPlatform2 extends MetaAgent
 		try {
 			in = new FileInputStream("resources/settings.properties");
 			defaultProps.load(in);
-			Constants.DAY_IN_SECONDS = Integer.parseInt(defaultProps.getProperty("day.length","5"))*1000;
+			Constants.DAY_IN_SECONDS = Integer.parseInt(defaultProps.getProperty("day.length","15"))*1000;
+			Constants.SIMULATION_DAYS = Integer.parseInt(defaultProps.getProperty("simulation.days","10"));
+			Constants.CLIENTS_PER_DAY=Integer.parseInt(defaultProps.getProperty("simulation.days","10"));
+			
 			//TODO load other parameters...
 			in.close();
 		} catch (FileNotFoundException e) {

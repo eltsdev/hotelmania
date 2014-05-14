@@ -100,7 +100,7 @@ public class AgHotelmania extends MetaAgent
 
 						myAgent.send(reply);
 
-						System.out.println(myAgent.getLocalName()
+						System.out.println(myName()
 								+ ": answer sent -> " + this.log);
 					}
 				}
@@ -120,9 +120,9 @@ public class AgHotelmania extends MetaAgent
 		 * @return Answer type
 		 */
 		private ACLMessage answerRegistrationRequest(ACLMessage msg, RegistrationRequest registrationRequestData) {
-			System.out.println(myAgent.getLocalName()
+			System.out.println(myName()
 					+ ": received Registration Request from "
-					+ (msg.getSender()).getLocalName());
+					+ msg.getSender().getLocalName());
 			
 			ACLMessage reply = msg.createReply();
 			
@@ -175,14 +175,14 @@ public class AgHotelmania extends MetaAgent
 				// send reply
 				myAgent.send(reply);
 
-				System.out.println(myAgent.getLocalName()
+				System.out.println(myName()
 						+ ": answer sent -> " + this.log);
 			}
 		}
 		
 		private ACLMessage answerHotelsInfoRequest(ACLMessage msg) {
 			
-			System.out.println(myAgent.getLocalName() + ": received HotelsInfo Request from " + (msg.getSender()).getLocalName());
+			System.out.println(myName() + ": received HotelsInfo Request from " + msg.getSender().getLocalName());
 			ACLMessage reply = msg.createReply();
 			
 			if (hotelDAO.getListHotel() != null) {
@@ -256,7 +256,7 @@ public class AgHotelmania extends MetaAgent
 						// send reply
 						myAgent.send(reply);
 
-						System.out.println(myAgent.getLocalName()
+						System.out.println(myName()
 								+ ": answer sent -> " + this.log);
 					}
 				}
@@ -270,9 +270,9 @@ public class AgHotelmania extends MetaAgent
 
 		private ACLMessage rateHotel(ACLMessage msg, RateHotel ratingData) {
 		
-			System.out.println(myAgent.getLocalName()
+			System.out.println(myName()
 					+ ": received Rating Request from "
-					+ (msg.getSender()).getLocalName());
+					+ msg.getSender().getLocalName());
 
 			ACLMessage reply = msg.createReply();
 

@@ -5,7 +5,6 @@ import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.MetaAgent;
 import hotelmania.group2.platform.MetaCyclicBehaviour;
 import hotelmania.group2.platform.MetaSimpleBehaviour;
-import hotelmania.ontology.Account;
 import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.AccountStatusQueryRef;
 import hotelmania.ontology.BookRoom;
@@ -57,6 +56,15 @@ public class AgHotel2 extends MetaAgent {
 		
 		// TODO Consult account status
 	}
+	
+	@Override
+	public String myName() {
+		return Constants.HOTEL_NAME;
+	}
+	
+	public String getHotelName() {
+		return Constants.HOTEL_NAME;
+	}
 
 	/**
 	 * This means: I AM interested on this event.
@@ -103,7 +111,7 @@ public class AgHotel2 extends MetaAgent {
 		private void registerHotel() {
 			RegistrationRequest register = new RegistrationRequest();
 			Hotel hotel = new Hotel();
-			hotel.setHotel_name(getLocalName());
+			hotel.setHotel_name(myName());
 			register.setHotel(hotel);
 
 			sendRequest(agHotelmania, register,
@@ -155,7 +163,7 @@ public class AgHotel2 extends MetaAgent {
 								(BookRoom) conc);
 						myAgent.send(reply);
 
-						System.out.println(myAgent.getLocalName()
+						System.out.println(myName()
 								+ ": answer sent -> " + log);
 					}
 				}
@@ -174,9 +182,9 @@ public class AgHotel2 extends MetaAgent {
 		 */
 		private ACLMessage answerBookingRequest(ACLMessage msg,
 				BookRoom bookData) {
-			System.out.println(myAgent.getLocalName()
+			System.out.println(myName()
 					+ ": received Registration Request from "
-					+ (msg.getSender()).getLocalName());
+					+ msg.getSender().getLocalName());
 			// send reply
 			ACLMessage reply = msg.createReply();
 
@@ -246,7 +254,7 @@ public class AgHotel2 extends MetaAgent {
 		private void createHotelAccount() {
 			CreateAccountRequest action_account = new CreateAccountRequest();
 			Hotel hotel = new Hotel();
-			hotel.setHotel_name(getLocalName());
+			hotel.setHotel_name(myName());
 			action_account.setHotel(hotel);
 			sendRequest(agBank, action_account, Constants.CREATEACCOUNT_PROTOCOL, ACLMessage.REQUEST);
 
@@ -304,7 +312,7 @@ public class AgHotel2 extends MetaAgent {
 		SignContract request = new SignContract();
 
 		Hotel hotel = new Hotel();
-		hotel.setHotel_name(getLocalName());
+		hotel.setHotel_name(myName());
 		request.setHotel(hotel);
 		request.setContract(hireDailyStaff(day + 1));
 
@@ -428,7 +436,7 @@ public class AgHotel2 extends MetaAgent {
 				// send reply
 				myAgent.send(reply);
 
-				System.out.println(myAgent.getLocalName() + ": answer sent -> "
+				System.out.println(myName() + ": answer sent -> "
 						+ this.log + " to " + msg.getSender().getLocalName());
 			}
 		}
@@ -436,13 +444,13 @@ public class AgHotel2 extends MetaAgent {
 		private ACLMessage answerGetNumberOfClients(ACLMessage msg,
 				NumberOfClientsQueryRef numberOfClientsQueryRef) {
 
-			System.out.println(myAgent.getLocalName() + ": received "
+			System.out.println(myName() + ": received "
 					+ msg.getProtocol() + " Request from "
-					+ (msg.getSender()).getLocalName());
+					+ msg.getSender().getLocalName());
 
 			ACLMessage reply = msg.createReply();
 			if (numberOfClientsQueryRef != null) {
-				hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getHotel_name());
+				hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getHotel_name(), numberOfClientsQueryRef.getDay());
 				if (numberOfClients.getNum_clients() < 0) {
 					this.log = Constants.REFUSE;
 					reply.setPerformative(ACLMessage.REFUSE);
@@ -463,7 +471,7 @@ public class AgHotel2 extends MetaAgent {
 			return reply;
 		}
 
-		private hotelmania.ontology.NumberOfClients getNumberOfClients(String hotelName) { 
+		private hotelmania.ontology.NumberOfClients getNumberOfClients(String hotelName, int day) { 
 			hotelmania.ontology.NumberOfClients numberOfClients = new NumberOfClients(); 
 			int clients = bookDAO.getClientsAtDay(day);
 			numberOfClients.setNum_clients(clients);
@@ -517,8 +525,8 @@ public class AgHotel2 extends MetaAgent {
 			try {
 				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
 				this.id_account = accountStatus.getAccount().getId_account();
-				System.out.println(getLocalName() + ": Account Id:" + accountStatus.getAccount().getId_account());
-				System.out.println(getLocalName() + ": Account Balance:" + accountStatus.getAccount().getBalance());
+				System.out.println(myName() + ": Account Id:" + accountStatus.getAccount().getId_account());
+				System.out.println(myName() + ": Account Balance:" + accountStatus.getAccount().getBalance());
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -528,12 +536,12 @@ public class AgHotel2 extends MetaAgent {
 			try {
 				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
 				
-				System.out.println(getLocalName() + ": Account Balance:" + accountStatus.getAccount().getBalance());
+				System.out.println(myName() + ": Account Balance:" + accountStatus.getAccount().getBalance());
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
-
+	
 }

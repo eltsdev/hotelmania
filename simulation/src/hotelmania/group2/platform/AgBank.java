@@ -105,7 +105,7 @@ public class AgBank extends MetaAgent {
 						 */
 						sendResponse(msg, account);
 
-						System.out.println(getLocalName() + ": " + log
+						System.out.println(myName() + ": " + log
 								+ " Create Account success");
 
 					}
@@ -150,9 +150,9 @@ public class AgBank extends MetaAgent {
 		 */
 		private void createAccount(ACLMessage msg,
 				CreateAccountRequest accountData) {
-			System.out.println(myAgent.getLocalName()
+			System.out.println(myName()
 					+ ": received Create Account Request from "
-					+ (msg.getSender()).getLocalName());
+					+ msg.getSender().getLocalName());
 
 			ACLMessage reply = msg.createReply();
 			
@@ -166,7 +166,7 @@ public class AgBank extends MetaAgent {
 
 			myAgent.send(reply);
 
-			System.out.println(myAgent.getLocalName() + ": answer sent -> "
+			System.out.println(myName() + ": answer sent -> "
 					+ log);
 		}
 
@@ -225,16 +225,16 @@ public class AgBank extends MetaAgent {
 				ACLMessage reply = answerGetInfoAccount(msg, account);
 				myAgent.send(reply);
 
-				System.out.println(myAgent.getLocalName() + ": answer sent -> "
+				System.out.println(myName() + ": answer sent -> "
 						+ this.log);
 			}
 		}
 
 		private ACLMessage answerGetInfoAccount(ACLMessage msg, Account account) {
 
-			System.out.println(myAgent.getLocalName()
+			System.out.println(myName()
 					+ ": received " + msg.getProtocol() + " Request from "
-					+ (msg.getSender()).getLocalName());
+					+ msg.getSender().getLocalName());
 
 			ACLMessage reply = msg.createReply();
 
@@ -304,7 +304,7 @@ public class AgBank extends MetaAgent {
 								(ChargeAccount) conc);
 						myAgent.send(reply);
 
-						System.out.println(myAgent.getLocalName()
+						System.out.println(myName()
 								+ ": answer sent -> " + log);
 					}
 				}
@@ -315,9 +315,9 @@ public class AgBank extends MetaAgent {
 		}
 
 		private ACLMessage chargeAccount(ACLMessage msg, ChargeAccount money) {
-			System.out.println(myAgent.getLocalName()
+			System.out.println(myName()
 					+ ": received Cliente Deposit Request from "
-					+ (msg.getSender()).getLocalName());
+					+ msg.getSender().getLocalName());
 
 			ACLMessage reply = msg.createReply();
 
@@ -391,7 +391,7 @@ public class AgBank extends MetaAgent {
 						ACLMessage reply = makeDeposit(msg, (MakeDeposit) conc);
 						myAgent.send(reply);
 
-						System.out.println(myAgent.getLocalName()
+						System.out.println(myName()
 								+ ": answer sent -> " + log);
 					}
 				}
@@ -403,9 +403,9 @@ public class AgBank extends MetaAgent {
 		}
 
 		private ACLMessage makeDeposit(ACLMessage msg, MakeDeposit deposit) {
-			System.out.println(myAgent.getLocalName()
+			System.out.println(myName()
 					+ ": received Cliente Deposit Request from "
-					+ (msg.getSender()).getLocalName());
+					+ msg.getSender().getLocalName());
 
 			ACLMessage reply = msg.createReply();
 

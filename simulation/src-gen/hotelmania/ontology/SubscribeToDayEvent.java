@@ -8,7 +8,7 @@ import jade.core.*;
 /**
 * Protege name: SubscribeToDayEvent
 * @author ontology bean generator
-* @version 2014/05/12, 15:46:57
+* @version 2014/05/14, 12:09:02
 */
 public class SubscribeToDayEvent implements AgentAction {
 

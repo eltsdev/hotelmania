@@ -96,7 +96,7 @@ public class AgAgency extends MetaAgent
 						ACLMessage reply = answerContractRequest(msg, (SignContract) conc);
 						myAgent.send(reply);
 						
-						System.out.println(myAgent.getLocalName() + ": answer sent -> " + log );
+						System.out.println(myName() + ": answer sent -> " + log );
 					}
 				}
 				
@@ -110,7 +110,7 @@ public class AgAgency extends MetaAgent
 
 		private ACLMessage answerContractRequest(ACLMessage msg, SignContract action)
 		{
-			System.out.println(myAgent.getLocalName()+": received "+action.getClass().getSimpleName()+" from "+(msg.getSender()).getLocalName());
+			System.out.println(myName()+": received "+action.getClass().getSimpleName()+" from "+msg.getSender().getLocalName());
 			
 			ACLMessage reply = msg.createReply();
 					

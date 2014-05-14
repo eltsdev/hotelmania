@@ -9,7 +9,7 @@ import jade.core.CaseInsensitiveString;
 
 /** file: SharedAgentsOntology.java
  * @author ontology bean generator
- * @version 2014/05/12, 15:46:57
+ * @version 2014/05/14, 12:09:02
  */
 public class SharedAgentsOntology extends jade.content.onto.Ontology  {
   //NAME
@@ -57,6 +57,7 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     public static final String CONSULTHOTELSTAFF="ConsultHotelStaff";
     public static final String SUBSCRIBETODAYEVENT="SubscribeToDayEvent";
     public static final String NUMBEROFCLIENTSQUERYREF_HOTEL_NAME="hotel_name";
+    public static final String NUMBEROFCLIENTSQUERYREF_DAY="day";
     public static final String NUMBEROFCLIENTSQUERYREF="NumberOfClientsQueryRef";
     public static final String HOTELSINFOREQUEST="HotelsInfoRequest";
     public static final String CONSULTACCOUNTSTATUS_HOTEL="hotel";
@@ -72,8 +73,8 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     public static final String HOTELINFO_RATING="rating";
     public static final String HOTELINFO="HotelInfo";
     public static final String HOTELSTAFFINFO_CONTRACT="contract";
-    public static final String HOTELSTAFFINFO_HOTEL="hotel";
     public static final String HOTELSTAFFINFO_COOKERSTAFF="cookerStaff";
+    public static final String HOTELSTAFFINFO_HOTEL="hotel";
     public static final String HOTELSTAFFINFO="HotelStaffInfo";
     public static final String RATING_ROOM_STAFF_RATING="room_staff_rating";
     public static final String RATING_COOKERS_RATING="cookers_rating";
@@ -187,8 +188,8 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     ratingSchema.add(RATING_CLEANLINESS_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
     ratingSchema.add(RATING_COOKERS_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
     ratingSchema.add(RATING_ROOM_STAFF_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
-    hotelStaffInfoSchema.add(HOTELSTAFFINFO_COOKERSTAFF, contractSchema, 0, ObjectSchema.UNLIMITED);
     hotelStaffInfoSchema.add(HOTELSTAFFINFO_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
+    hotelStaffInfoSchema.add(HOTELSTAFFINFO_COOKERSTAFF, contractSchema, 0, ObjectSchema.UNLIMITED);
     hotelStaffInfoSchema.add(HOTELSTAFFINFO_CONTRACT, contractSchema, ObjectSchema.MANDATORY);
     hotelInfoSchema.add(HOTELINFO_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
     hotelInfoSchema.add(HOTELINFO_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
@@ -198,6 +199,7 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     bookingSchema.add(BOOKING_STARTDAY, (TermSchema)getSchema(BasicOntology.STRING), ObjectSchema.OPTIONAL);
     bookingSchema.add(BOOKING_DAYS, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
     consultAccountStatusSchema.add(CONSULTACCOUNTSTATUS_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
+    numberOfClientsQueryRefSchema.add(NUMBEROFCLIENTSQUERYREF_DAY, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
     numberOfClientsQueryRefSchema.add(NUMBEROFCLIENTSQUERYREF_HOTEL_NAME, (TermSchema)getSchema(BasicOntology.STRING), ObjectSchema.MANDATORY);
     consultHotelStaffSchema.add(CONSULTHOTELSTAFF_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     chargeAccountSchema.add(CHARGEACCOUNT_MONEY, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);

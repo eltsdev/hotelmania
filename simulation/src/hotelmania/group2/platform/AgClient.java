@@ -142,7 +142,7 @@ public class AgClient extends MetaAgent {
 		private void makeDeposit(AID bank) {
 			// Hotel
 			Hotel hotel = new Hotel();
-			hotel.setHotel_name(myHotel.getLocalName());
+			hotel.setHotel_name(myName());
 
 			// TODO This part must be dynamic
 			MakeDeposit action_deposit = new MakeDeposit();
@@ -204,7 +204,7 @@ public class AgClient extends MetaAgent {
 			if (myHotel == null) {
 				request.setHotel_name("hotelII");
 			} else {
-				request.setHotel_name(myHotel.getLocalName());
+				request.setHotel_name(myName());
 			}
 			
 			sendRequest(hotel, request, Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL,ACLMessage.QUERY_REF);
@@ -251,9 +251,9 @@ public class AgClient extends MetaAgent {
 			try {
 				NumberOfClients content = (NumberOfClients) getContentManager().extractContent(message);
 				if (content != null) {
-					System.out.println(getLocalName() + ": Number of clients: "+content.getNum_clients());					
+					System.out.println(myName() + ": Number of clients: "+content.getNum_clients());					
 				}else {
-					System.out.println(getLocalName() + ": Number of clients: Not found (null)");
+					System.out.println(myName() + ": Number of clients: Not found (null)");
 				}
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block

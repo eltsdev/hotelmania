@@ -39,7 +39,7 @@ public abstract class MetaAgent extends Agent {
 	protected void setup() {
 		super.setup();
 		
-		System.out.println(getLocalName() + ": HAS ENTERED");
+		System.out.println(myName() + ": HAS ENTERED");
 		
 		addBehaviour(new ReceiveInformMsgBehavior(this));
 		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
@@ -53,6 +53,11 @@ public abstract class MetaAgent extends Agent {
 		{
 			addBehaviour(new LocateSimulatorBehavior(this));
 		}
+	}
+	
+	public String myName()
+	{
+		return super.getLocalName();
 	}
  
 	/**
@@ -86,7 +91,7 @@ public abstract class MetaAgent extends Agent {
 			e.printStackTrace();
 		}
 
-		//System.out.println(this.getLocalName() + ": Agent not found:" + type);
+		//System.out.println(this.myName() + ": Agent not found:" + type);
 		return null;
 	}
 
@@ -110,7 +115,7 @@ public abstract class MetaAgent extends Agent {
 			oe.printStackTrace();
 		}
 
-		System.out.println(getLocalName() + ": REQUESTS " + content.getClass().getSimpleName());
+		System.out.println(myName() + ": REQUESTS " + content.getClass().getSimpleName());
 	}
 	
 
@@ -127,7 +132,7 @@ public abstract class MetaAgent extends Agent {
 		try {	
 			// Registers its description in the DF
 			DFService.register(this, dfd);
-			System.out.println(getLocalName() + ": registered in the DF");
+			System.out.println(myName() + ": registered in the DF");
 			dfd = null;
 		} catch (FIPAException e) {
 			// TODO handle
@@ -141,7 +146,7 @@ public abstract class MetaAgent extends Agent {
 				return;
 			}
 			
-			System.out.println(this.getLocalName()+": subscription to day event sent!");
+			System.out.println(this.myName()+": subscription to day event sent!");
 	
 			ACLMessage msg = new ACLMessage(ACLMessage.SUBSCRIBE);
 			msg.addReceiver(agSimulator);
@@ -307,24 +312,24 @@ public abstract class MetaAgent extends Agent {
 	}
 	
 	public void logInformMessage(String protocol, ACLMessage message) {
-		System.out.println(this.getLocalName()+": Received <Inform> for Protocol: "+protocol); //TODO define format		
+		System.out.println(this.myName()+": Received <Inform> for Protocol: "+protocol); //TODO define format		
 	}
 
 	public void logAgreeMessage(String protocol, ACLMessage refuse) {
-		System.out.println(this.getLocalName()+": Received <Agree> for Protocol: "+protocol); //TODO define format		
+		System.out.println(this.myName()+": Received <Agree> for Protocol: "+protocol); //TODO define format		
 	}
 
 	public void logRefuseMessage(String protocol, ACLMessage refuse) {
-		System.out.println(this.getLocalName()+": Received <Refuse> for Protocol: "+protocol); //TODO define format				
+		System.out.println(this.myName()+": Received <Refuse> for Protocol: "+protocol); //TODO define format				
 	}
 
 	public void logNotUnderstoodMessage(String protocol, ACLMessage message) {
-		System.out.println(this.getLocalName()+": Received <NotUnderstood> for Protocol: "+protocol); //TODO define format
+		System.out.println(this.myName()+": Received <NotUnderstood> for Protocol: "+protocol); //TODO define format
 	}
 
 
 	public void logRejectedMessage(String protocol, ACLMessage message) {
-		System.out.println(this.getLocalName()+": Received <Rejected> for Protocol: "+protocol); //TODO define format
+		System.out.println(this.myName()+": Received <Rejected> for Protocol: "+protocol); //TODO define format
 	}
 
 	public abstract void receivedAcceptance(ACLMessage message);
