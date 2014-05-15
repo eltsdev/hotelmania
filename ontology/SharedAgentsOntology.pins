@@ -1,7 +1,7 @@
-; Thu May 15 18:26:53 CEST 2014
+; Thu May 15 18:41:26 CEST 2014
 ; 
-;+ (version "3.4.8")
-;+ (build "Build 629")
+;+ (version "3.5")
+;+ (build "Build 663")
 
 ([Account] of  %3AJADE-CLASS
 
@@ -28,6 +28,10 @@
 	(%3AJADE-IGNORE TRUE))
 
 ([Booking] of  %3AJADE-CLASS
+
+	(%3AJADE-IGNORE FALSE))
+
+([BookingOffer] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE FALSE))
 
@@ -103,6 +107,10 @@
 
 	(%3AJADE-IGNORE TRUE))
 
+([Price] of  %3AJADE-CLASS
+
+	(%3AJADE-IGNORE FALSE))
+
 ([project+annotation] of  %3APROJECT-ANNOTATION
 
 	(%3ALOCATION "E:\\elts\\Documentos\\GitHub\\hotelmania\\simulation\\src-gen")
@@ -148,6 +156,10 @@
 ([SimpleJADEAbstractOntology_00016] of  %3ASTANDARD-FACET
 
 	(%3AASSOCIATED-SLOT [%3AJADE-UNNAMED-SLOT]))
+
+([Stay] of  %3AJADE-CLASS
+
+	(%3AJADE-IGNORE FALSE))
 
 ([SubscribeToDayEvent] of  %3AJADE-CLASS
 

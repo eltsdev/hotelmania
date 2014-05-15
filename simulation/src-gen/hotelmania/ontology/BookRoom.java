@@ -8,19 +8,30 @@ import jade.core.*;
 /**
 * Protege name: BookRoom
 * @author ontology bean generator
-* @version 2014/05/15, 18:18:08
+* @version 2014/05/15, 18:43:21
 */
 public class BookRoom implements AgentAction {
 
    /**
-* Protege name: booking
+* Protege name: stay
    */
-   private Booking booking;
-   public void setBooking(Booking value) { 
-    this.booking=value;
+   private Stay stay;
+   public void setStay(Stay value) { 
+    this.stay=value;
    }
-   public Booking getBooking() {
-     return this.booking;
+   public Stay getStay() {
+     return this.stay;
+   }
+
+   /**
+* Protege name: bookingOffer
+   */
+   private BookingOffer bookingOffer;
+   public void setBookingOffer(BookingOffer value) { 
+    this.bookingOffer=value;
+   }
+   public BookingOffer getBookingOffer() {
+     return this.bookingOffer;
    }
 
 }
