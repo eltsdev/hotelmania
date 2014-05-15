@@ -6,11 +6,11 @@ import jade.util.leap.*;
 import jade.core.*;
 
 /**
-* Protege name: HotelInfo
+* Protege name: HotelInformation
 * @author ontology bean generator
-* @version 2014/05/15, 13:46:02
+* @version 2014/05/15, 18:18:07
 */
-public class HotelInfo implements Concept {
+public class HotelInformation implements Concept {
 
    /**
 * Protege name: rating

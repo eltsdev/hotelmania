@@ -3,7 +3,8 @@ package hotelmania.group2.platform;
 import hotelmania.group2.dao.HotelDAO;
 import hotelmania.group2.dao.RatingDAO;
 import hotelmania.ontology.Hotel;
-import hotelmania.ontology.HotelsInfoRequest;
+import hotelmania.ontology.HotelInformation;
+import hotelmania.ontology.QueryHotelmaniaHotel;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.RegistrationRequest;
 import jade.content.Concept;
@@ -174,43 +175,41 @@ public class AgHotelmania extends MetaAgent
 				block();
 				return;
 			} 
-			 //The ContentManager transforms the message content (string) in
-			Concept conc =  this.getConceptFromMessage(msg);
-			if (conc instanceof HotelsInfoRequest) {
-				// execute request
-				ACLMessage reply = answerHotelsInfoRequest(msg);
-				// send reply
-				myAgent.send(reply);
-
-				System.out.println(myName()
-						+ ": answer sent -> " + this.log);
-			}
-		}
-		
-		private ACLMessage answerHotelsInfoRequest(ACLMessage msg) {
 			
 			System.out.println(myName() + ": received HotelsInfo Request from " + msg.getSender().getLocalName());
+			
+			 //The ContentManager transforms the message content (string) in
+			Concept conc =  this.getConceptFromMessage(msg);
+			if (conc instanceof QueryHotelmaniaHotel) {
+				// execute request
+				ContentElementList hotels = getAllHotels();
+				
+				// Send reply
+				sendResponseOfHotelRecords(msg, hotels);
+			}
+		}
+
+		private void sendResponseOfHotelRecords(ACLMessage msg, ContentElementList hotels) {
 			ACLMessage reply = msg.createReply();
 			
-			if (hotelDAO.getHotelsRegistered() != null) {
-				
-				this.log = Constants.AGREE;
-				reply.setPerformative(ACLMessage.AGREE);
-				ContentElementList hotels = getAllHotels();
-
+			if (hotels != null) {
+				this.log = Constants.INFORM;
+				reply.setPerformative(ACLMessage.INFORM);
 				// The ContentManager transforms the java objects into strings
 				try {
 					myAgent.getContentManager().fillContent(msg, hotels);
 				} catch (CodecException | OntologyException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
-
+				}				
+				
 			} else {
 				this.log = Constants.REFUSE;
 				reply.setPerformative(ACLMessage.REFUSE); 
 			}
-			return reply;
+			//..there is no option of NOT UNDERSTOOD
+			
+			myAgent.send(reply);
 		}
 
 		private ContentElementList getAllHotels() {
@@ -329,7 +328,12 @@ public class AgHotelmania extends MetaAgent
 		ContentElementList contentList = new ContentElementList();
 		
 		for (hotelmania.group2.dao.Hotel hotel : list) {
-			contentList.add( (ContentElement) hotel.getConcept());
+			Hotel concept = hotel.getConcept();
+			HotelInformation hotelInformation = new HotelInformation();
+			hotelInformation.setHotel(concept);
+			hotelInformation.setRating(0);  //FIXME DOUBLE
+			
+			contentList.add( (ContentElement) concept);
 		}
 
 		return contentList;

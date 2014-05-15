@@ -8,7 +8,7 @@ import jade.core.*;
 /**
 * Protege name: RoomHotelInfo
 * @author ontology bean generator
-* @version 2014/05/15, 13:46:02
+* @version 2014/05/15, 18:18:07
 */
 public class RoomHotelInfo implements Concept {
 

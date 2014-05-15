@@ -246,32 +246,39 @@ public class AgClient extends MetaAgent {
 	 */
 	@Override
 	public void receivedInform(ACLMessage message) {
-		
 		if (message.getProtocol().equals(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)) {
-			try {
-				NumberOfClients content = (NumberOfClients) getContentManager().extractContent(message);
-				if (content != null) {
-					System.out.println(myName() + ": Number of clients: "+content.getNum_clients());					
-				}else {
-					System.out.println(myName() + ": Number of clients: Not found (null)");
-				}
-			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			handleConsultNumberOfClientsInform(message);
 		}else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
-			try {
-				ContentElementList content = (ContentElementList) getContentManager().extractContent(message);
-				if (content != null) {
-					//TODO complete handling
-					System.out.println(myName() + ": Number of hotels: "+content.size());			
-				}else {
-					System.out.println(myName() + ": Null number of hotels");
-				}
-			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			handleConsultHotelsInfoInform(message);
+		}
+	}
+
+	private void handleConsultNumberOfClientsInform(ACLMessage message) {
+		try {
+			NumberOfClients content = (NumberOfClients) getContentManager().extractContent(message);
+			if (content != null) {
+				System.out.println(myName() + ": Number of clients: "+content.getNum_clients());					
+			}else {
+				System.out.println(myName() + ": Number of clients: Not found (null)");
 			}
+		} catch (CodecException | OntologyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void handleConsultHotelsInfoInform(ACLMessage message) {
+		try {
+			ContentElementList content = (ContentElementList) getContentManager().extractContent(message);
+			if (content != null) {
+				//TODO complete handling
+				System.out.println(myName() + ": Number of hotels: "+content.size());			
+			}else {
+				System.out.println(myName() + ": Null number of hotels");
+			}
+		} catch (CodecException | OntologyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

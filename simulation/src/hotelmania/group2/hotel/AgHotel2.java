@@ -12,9 +12,9 @@ import hotelmania.ontology.Booking;
 import hotelmania.ontology.Contract;
 import hotelmania.ontology.CreateAccountRequest;
 import hotelmania.ontology.Hotel;
-import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.NumberOfClients;
 import hotelmania.ontology.NumberOfClientsQueryRef;
+import hotelmania.ontology.QueryHotelmaniaHotel;
 import hotelmania.ontology.RegistrationRequest;
 import hotelmania.ontology.SignContract;
 import jade.content.Concept;
@@ -387,10 +387,9 @@ public class AgHotel2 extends MetaAgent {
 			}
 		}
 
-		@Deprecated
 		private void consultHotelInfo(AID hotelmania) {
-			//FIXME ONTOLOGY CHANGE: QueryHotelmaniaHotel request = new QueryHotelmaniaHotel();
-			HotelsInfoRequest request = new HotelsInfoRequest();
+			//FIXME TEST ONTOLOGY CHANGE: QueryHotelmaniaHotel request = new QueryHotelmaniaHotel();
+			QueryHotelmaniaHotel request = new QueryHotelmaniaHotel();
 			sendRequest(hotelmania, request,
 					Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
 		}
