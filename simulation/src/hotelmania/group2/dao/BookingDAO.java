@@ -1,6 +1,8 @@
 package hotelmania.group2.dao;
 
 import hotelmania.group2.platform.Constants;
+import hotelmania.ontology.BookingOffer;
+import hotelmania.ontology.Stay;
 
 import java.util.ArrayList;
 
@@ -26,5 +28,17 @@ public class BookingDAO {
 			return this.daysClientsArray[day-1];
 		}
 		return -1;
+	}
+
+	/**
+	 * @param bookingOffer
+	 * @param stay
+	 */
+	public void booking(BookingOffer bookingOffer, Stay stay) {
+//		this.booking.add(new Booking(bookingOffer, startDate));
+//		for (int i = Integer.valueOf(startDate); i < days; i++) {
+//			this.daysClientsArray[i]++;
+//		}
+//		
 	}
 }

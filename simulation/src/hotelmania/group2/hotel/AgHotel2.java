@@ -192,7 +192,7 @@ public class AgHotel2 extends MetaAgent {
 			ACLMessage reply = msg.createReply();
 
 			if (bookData != null) {
-				if (bookRoom(bookData.getBooking())) {
+				if (bookRoom(bookData)) {
 					reply.setPerformative(ACLMessage.AGREE);
 					this.log = Constants.AGREE;
 				} else {
@@ -207,8 +207,8 @@ public class AgHotel2 extends MetaAgent {
 			return reply;
 		}
 
-		private boolean bookRoom(Booking book) {
-			bookDAO.booking(book.getDays(), book.getStartDay());
+		private boolean bookRoom(BookRoom book) {
+			bookDAO.booking(book.getBookingOffer(), book.getStay());
 			return true;
 		}
 
