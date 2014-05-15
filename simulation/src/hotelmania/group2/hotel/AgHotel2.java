@@ -312,9 +312,7 @@ public class AgHotel2 extends MetaAgent {
 
 		SignContract request = new SignContract();
 
-		Hotel hotel = new Hotel();
-		hotel.setHotel_name(myName());
-		request.setHotel(hotel);
+		request.setHotel(identity);
 		request.setContract(hireDailyStaff(day+1));
 
 //		System.out.println("[HOTEL] Wants to hire staff for day: "+(request.getContract().getDay())+ " Today is:"+day);
