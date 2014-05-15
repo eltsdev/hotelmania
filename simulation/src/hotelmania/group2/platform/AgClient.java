@@ -1,17 +1,15 @@
 package hotelmania.group2.platform;
 
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
-
 import hotelmania.ontology.BookRoom;
 import hotelmania.ontology.Booking;
 import hotelmania.ontology.Hotel;
-import hotelmania.ontology.HotelsInfoRequest;
 import hotelmania.ontology.MakeDeposit;
 import hotelmania.ontology.NumberOfClients;
 import hotelmania.ontology.NumberOfClientsQueryRef;
+import hotelmania.ontology.QueryHotelmaniaHotel;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;
-import jade.content.ContentElement;
+import jade.content.ContentElementList;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.core.AID;
@@ -36,7 +34,7 @@ public class AgClient extends MetaAgent {
 		// Behaviors
 
 		//addBehaviour(new RequestBookingInHotelBehavior(this));
-		//addBehaviour(new ConsultHotelInfoBehavior(this));
+		addBehaviour(new ConsultHotelInfoBehavior(this));
 		addBehaviour(new ConsultHotelNumberOfClientsBehavior(this));
 		// TODO refuse offer
 	}
@@ -126,6 +124,7 @@ public class AgClient extends MetaAgent {
 			Hotel hotel = new Hotel();
 			// hotel.setHotel_name(actualHotel);
 			hotel.setHotel_name(agHotel.getName());
+			hotel.setHotelAgent(agHotel);
 
 			// TODO This part must be dynamic
 			Rating rating = new Rating();
@@ -143,7 +142,8 @@ public class AgClient extends MetaAgent {
 			// Hotel
 			Hotel hotel = new Hotel();
 			hotel.setHotel_name(myName());
-
+			hotel.setHotelAgent(agHotel);
+			
 			// TODO This part must be dynamic
 			MakeDeposit action_deposit = new MakeDeposit();
 			action_deposit.setHotel(hotel);
@@ -173,7 +173,7 @@ public class AgClient extends MetaAgent {
 		}
 
 		private void consultHotelInfo(AID hotelmania) {
-			HotelsInfoRequest request = new HotelsInfoRequest();
+			QueryHotelmaniaHotel request = new QueryHotelmaniaHotel();
 			sendRequest(hotelmania, request, Constants.CONSULTHOTELSINFO_PROTOCOL,ACLMessage.QUERY_REF);
 		}
 
@@ -246,7 +246,7 @@ public class AgClient extends MetaAgent {
 	 */
 	@Override
 	public void receivedInform(ACLMessage message) {
-		// TODO Auto-generated method stub
+		
 		if (message.getProtocol().equals(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)) {
 			try {
 				NumberOfClients content = (NumberOfClients) getContentManager().extractContent(message);
@@ -254,6 +254,19 @@ public class AgClient extends MetaAgent {
 					System.out.println(myName() + ": Number of clients: "+content.getNum_clients());					
 				}else {
 					System.out.println(myName() + ": Number of clients: Not found (null)");
+				}
+			} catch (CodecException | OntologyException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+			try {
+				ContentElementList content = (ContentElementList) getContentManager().extractContent(message);
+				if (content != null) {
+					//TODO complete handling
+					System.out.println(myName() + ": Number of hotels: "+content.size());			
+				}else {
+					System.out.println(myName() + ": Null number of hotels");
 				}
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block

@@ -32,18 +32,23 @@ public class AgHotel2 extends MetaAgent {
 	private static final long serialVersionUID = 2893904717857535232L;
 	private BookingDAO bookDAO = new BookingDAO();
 	
-	// Used in Create Account (when receive the Inform) and consultHotelAccountInfo
-	private Integer id_account;
 	// -------------------------------------------------
 	// Agent Attributes
 	// -------------------------------------------------
 
+	// Used in Create Account (when receive the Inform) and consultHotelAccountInfo
+	private Integer id_account;
 	boolean registered;
+	private final Hotel identity = new Hotel();
 
 	@Override
 	protected void setup() {
 		super.setup();
 		this.registerServices(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION);
+		
+		identity.setHotel_name(getHotelName());
+		identity.setHotelAgent(getAID());
+		
 		addBehaviour(new RegisterInHotelmaniaBehavior(this));
 		addBehaviour(new CreateBankAccountBehavior(this));
 		addBehaviour(new ConsultBankAccountInfoBehavior(this));
@@ -110,9 +115,7 @@ public class AgHotel2 extends MetaAgent {
 
 		private void registerHotel() {
 			RegistrationRequest register = new RegistrationRequest();
-			Hotel hotel = new Hotel();
-			hotel.setHotel_name(myName());
-			register.setHotel(hotel);
+			register.setHotel(identity);
 
 			sendRequest(agHotelmania, register,
 					Constants.REGISTRATION_PROTOCOL, ACLMessage.REQUEST);
@@ -253,9 +256,7 @@ public class AgHotel2 extends MetaAgent {
 
 		private void createHotelAccount() {
 			CreateAccountRequest action_account = new CreateAccountRequest();
-			Hotel hotel = new Hotel();
-			hotel.setHotel_name(myName());
-			action_account.setHotel(hotel);
+			action_account.setHotel(identity);
 			sendRequest(agBank, action_account, Constants.CREATEACCOUNT_PROTOCOL, ACLMessage.REQUEST);
 
 			this.setDone(true);
@@ -316,7 +317,7 @@ public class AgHotel2 extends MetaAgent {
 		request.setHotel(hotel);
 		request.setContract(hireDailyStaff(day+1));
 
-		System.out.println("[HOTEL] Wants to hire staff for day: "+(request.getContract().getDay())+ " Today is:"+day);
+//		System.out.println("[HOTEL] Wants to hire staff for day: "+(request.getContract().getDay())+ " Today is:"+day);
 		this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL,
 				ACLMessage.REQUEST);
 
@@ -368,12 +369,12 @@ public class AgHotel2 extends MetaAgent {
 		return c;
 	}
 
-	private final class ConsultHotelInfoBehavior extends MetaSimpleBehaviour {
+	private final class ConsultMyRatingBehavior extends MetaSimpleBehaviour {
 
 		private static final long serialVersionUID = 1L;
 		private AID agHotelmania;
 
-		private ConsultHotelInfoBehavior(Agent a) {
+		private ConsultMyRatingBehavior(Agent a) {
 			super(a);
 		}
 
@@ -388,7 +389,9 @@ public class AgHotel2 extends MetaAgent {
 			}
 		}
 
+		@Deprecated
 		private void consultHotelInfo(AID hotelmania) {
+			//FIXME ONTOLOGY CHANGE: QueryHotelmaniaHotel request = new QueryHotelmaniaHotel();
 			HotelsInfoRequest request = new HotelsInfoRequest();
 			sendRequest(hotelmania, request,
 					Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);

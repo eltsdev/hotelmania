@@ -6,10 +6,10 @@ import jade.util.leap.*;
 import jade.core.*;
 
 /**
-* Protege name: SubscribeToDayEvent
+* Protege name: QueryHotelmaniaHotel
 * @author ontology bean generator
 * @version 2014/05/15, 13:46:02
 */
-public class SubscribeToDayEvent implements AgentAction {
+public class QueryHotelmaniaHotel implements AgentAction {
 
 }

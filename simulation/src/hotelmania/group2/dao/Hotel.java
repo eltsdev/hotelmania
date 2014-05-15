@@ -1,18 +1,23 @@
 package hotelmania.group2.dao;
 
+import jade.core.AID;
+
 /**
  * @author user
  *
  */
 public class Hotel {
 	
-	String name;
+	private String name;
+	private AID agent;
 
 	/**
-	 * @param name2
+	 * @param hotelAgent 
+	 * @param name
 	 */
-	public Hotel(String name) {
+	public Hotel(String name, AID hotelAgent) {
 		this.name = name ;
+		this.agent = hotelAgent;
 	}
 
 	/**
@@ -29,9 +34,18 @@ public class Hotel {
 		this.name = name;
 	}
 		
+	public AID getAgent() {
+		return agent;
+	}
+
+	public void setAgent(AID agent) {
+		this.agent = agent;
+	}
+	
 	public hotelmania.ontology.Hotel getConcept() {
 		hotelmania.ontology.Hotel concept = new hotelmania.ontology.Hotel();
 		concept.setHotel_name(this.name);
+		concept.setHotelAgent(this.getAgent());
 		return concept;
 	}
 	

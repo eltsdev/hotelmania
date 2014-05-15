@@ -2,6 +2,7 @@ package hotelmania.group2.platform;
 
 import hotelmania.group2.dao.Account;
 import hotelmania.group2.dao.AccountDAO;
+import hotelmania.group2.dao.Hotel;
 import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.AccountStatusQueryRef;
 import hotelmania.ontology.ChargeAccount;
@@ -96,9 +97,13 @@ public class AgBank extends MetaAgent {
 					// If the action is Create Account...
 					if (conc instanceof CreateAccountRequest) {
 						
-						this.createAccount(msg, (CreateAccountRequest)conc);
-						// execute request
-						hotelmania.ontology.Account account = registerNewAccount((CreateAccountRequest)conc);
+						//Agree
+						CreateAccountRequest request = (CreateAccountRequest)conc;
+						this.validateAndSendAgree(msg, request);
+				
+						//Execute
+						Hotel hotel = new Hotel(request.getHotel().getHotel_name(), msg.getSender());
+						hotelmania.ontology.Account account = registerNewAccount(hotel );
 
 						/*
 						 * Inform Account Status
@@ -148,7 +153,7 @@ public class AgBank extends MetaAgent {
 		 * @param accountData
 		 * @return
 		 */
-		private void createAccount(ACLMessage msg,
+		private void validateAndSendAgree(ACLMessage msg,
 				CreateAccountRequest accountData) {
 			System.out.println(myName()
 					+ ": received Create Account Request from "
@@ -175,11 +180,9 @@ public class AgBank extends MetaAgent {
 		 * @return
 		 */
 
-		private hotelmania.ontology.Account registerNewAccount(
-				CreateAccountRequest account) {
-			Account newAccount = accountDAO.registerNewAccount(account
-					.getHotel().getHotel_name(), 0);
-			return newAccount.getConcept();//TODO move to caller
+		private hotelmania.ontology.Account registerNewAccount(Hotel hotel) {
+			Account newAccount = accountDAO.registerNewAccount(hotel , 0);
+			return newAccount.getConcept();
 
 		}
 	}

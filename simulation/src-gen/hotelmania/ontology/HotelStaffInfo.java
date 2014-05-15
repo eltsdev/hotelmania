@@ -8,20 +8,9 @@ import jade.core.*;
 /**
 * Protege name: HotelStaffInfo
 * @author ontology bean generator
-* @version 2014/05/14, 12:09:02
+* @version 2014/05/15, 13:46:02
 */
 public class HotelStaffInfo implements Concept {
-
-   /**
-* Protege name: hotel
-   */
-   private Hotel hotel;
-   public void setHotel(Hotel value) { 
-    this.hotel=value;
-   }
-   public Hotel getHotel() {
-     return this.hotel;
-   }
 
    /**
 * Protege name: cookerStaff
@@ -43,6 +32,17 @@ public class HotelStaffInfo implements Concept {
    public Iterator getAllCookerStaff() {return cookerStaff.iterator(); }
    public List getCookerStaff() {return cookerStaff; }
    public void setCookerStaff(List l) {cookerStaff = l; }
+
+   /**
+* Protege name: hotel
+   */
+   private Hotel hotel;
+   public void setHotel(Hotel value) { 
+    this.hotel=value;
+   }
+   public Hotel getHotel() {
+     return this.hotel;
+   }
 
    /**
 * Protege name: contract

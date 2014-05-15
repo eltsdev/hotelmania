@@ -8,13 +8,16 @@ import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.RegistrationRequest;
 import jade.content.Concept;
 import jade.content.ContentElement;
-import jade.content.abs.AbsContentElement;
+import jade.content.ContentElementList;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+
+import java.util.ArrayList;
 
 public class AgHotelmania extends MetaAgent 
 {
@@ -128,7 +131,10 @@ public class AgHotelmania extends MetaAgent
 			
 			if (registrationRequestData != null
 					&& registrationRequestData.getHotel() != null) {
-				if (registerNewHotel(registrationRequestData.getHotel())) {
+				
+				boolean registrationSuccessful = registerNewHotel(registrationRequestData.getHotel(), msg.getSender());
+				
+				if (registrationSuccessful) {
 					this.log = Constants.AGREE;
 					reply.setPerformative(ACLMessage.AGREE);
 				} else {
@@ -142,8 +148,9 @@ public class AgHotelmania extends MetaAgent
 			return reply;
 		}
 
-		private boolean registerNewHotel(Hotel hotel) {
-			return hotelDAO .registerNewHotel(hotel.getHotel_name());
+		private boolean registerNewHotel(Hotel hotel, AID sender) {
+			
+			return hotelDAO .registerNewHotel(hotel.getHotel_name(), sender );
 		}
 	}
 
@@ -185,10 +192,12 @@ public class AgHotelmania extends MetaAgent
 			System.out.println(myName() + ": received HotelsInfo Request from " + msg.getSender().getLocalName());
 			ACLMessage reply = msg.createReply();
 			
-			if (hotelDAO.getListHotel() != null) {
+			if (hotelDAO.getHotelsRegistered() != null) {
+				
 				this.log = Constants.AGREE;
 				reply.setPerformative(ACLMessage.AGREE);
-				AbsContentElement hotels = getAllHotels();
+				ContentElementList hotels = getAllHotels();
+
 				// The ContentManager transforms the java objects into strings
 				try {
 					myAgent.getContentManager().fillContent(msg, hotels);
@@ -204,9 +213,9 @@ public class AgHotelmania extends MetaAgent
 			return reply;
 		}
 
-		private AbsContentElement getAllHotels() {
-			// TODO Auto-generated method stub
-			return null;
+		private ContentElementList getAllHotels() {
+			ArrayList<hotelmania.group2.dao.Hotel> list = hotelDAO.getHotelsRegistered();
+			return toContentElementList(list); 
 		}
 	}
 
@@ -312,6 +321,18 @@ public class AgHotelmania extends MetaAgent
 	public void receivedAcceptance(ACLMessage message) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public ContentElementList toContentElementList(
+			ArrayList<hotelmania.group2.dao.Hotel> list) {
+		
+		ContentElementList contentList = new ContentElementList();
+		
+		for (hotelmania.group2.dao.Hotel hotel : list) {
+			contentList.add( (ContentElement) hotel.getConcept());
+		}
+
+		return contentList;
 	}
 
 	@Override

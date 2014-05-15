@@ -9,7 +9,7 @@ public class Constants {
 	public static final String MAKEDEPOSIT_PROTOCOL = "MAKEDEPOSIT";
 	public static final String SIGNCONTRACT_PROTOCOL = "SignContract";
 	public static final String REGISTRATION_PROTOCOL = "Registration";
-	public static final String CONSULTHOTELSINFO_PROTOCOL = "CONSULTHOTELSINFO";
+	public static final String CONSULTHOTELSINFO_PROTOCOL = "QueryHotelmaniaInformation";
 	public static final String CONSULTHOTELSSTAFF_PROTOCOL = "CONSULTHOTELSSTAFF";
 	public static final String CONSULTROOMPRICES_PROTOCOL = "CONSULTROOMPRICES";
 	public static final String CONSULTACCOUNTSTATUS_PROTOCOL = "AccountStatus";
@@ -29,7 +29,7 @@ public class Constants {
 	public static final String CHARGEACCOUNT_ACTION = CHARGEACCOUNT_PROTOCOL;
 	
 	// Query-ref Actions
-	public static final String CONSULTHOTELSINFO_ACTION = CONSULTHOTELSINFO_PROTOCOL;
+	public static final String CONSULTHOTELSINFO_ACTION = "QueryHotelmaniaHotel";
 	public static final String CONSULTHOTELSSTAFF_ACTION = CONSULTHOTELSSTAFF_PROTOCOL;
 	public static final String CONSULTROOMPRICES_ACTION = CONSULTROOMPRICES_PROTOCOL;
 	public static final String CONSULTACCOUNTSTATUS_ACTION = CONSULTACCOUNTSTATUS_PROTOCOL;
