@@ -190,25 +190,25 @@ public class AgHotel2 extends MetaAgent {
 					+ msg.getSender().getLocalName());
 			// send reply
 			ACLMessage reply = msg.createReply();
-
-			if (bookData != null) {
-				if (bookRoom(bookData)) {
-					reply.setPerformative(ACLMessage.AGREE);
-					this.log = Constants.AGREE;
-				} else {
-					reply.setPerformative(ACLMessage.REFUSE);
-					this.log = Constants.REFUSE;
-				}
-			} else {
-				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-				this.log = Constants.NOT_UNDERSTOOD;
-			}
+			//TODO With the new Ontology
+//			if (bookData != null) {
+//				if (bookRoom(bookData.getBooking())) {
+//					reply.setPerformative(ACLMessage.AGREE);
+//					this.log = Constants.AGREE;
+//				} else {
+//					reply.setPerformative(ACLMessage.REFUSE);
+//					this.log = Constants.REFUSE;
+//				}
+//			} else {
+//				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+//				this.log = Constants.NOT_UNDERSTOOD;
+//			}
 
 			return reply;
 		}
 
-		private boolean bookRoom(BookRoom book) {
-			bookDAO.booking(book.getBookingOffer(), book.getStay());
+		private boolean bookRoom(Booking book) {
+			bookDAO.booking(book.getDays(), book.getStartDay());
 			return true;
 		}
 

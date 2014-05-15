@@ -34,6 +34,8 @@ public class BookingDAO {
 	 * @param bookingOffer
 	 * @param stay
 	 */
+	
+	//TODO This Method for Provide Info Booking
 	public void booking(BookingOffer bookingOffer, Stay stay) {
 //		this.booking.add(new Booking(bookingOffer, startDate));
 //		for (int i = Integer.valueOf(startDate); i < days; i++) {
