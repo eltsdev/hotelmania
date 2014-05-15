@@ -1,4 +1,4 @@
-; Wed May 14 12:09:04 CEST 2014
+; Thu May 15 18:26:53 CEST 2014
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -47,10 +47,6 @@
 
 	(%3AJADE-IGNORE FALSE))
 
-([ConsultHotelsInfo] of  %3AJADE-CLASS
-
-	(%3AJADE-IGNORE FALSE))
-
 ([ConsultHotelStaff] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE FALSE))
@@ -75,15 +71,7 @@
 
 	(%3AJADE-IGNORE FALSE))
 
-([HotelInfo] of  %3AJADE-CLASS
-
-	(%3AJADE-IGNORE FALSE))
-
-([HotelInfoList] of  %3AJADE-CLASS
-
-	(%3AJADE-IGNORE FALSE))
-
-([HotelsInfoRequest] of  %3AJADE-CLASS
+([HotelInformation] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE FALSE))
 
@@ -121,6 +109,10 @@
 	(%3AONTOLOGYNAME "SharedAgents")
 	(%3APACKAGE "hotelmania.ontology")
 	(%3ASUPPORT "j2se"))
+
+([QueryHotelmaniaHotel] of  %3AJADE-CLASS
+
+	(%3AJADE-IGNORE FALSE))
 
 ([RateHotel] of  %3AJADE-CLASS
 
