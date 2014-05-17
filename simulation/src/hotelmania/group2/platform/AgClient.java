@@ -1,14 +1,16 @@
 package hotelmania.group2.platform;
 
 import hotelmania.ontology.BookRoom;
-import hotelmania.ontology.Booking;
+import hotelmania.ontology.BookingOffer;
 import hotelmania.ontology.Hotel;
 import hotelmania.ontology.MakeDeposit;
 import hotelmania.ontology.NumberOfClients;
 import hotelmania.ontology.NumberOfClientsQueryRef;
+import hotelmania.ontology.Price;
 import hotelmania.ontology.QueryHotelmaniaHotel;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;
+import hotelmania.ontology.Stay;
 import jade.content.ContentElementList;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
@@ -33,7 +35,7 @@ public class AgClient extends MetaAgent {
 		
 		// Behaviors
 
-		//addBehaviour(new RequestBookingInHotelBehavior(this));
+		addBehaviour(new RequestBookingInHotelBehavior(this));
 		addBehaviour(new ConsultHotelInfoBehavior(this));
 		addBehaviour(new ConsultHotelNumberOfClientsBehavior(this));
 		// TODO refuse offer
@@ -73,7 +75,7 @@ public class AgClient extends MetaAgent {
 		public void action() {
 			this.setDone(true);
 			
-			/* TODO implement:			
+			// TODO implement:			
 			if (AgClient.this.bookingDone) {
 				myAgent.doDelete(); // TODO Test if this works.
 			}
@@ -99,17 +101,23 @@ public class AgClient extends MetaAgent {
 			}else {
 				makeDeposit(agBank);
 			}
-			 */			
+			 		
 		}
 
 		private void bookRoom(AID hotel) {
 
+			// TODO This part must be dynamic
 			BookRoom action_booking = new BookRoom();
-
-			// This part must be dynamic
-			Booking booking = new Booking();
-			booking.setDays(10);
-			booking.setStartDay("10/04/2014");
+			Price price= new Price();
+			price.setPrice(300);
+			Stay  stay = new Stay();
+			stay.setCheckIn(3);
+			stay.setCheckOut(7);
+			
+			BookingOffer bookOffer = new BookingOffer();
+			bookOffer.setRoomPrice(price);
+			action_booking.setBookingOffer(bookOffer);
+			action_booking.setStay(stay);
 
 			sendRequest(hotel, action_booking, Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
 		}

@@ -1,6 +1,8 @@
 package hotelmania.group2.hotel;
 
 import hotelmania.group2.dao.BookingDAO;
+import hotelmania.group2.dao.Price;
+import hotelmania.group2.dao.Stay;
 import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.MetaAgent;
 import hotelmania.group2.platform.MetaCyclicBehaviour;
@@ -8,7 +10,6 @@ import hotelmania.group2.platform.MetaSimpleBehaviour;
 import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.AccountStatusQueryRef;
 import hotelmania.ontology.BookRoom;
-import hotelmania.ontology.Booking;
 import hotelmania.ontology.Contract;
 import hotelmania.ontology.CreateAccountRequest;
 import hotelmania.ontology.Hotel;
@@ -116,8 +117,7 @@ public class AgHotel2 extends MetaAgent {
 			RegistrationRequest register = new RegistrationRequest();
 			register.setHotel(identity);
 
-			sendRequest(agHotelmania, register,
-					Constants.REGISTRATION_PROTOCOL, ACLMessage.REQUEST);
+			sendRequest(agHotelmania, register,	Constants.REGISTRATION_PROTOCOL, ACLMessage.REQUEST);
 		}
 	}
 
@@ -163,11 +163,12 @@ public class AgHotel2 extends MetaAgent {
 					// If the action is BookRoom...
 					if (conc instanceof BookRoom) {
 						// execute request
-						ACLMessage reply = answerBookingRequest(msg,(BookRoom) conc);
-											
-						myAgent.send(reply);
-
+						//Execute
+						answerBookingRequest(msg,(BookRoom) conc);
+								
+										
 						System.out.println(myName()	+ ": answer sent -> " + log);
+												
 					}
 				}
 
@@ -178,19 +179,22 @@ public class AgHotel2 extends MetaAgent {
 
 		}
 
+
+
 		/**
 		 * @param msg
 		 * @param conc
 		 * @return
 		 */
-		private ACLMessage answerBookingRequest(ACLMessage msg, BookRoom bookData) {
+		private void answerBookingRequest(ACLMessage msg, BookRoom bookData) {
 			System.out.println(myName() + ": received "	+ msg.getProtocol() +
 					" Request from " + msg.getSender().getLocalName());
 			// send reply
 			ACLMessage reply = msg.createReply();
 		
+			
 			if(bookData!=null){
-				if( bookRoom(bookData)){
+				if(bookRoom(bookData)){
 					reply.setPerformative(ACLMessage.AGREE);
 					this.log = Constants.AGREE;
 					} else {
@@ -201,15 +205,22 @@ public class AgHotel2 extends MetaAgent {
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 				this.log = Constants.NOT_UNDERSTOOD;
 			}
-				
-				return reply;
+			myAgent.send(reply);
+			
 		}
 
 		private boolean bookRoom(BookRoom book) {
-			if(bookDAO.booking(book.getStay(),book.getBookingOffer().getRoomPrice())){
+			Stay stay = new Stay();
+			stay.setCheckIn(book.getStay().getCheckIn());
+			stay.setCheckOut(book.getStay().getCheckOut());
+			Price price = new Price();
+			price.setPrice(book.getBookingOffer().getRoomPrice().getPrice());
+			hotelmania.group2.dao.BookRoom booking= new hotelmania.group2.dao.BookRoom(stay, price);
+			if(bookDAO.booking(booking)){
 				return true;
+			}else{
+				return false;
 			}
-			return false;
 		}
 
 	}

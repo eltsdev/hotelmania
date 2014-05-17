@@ -5,7 +5,7 @@ package hotelmania.group2.dao;
  * @author user
  *
  */
-public class Booking {
+public class BookRoom {
 
  private Stay stay;
  
@@ -13,16 +13,16 @@ public class Booking {
  /**
  * 
  */
-public Booking() {
+public BookRoom() {
 	// TODO Auto-generated constructor stub
 }
 /**
  * @param stay2
- * @param price
+ * @param price2
  */
-public Booking(Stay stay2, Price price) {
+public BookRoom(Stay stay2, Price price2) {
 	this.stay = stay2;
-	this.roomPrice = price;
+	this.roomPrice = price2;
 }
 /**
  * @return the roomPrice

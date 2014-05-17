@@ -121,8 +121,7 @@ public class AgBank extends MetaAgent {
 			}
 		}
 
-		private ACLMessage sendResponse(ACLMessage request,
-				hotelmania.ontology.Account accountOnto) {
+		private void sendResponse(ACLMessage request,hotelmania.ontology.Account accountOnto) {
 
 			ACLMessage inform = request.createReply();
 			// Create predicate Account Status
@@ -144,7 +143,7 @@ public class AgBank extends MetaAgent {
 					e.printStackTrace();
 				}
 			}
-			return inform;
+//			return inform;
 
 		}
 
@@ -153,8 +152,7 @@ public class AgBank extends MetaAgent {
 		 * @param accountData
 		 * @return
 		 */
-		private void validateAndSendAgree(ACLMessage msg,
-				CreateAccountRequest accountData) {
+		private void validateAndSendAgree(ACLMessage msg, CreateAccountRequest accountData) {
 			System.out.println(myName()
 					+ ": received Create Account Request from "
 					+ msg.getSender().getLocalName());
