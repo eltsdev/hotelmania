@@ -134,7 +134,7 @@ public class AgAgency extends MetaAgent
 		{
 			Contract newContract = new Contract(
 					intent.getHotel().getHotel_name(), 
-					day+1, 
+					getDay()+1, 
 					intent.getContract().getChef_1stars(),
 					intent.getContract().getChef_2stars(),
 					intent.getContract().getChef_2stars(),

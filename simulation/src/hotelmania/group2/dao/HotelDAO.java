@@ -5,13 +5,13 @@ import jade.core.AID;
 import java.util.ArrayList;
 
 public class HotelDAO {
-	private ArrayList<Hotel> listHotel;
+	private ArrayList<HotelInformation> listHotel;
 
 	public HotelDAO() {
-		listHotel = new ArrayList<Hotel>();
+		listHotel = new ArrayList<HotelInformation>();
 	}
 
-	public ArrayList<Hotel> getHotelsRegistered() {
+	public ArrayList<HotelInformation> getHotelsRegistered() {
 		return listHotel;
 	}
 	
@@ -23,14 +23,18 @@ public class HotelDAO {
 	public boolean registerNewHotel(String name, AID hotelAgent) {
 		//look for it to avoid repetitions
 		for (int i = 0; i < listHotel.size(); i++) {
-			if (listHotel.get(i).getName().equals(name)) {
+			if (listHotel.get(i).getHotel().getName().equals(name)) {
 				return false;
 			}
 
 		}
 		
 		//register
-		listHotel.add(new Hotel(name, hotelAgent));
+		HotelInformation hotelRecord = new HotelInformation();
+		Hotel hotel = new Hotel(name, hotelAgent);
+		hotelRecord.setHotel(hotel);
+		hotelRecord.setRating(0);
+		listHotel.add(hotelRecord);
 		return true;
 	}
 

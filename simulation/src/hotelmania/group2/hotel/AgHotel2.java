@@ -1,6 +1,8 @@
 package hotelmania.group2.hotel;
 
 import hotelmania.group2.dao.BookingDAO;
+import hotelmania.group2.dao.Price;
+import hotelmania.group2.dao.Stay;
 import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.MetaAgent;
 import hotelmania.group2.platform.MetaCyclicBehaviour;
@@ -8,7 +10,6 @@ import hotelmania.group2.platform.MetaSimpleBehaviour;
 import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.AccountStatusQueryRef;
 import hotelmania.ontology.BookRoom;
-import hotelmania.ontology.Booking;
 import hotelmania.ontology.Contract;
 import hotelmania.ontology.CreateAccountRequest;
 import hotelmania.ontology.Hotel;
@@ -116,8 +117,7 @@ public class AgHotel2 extends MetaAgent {
 			RegistrationRequest register = new RegistrationRequest();
 			register.setHotel(identity);
 
-			sendRequest(agHotelmania, register,
-					Constants.REGISTRATION_PROTOCOL, ACLMessage.REQUEST);
+			sendRequest(agHotelmania, register,	Constants.REGISTRATION_PROTOCOL, ACLMessage.REQUEST);
 		}
 	}
 
@@ -163,10 +163,8 @@ public class AgHotel2 extends MetaAgent {
 					// If the action is BookRoom...
 					if (conc instanceof BookRoom) {
 						// execute request
-						ACLMessage reply = answerBookingRequest(msg,(BookRoom) conc);
+						answerBookingRequest(msg,(BookRoom) conc);
 											
-						myAgent.send(reply);
-
 						System.out.println(myName()	+ ": answer sent -> " + log);
 					}
 				}
@@ -193,12 +191,14 @@ public class AgHotel2 extends MetaAgent {
 				if( bookRoom(bookData)){
 					reply.setPerformative(ACLMessage.AGREE);
 					this.log = Constants.AGREE;
-					} else {
+				} else {
 					reply.setPerformative(ACLMessage.REFUSE);
+					//TODO reply.setContent("");
 					this.log = Constants.REFUSE;
 				}
 			} else {
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				//TODO reply.setContent("");
 				this.log = Constants.NOT_UNDERSTOOD;
 			}
 				
@@ -206,7 +206,13 @@ public class AgHotel2 extends MetaAgent {
 		}
 
 		private boolean bookRoom(BookRoom book) {
-			if(bookDAO.booking(book.getStay(),book.getBookingOffer().getRoomPrice())){
+			Stay stay = new Stay();
+			stay.setCheckIn(book.getStay().getCheckIn());
+			stay.setCheckOut(book.getStay().getCheckOut());
+			Price price = new Price();
+			price.setPrice(book.getBookingOffer().getRoomPrice().getPrice());
+			hotelmania.group2.dao.BookRoom booking= new hotelmania.group2.dao.BookRoom(stay, price);
+			if(bookDAO.booking(booking)){
 				return true;
 			}
 			return false;
@@ -310,7 +316,7 @@ public class AgHotel2 extends MetaAgent {
 		SignContract request = new SignContract();
 
 		request.setHotel(identity);
-		request.setContract(hireDailyStaff(day+1));
+		request.setContract(hireDailyStaff(getDay()+1));
 
 //		System.out.println("[HOTEL] Wants to hire staff for day: "+(request.getContract().getDay())+ " Today is:"+day);
 		this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
@@ -430,6 +436,14 @@ public class AgHotel2 extends MetaAgent {
 			}
 		}
 
+		/**
+		 * INFORM: If the request is valid
+		 * REFUSE: if day is in the future or before day 1.
+		 * NOT UNDERSTOOD: if there are missing parameters
+		 * @param msg
+		 * @param numberOfClientsQueryRef
+		 * @return
+		 */
 		private ACLMessage answerGetNumberOfClients(ACLMessage msg,
 				NumberOfClientsQueryRef numberOfClientsQueryRef) {
 
@@ -437,24 +451,29 @@ public class AgHotel2 extends MetaAgent {
 					" Request from " + msg.getSender().getLocalName());
 
 			ACLMessage reply = msg.createReply();
-			if (numberOfClientsQueryRef != null) {
-				hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getHotel_name(), numberOfClientsQueryRef.getDay());
-				if (numberOfClients.getNum_clients() < 0) {
-					this.log = Constants.REFUSE;
-					reply.setPerformative(ACLMessage.REFUSE);
-				} else {
-					try {
-						this.log = Constants.INFORM;
-						reply.setPerformative(ACLMessage.INFORM);
-						myAgent.getContentManager().fillContent(reply, numberOfClients);
-					} catch (CodecException | OntologyException e) {
-						e.printStackTrace();
-					}
-				}
 
-			} else {
+			//missing parameters?
+			if (numberOfClientsQueryRef == null || numberOfClientsQueryRef.getHotel_name() == null ) {
 				this.log = Constants.NOT_UNDERSTOOD;
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				reply.setContent("There are missing parameters: NumberOfClientsQueryRef action or hotel name");
+
+			} else if (!(numberOfClientsQueryRef.getDay() >= Constants.FIRST_DAY && numberOfClientsQueryRef.getDay() <= getDay())) {
+				//invalid day in request?
+				this.log = Constants.REFUSE;
+				reply.setPerformative(ACLMessage.REFUSE);
+				reply.setContent("Day is in the future or before day 1.");
+
+			} else {
+				//request is valid
+				hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getHotel_name(), numberOfClientsQueryRef.getDay());
+				try {
+					this.log = Constants.INFORM;
+					reply.setPerformative(ACLMessage.INFORM);
+					myAgent.getContentManager().fillContent(reply, numberOfClients);
+				} catch (CodecException | OntologyException e) {
+					e.printStackTrace();
+				}
 			}
 			return reply;
 		}

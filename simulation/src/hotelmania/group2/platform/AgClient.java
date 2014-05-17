@@ -1,14 +1,18 @@
 package hotelmania.group2.platform;
 
 import hotelmania.ontology.BookRoom;
-import hotelmania.ontology.Booking;
+import hotelmania.ontology.BookingOffer;
 import hotelmania.ontology.Hotel;
+import hotelmania.ontology.HotelInformation;
 import hotelmania.ontology.MakeDeposit;
 import hotelmania.ontology.NumberOfClients;
 import hotelmania.ontology.NumberOfClientsQueryRef;
+import hotelmania.ontology.Price;
 import hotelmania.ontology.QueryHotelmaniaHotel;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;
+import hotelmania.ontology.Stay;
+import jade.content.ContentElement;
 import jade.content.ContentElementList;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
@@ -33,7 +37,7 @@ public class AgClient extends MetaAgent {
 		
 		// Behaviors
 
-		//addBehaviour(new RequestBookingInHotelBehavior(this));
+		addBehaviour(new RequestBookingInHotelBehavior(this));
 		addBehaviour(new ConsultHotelInfoBehavior(this));
 		addBehaviour(new ConsultHotelNumberOfClientsBehavior(this));
 		// TODO refuse offer
@@ -73,7 +77,7 @@ public class AgClient extends MetaAgent {
 		public void action() {
 			this.setDone(true);
 			
-			/* TODO implement:			
+			// TODO implement:			
 			if (AgClient.this.bookingDone) {
 				myAgent.doDelete(); // TODO Test if this works.
 			}
@@ -99,17 +103,22 @@ public class AgClient extends MetaAgent {
 			}else {
 				makeDeposit(agBank);
 			}
-			 */			
+			 		
 		}
 
 		private void bookRoom(AID hotel) {
 
 			BookRoom action_booking = new BookRoom();
+			Price price= new Price();
+			price.setPrice(300);
+			Stay  stay = new Stay();
+			stay.setCheckIn(3);
+			stay.setCheckOut(7);
 
-			// This part must be dynamic
-			Booking booking = new Booking();
-			booking.setDays(10);
-			booking.setStartDay("10/04/2014");
+			BookingOffer bookOffer = new BookingOffer();
+			bookOffer.setRoomPrice(price);
+			action_booking.setBookingOffer(bookOffer);
+			action_booking.setStay(stay);
 
 			sendRequest(hotel, action_booking, Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
 		}
@@ -225,9 +234,9 @@ public class AgClient extends MetaAgent {
 	public void receivedReject(ACLMessage message) {
 		// TODO Auto-generated method stub
 		if (message.getProtocol().equals(Constants.BOOKROOM_PROTOCOL)) {
-			logRejectedMessage(Constants.BOOKROOM_PROTOCOL, message);
+			
 		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
-			logRejectedMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
+			
 		}
 	}
 
@@ -235,9 +244,9 @@ public class AgClient extends MetaAgent {
 	public void receivedNotUnderstood(ACLMessage message) {
 		// TODO Auto-generated method stub
 		if (message.getProtocol().equals(Constants.BOOKROOM_PROTOCOL)) {
-			logNotUnderstoodMessage(Constants.BOOKROOM_PROTOCOL, message);
+			
 		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
-			logNotUnderstoodMessage(Constants.CONSULTHOTELSINFO_PROTOCOL, message);
+
 		}	
 	}
 
@@ -264,21 +273,30 @@ public class AgClient extends MetaAgent {
 		} catch (CodecException | OntologyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.out.println("Message: " + message.getContent());
 		}
 	}
 
 	private void handleConsultHotelsInfoInform(ACLMessage message) {
 		try {
-			ContentElementList content = (ContentElementList) getContentManager().extractContent(message);
+			ContentElement content = getContentManager().extractContent(message);
 			if (content != null) {
 				//TODO complete handling
-				System.out.println(myName() + ": Number of hotels: "+content.size());			
+				if (content instanceof ContentElementList) {
+					ContentElementList list = (ContentElementList) content;
+					System.out.println(myName() + ": Number of hotels: "+list.size());			
+				}
+				else if (content instanceof HotelInformation) {
+					HotelInformation record = (HotelInformation) content;
+					System.out.println(myName() + ": Number of hotels: 1 = "+record.getHotel().getHotel_name());
+				}
 			}else {
 				System.out.println(myName() + ": Null number of hotels");
 			}
 		} catch (CodecException | OntologyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.out.println("Message: " + message.getContent());
 		}
 	}
 

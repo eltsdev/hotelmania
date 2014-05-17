@@ -6,6 +6,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/jade.jar" sourcepath="E:/elts/Documentos/APLICACIONES/JADE/src.zip"/>
-	<classpathentry kind="lib" path="lib/Group1-v3.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

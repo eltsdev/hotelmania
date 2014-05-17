@@ -141,10 +141,12 @@ public class AgHotelmania extends MetaAgent
 				} else {
 					this.log = Constants.REFUSE;
 					reply.setPerformative(ACLMessage.REFUSE);
+					reply.setContent("Registration unsuccesful. The hotel name perhaps already existed in hotelmania.");
 				}
 			} else {
 				this.log = Constants.NOT_UNDERSTOOD;
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				reply.setContent("Registration request is null or the hotel property is null.");
 			}
 			return reply;
 		}
@@ -192,12 +194,12 @@ public class AgHotelmania extends MetaAgent
 		private void sendResponseOfHotelRecords(ACLMessage msg, ContentElementList hotels) {
 			ACLMessage reply = msg.createReply();
 			
-			if (hotels != null) {
+			if (hotels != null && !hotels.isEmpty()) {
 				this.log = Constants.INFORM;
 				reply.setPerformative(ACLMessage.INFORM);
 				// The ContentManager transforms the java objects into strings
 				try {
-					myAgent.getContentManager().fillContent(msg, hotels);
+					myAgent.getContentManager().fillContent(reply, hotels);
 				} catch (CodecException | OntologyException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -205,15 +207,18 @@ public class AgHotelmania extends MetaAgent
 				
 			} else {
 				this.log = Constants.REFUSE;
-				reply.setPerformative(ACLMessage.REFUSE); 
+				reply.setPerformative(ACLMessage.REFUSE);
+				reply.setContent("No hotels registered yet.");
 			}
 			//..there is no option of NOT UNDERSTOOD
 			
+			//Send
+			System.out.println(myName() + ": answer sent -> " + this.log);
 			myAgent.send(reply);
 		}
 
 		private ContentElementList getAllHotels() {
-			ArrayList<hotelmania.group2.dao.Hotel> list = hotelDAO.getHotelsRegistered();
+			ArrayList<hotelmania.group2.dao.HotelInformation> list = hotelDAO.getHotelsRegistered();
 			return toContentElementList(list); 
 		}
 	}
@@ -291,10 +296,12 @@ public class AgHotelmania extends MetaAgent
 				} else {
 					this.log = Constants.REFUSE;
 					reply.setPerformative(ACLMessage.REFUSE);
+					//TODO reply.setContent("");
 				}
 			} else {
 				this.log = Constants.NOT_UNDERSTOOD;
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				//TODO 	reply.setContent("");
 			}
 			return reply;
 		}
@@ -323,17 +330,12 @@ public class AgHotelmania extends MetaAgent
 	}
 
 	public ContentElementList toContentElementList(
-			ArrayList<hotelmania.group2.dao.Hotel> list) {
+			ArrayList<hotelmania.group2.dao.HotelInformation> list) {
 		
 		ContentElementList contentList = new ContentElementList();
 		
-		for (hotelmania.group2.dao.Hotel hotel : list) {
-			Hotel concept = hotel.getConcept();
-			HotelInformation hotelInformation = new HotelInformation();
-			hotelInformation.setHotel(concept);
-			hotelInformation.setRating(0);  //FIXME DOUBLE
-			
-			contentList.add( (ContentElement) concept);
+		for (hotelmania.group2.dao.HotelInformation record : list) {
+			contentList.add( (ContentElement) record.getConcept());
 		}
 
 		return contentList;

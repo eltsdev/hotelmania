@@ -31,6 +31,7 @@ public class MetaCyclicBehaviour extends CyclicBehaviour {
 				Concept conc = agAction.getAction();
 				return conc;
 			}
+			System.out.println("getConceptFromMessage = null : No content extracted because it is not an action");
 		} catch (CodecException | OntologyException e) {
 			e.printStackTrace();
 		}

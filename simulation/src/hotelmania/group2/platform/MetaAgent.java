@@ -32,7 +32,7 @@ public abstract class MetaAgent extends Agent {
 	/**
 	 * This value is updated by simulator only if the subscription is TRUE
 	 */
-	protected int day = 1;
+	private int day = 1;
 	
 
 	@Override
@@ -67,6 +67,10 @@ public abstract class MetaAgent extends Agent {
 	protected abstract boolean setRegisterForDayEvents();
 
 	protected void doOnNewDay() {
+	}
+	
+	public int getDay() {
+		return day;
 	}
 
 	public AID locateAgent(String type, Agent myAgent) {
@@ -178,7 +182,7 @@ public abstract class MetaAgent extends Agent {
 		protected void handleInform(ACLMessage inform) {
 			logInformMessage(inform.getProtocol(), inform);
 			doOnNewDay();
-			day++;
+			day++; //FIXME Refactor this spaguetti
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
@@ -206,7 +210,11 @@ public abstract class MetaAgent extends Agent {
 			}
 	
 			public void action() {
-				ACLMessage msg = receive(MessageTemplate.MatchPerformative(ACLMessage.AGREE));
+				ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+						MessageTemplate.MatchLanguage(codec.getName()),
+						MessageTemplate.MatchOntology(ontology.getName())),
+						MessageTemplate.MatchPerformative(ACLMessage.AGREE)),
+						MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))));
 	
 				if (msg != null) {
 					logAgreeMessage(msg.getProtocol(), msg);
@@ -229,14 +237,18 @@ public abstract class MetaAgent extends Agent {
 		}
 	
 		public void action() {
-			ACLMessage msg = receive(MessageTemplate.MatchPerformative(ACLMessage.INFORM));
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchPerformative(ACLMessage.INFORM)),
+					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))));
 	
 			if (msg != null) {
 				logInformMessage(msg.getProtocol(), msg);
-				if (msg.getProtocol().equals(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)) {
-					doOnNewDay();
-					day++;
-				}
+//				if (msg.getProtocol().equals(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)) {
+//					doOnNewDay();
+//					day++; //FIXME Refactor this spaguetti
+//				}
 				
 				receivedInform(msg);
 	
@@ -248,6 +260,7 @@ public abstract class MetaAgent extends Agent {
 		}
 	}
 
+	//TODO change name to ReceiveRefuse 
 	private final class ReceiveRejectionMsgBehavior extends CyclicBehaviour {
 		
 		private static final long serialVersionUID = 1L;
@@ -257,8 +270,12 @@ public abstract class MetaAgent extends Agent {
 		}
 
 		public void action() {
-			ACLMessage msg = receive(MessageTemplate.MatchPerformative(ACLMessage.REFUSE));
-
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchPerformative(ACLMessage.REFUSE)),
+					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))));
+					
 			if (msg != null) {
 				logRejectedMessage(msg.getProtocol(), msg);
 				receivedReject(msg);
@@ -279,7 +296,13 @@ public abstract class MetaAgent extends Agent {
 		}
 
 		public void action() {
-			ACLMessage msg = receive(MessageTemplate.MatchPerformative(ACLMessage.NOT_UNDERSTOOD));
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchPerformative(ACLMessage.NOT_UNDERSTOOD)),
+					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))));
+
+			
 			if (msg != null) {
 				logNotUnderstoodMessage(msg.getProtocol(), msg);
 				receivedNotUnderstood(msg);
@@ -315,21 +338,21 @@ public abstract class MetaAgent extends Agent {
 		System.out.println(this.myName()+": Received <Inform> for Protocol: "+protocol); //TODO define format		
 	}
 
-	public void logAgreeMessage(String protocol, ACLMessage refuse) {
-		System.out.println(this.myName()+": Received <Agree> for Protocol: "+protocol); //TODO define format		
+	public void logAgreeMessage(String protocol, ACLMessage message) {
+		System.out.println(this.myName()+": Received <Agree> for Protocol: "+protocol + " Cause: "+message.getContent()==null? "unknown": message.getContent()); //TODO define format); //TODO define format		
 	}
 
-	public void logRefuseMessage(String protocol, ACLMessage refuse) {
-		System.out.println(this.myName()+": Received <Refuse> for Protocol: "+protocol); //TODO define format				
+	public void logRefuseMessage(String protocol, ACLMessage message) {
+		System.out.println(this.myName()+": Received <Refuse> for Protocol: "+protocol + " Cause: "+message.getContent()==null? "unknown": message.getContent()); //TODO define format				
 	}
 
 	public void logNotUnderstoodMessage(String protocol, ACLMessage message) {
-		System.out.println(this.myName()+": Received <NotUnderstood> for Protocol: "+protocol); //TODO define format
+		System.out.println(this.myName()+": Received <NotUnderstood> for Protocol: "+protocol + " Cause: "+message.getContent()==null? "unknown": message.getContent()); //TODO define format); //TODO define format
 	}
 
 
 	public void logRejectedMessage(String protocol, ACLMessage message) {
-		System.out.println(this.myName()+": Received <Rejected> for Protocol: "+protocol); //TODO define format
+		System.out.println(this.myName()+": Received <Rejected> for Protocol: "+protocol + " Cause: "+message.getContent()==null? "unknown": message.getContent()); //TODO define format); //TODO define format
 	}
 
 	public abstract void receivedAcceptance(ACLMessage message);
@@ -338,6 +361,5 @@ public abstract class MetaAgent extends Agent {
 
 	public  abstract void receivedNotUnderstood(ACLMessage message);
 	
-	public abstract void receivedInform(ACLMessage message);
-	
+	public abstract void receivedInform(ACLMessage message);	
 }
