@@ -43,7 +43,7 @@ public abstract class MetaAgent extends Agent {
 		
 		addBehaviour(new ReceiveInformMsgBehavior(this));
 		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
-		addBehaviour(new ReceiveRejectionMsgBehavior(this));
+		addBehaviour(new ReceiveRefuseMsgBehavior(this));
 		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
 	
 		getContentManager().registerLanguage(this.codec);
@@ -248,8 +248,9 @@ public abstract class MetaAgent extends Agent {
 	
 			if (msg != null) {
 				logInformMessage(msg.getProtocol(), msg);
+				//TODO NOT NECESSARY ANYMORE: The message is now filtered. But this must be tested better.
 //				if (msg.getProtocol().equals(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)) {
-//					day++; //FIXME Refactor this spaguetti
+//					day++; 
 //					doOnNewDay();
 //				}
 				
@@ -263,12 +264,11 @@ public abstract class MetaAgent extends Agent {
 		}
 	}
 
-	//TODO change name to ReceiveRefuse 
-	private final class ReceiveRejectionMsgBehavior extends CyclicBehaviour {
+	private final class ReceiveRefuseMsgBehavior extends CyclicBehaviour {
 		
 		private static final long serialVersionUID = 1L;
 
-		private ReceiveRejectionMsgBehavior(Agent a) {
+		private ReceiveRefuseMsgBehavior(Agent a) {
 			super(a);
 		}
 
@@ -280,7 +280,7 @@ public abstract class MetaAgent extends Agent {
 					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))));
 					
 			if (msg != null) {
-				logRejectedMessage(msg.getProtocol(), msg);
+				logRefuseMessage(msg.getProtocol(), msg);
 				receivedReject(msg);
 			} else {
 				// If no message arrives
@@ -356,14 +356,9 @@ public abstract class MetaAgent extends Agent {
 		System.out.println(this.myName()+": Received <NotUnderstood> for Protocol: "+protocol + " - Cause: "+cause); //TODO define format); //TODO define format
 	}
 
-
-	public void logRejectedMessage(String protocol, ACLMessage message) {
-		String cause = message.getContent()==null? "unknown": message.getContent();
-		System.out.println(this.myName()+": Received <Rejected> for Protocol: "+protocol + " - Cause: "+cause); //TODO define format); //TODO define format
-	}
-
 	public abstract void receivedAcceptance(ACLMessage message);
 
+	//TODO change name to refuse!
 	public abstract void receivedReject(ACLMessage message);
 
 	public  abstract void receivedNotUnderstood(ACLMessage message);
