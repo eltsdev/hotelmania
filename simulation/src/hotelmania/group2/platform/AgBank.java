@@ -143,7 +143,11 @@ public class AgBank extends MetaAgent {
 					e.printStackTrace();
 				}
 			}
+<<<<<<< HEAD
 //FIXME: OJO this is not sent!			return inform;
+=======
+//			return inform;
+>>>>>>> branch 'master' of https://github.com/eltsdev/hotelmania.git
 
 		}
 

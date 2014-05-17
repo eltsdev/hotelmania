@@ -181,7 +181,7 @@ public class AgHotel2 extends MetaAgent {
 		 * @param conc
 		 * @return
 		 */
-		private ACLMessage answerBookingRequest(ACLMessage msg, BookRoom bookData) {
+		private void answerBookingRequest(ACLMessage msg, BookRoom bookData) {
 			System.out.println(myName() + ": received "	+ msg.getProtocol() +
 					" Request from " + msg.getSender().getLocalName());
 			// send reply
@@ -201,8 +201,8 @@ public class AgHotel2 extends MetaAgent {
 				//TODO reply.setContent("");
 				this.log = Constants.NOT_UNDERSTOOD;
 			}
+			myAgent.send(reply);
 				
-				return reply;
 		}
 
 		private boolean bookRoom(BookRoom book) {
@@ -214,8 +214,9 @@ public class AgHotel2 extends MetaAgent {
 			hotelmania.group2.dao.BookRoom booking= new hotelmania.group2.dao.BookRoom(stay, price);
 			if(bookDAO.booking(booking)){
 				return true;
+			}else{
+				return false;
 			}
-			return false;
 		}
 
 	}
