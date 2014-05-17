@@ -44,7 +44,7 @@ public class AgHotel2 extends MetaAgent {
 	@Override
 	protected void setup() {
 		super.setup();
-		this.registerServices(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION);
+		this.registerServices(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION, Constants.BOOKROOM_ACTION);
 		
 		identity.setHotel_name(getHotelName());
 		identity.setHotelAgent(getAID());
@@ -53,8 +53,7 @@ public class AgHotel2 extends MetaAgent {
 		addBehaviour(new CreateBankAccountBehavior(this));
 		addBehaviour(new ConsultBankAccountInfoBehavior(this));
 		addBehaviour(new ProvideHotelNumberOfClientsBehavior(this));
-		
-		// addBehaviour(new MakeRoomBookingBehavior(this));
+		addBehaviour(new MakeRoomBookingBehavior(this));
 		// addBehaviour(new ProvideRoomInfoBehavior(this));
 		// addBehaviour(new ConsultHotelInfoBehavior(this));
 
@@ -135,11 +134,13 @@ public class AgHotel2 extends MetaAgent {
 			/*
 			 * Look for messages
 			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 					MessageTemplate.MatchLanguage(codec.getName()),
 					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.BOOKROOM_PROTOCOL)),
 					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
-
+			
+		
 			/*
 			 * If no message arrives
 			 */
@@ -162,12 +163,11 @@ public class AgHotel2 extends MetaAgent {
 					// If the action is BookRoom...
 					if (conc instanceof BookRoom) {
 						// execute request
-						ACLMessage reply = answerBookingRequest(msg,
-								(BookRoom) conc);
+						ACLMessage reply = answerBookingRequest(msg,(BookRoom) conc);
+											
 						myAgent.send(reply);
 
-						System.out.println(myName()
-								+ ": answer sent -> " + log);
+						System.out.println(myName()	+ ": answer sent -> " + log);
 					}
 				}
 
@@ -183,33 +183,33 @@ public class AgHotel2 extends MetaAgent {
 		 * @param conc
 		 * @return
 		 */
-		private ACLMessage answerBookingRequest(ACLMessage msg,
-				BookRoom bookData) {
-			System.out.println(myName()
-					+ ": received Registration Request from "
-					+ msg.getSender().getLocalName());
+		private ACLMessage answerBookingRequest(ACLMessage msg, BookRoom bookData) {
+			System.out.println(myName() + ": received "	+ msg.getProtocol() +
+					" Request from " + msg.getSender().getLocalName());
 			// send reply
 			ACLMessage reply = msg.createReply();
-			//TODO With the new Ontology
-//			if (bookData != null) {
-//				if (bookRoom(bookData.getBooking())) {
-//					reply.setPerformative(ACLMessage.AGREE);
-//					this.log = Constants.AGREE;
-//				} else {
-//					reply.setPerformative(ACLMessage.REFUSE);
-//					this.log = Constants.REFUSE;
-//				}
-//			} else {
-//				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-//				this.log = Constants.NOT_UNDERSTOOD;
-//			}
-
-			return reply;
+		
+			if(bookData!=null){
+				if( bookRoom(bookData)){
+					reply.setPerformative(ACLMessage.AGREE);
+					this.log = Constants.AGREE;
+					} else {
+					reply.setPerformative(ACLMessage.REFUSE);
+					this.log = Constants.REFUSE;
+				}
+			} else {
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				this.log = Constants.NOT_UNDERSTOOD;
+			}
+				
+				return reply;
 		}
 
-		private boolean bookRoom(Booking book) {
-			bookDAO.booking(book.getDays(), book.getStartDay());
-			return true;
+		private boolean bookRoom(BookRoom book) {
+			if(bookDAO.booking(book.getStay(),book.getBookingOffer().getRoomPrice())){
+				return true;
+			}
+			return false;
 		}
 
 	}
@@ -279,8 +279,7 @@ public class AgHotel2 extends MetaAgent {
 		public void action() {
 			// Create hotel account
 			if (agBank == null) {
-				agBank = locateAgent(Constants.CONSULTACCOUNTSTATUS_ACTION,
-						myAgent);
+				agBank = locateAgent(Constants.CONSULTACCOUNTSTATUS_ACTION, myAgent);
 			} else {
 				if(id_account!=null){
 					consultHotelAccountInfo();
@@ -294,9 +293,7 @@ public class AgHotel2 extends MetaAgent {
 			request.setId_account(id_account);// TODO set real account id
 
 			System.out.println("Requesting status of Account id:"+request.getId_account());
-			sendRequest(agBank, request,
-					Constants.CONSULTACCOUNTSTATUS_PROTOCOL,
-					ACLMessage.QUERY_REF);
+			sendRequest(agBank, request, Constants.CONSULTACCOUNTSTATUS_PROTOCOL, ACLMessage.QUERY_REF);
 
 			this.setDone(true);
 		}
@@ -316,8 +313,7 @@ public class AgHotel2 extends MetaAgent {
 		request.setContract(hireDailyStaff(day+1));
 
 //		System.out.println("[HOTEL] Wants to hire staff for day: "+(request.getContract().getDay())+ " Today is:"+day);
-		this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL,
-				ACLMessage.REQUEST);
+		this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
 
 	}
 
@@ -379,8 +375,7 @@ public class AgHotel2 extends MetaAgent {
 		@Override
 		public void action() {
 			if (agHotelmania == null) {
-				agHotelmania = locateAgent(Constants.CONSULTHOTELSINFO_ACTION,
-						myAgent);
+				agHotelmania = locateAgent(Constants.CONSULTHOTELSINFO_ACTION, myAgent);
 			} else {
 				this.consultHotelInfo(agHotelmania);
 				this.setDone(true);
@@ -390,8 +385,7 @@ public class AgHotel2 extends MetaAgent {
 		private void consultHotelInfo(AID hotelmania) {
 			//FIXME TEST ONTOLOGY CHANGE: QueryHotelmaniaHotel request = new QueryHotelmaniaHotel();
 			QueryHotelmaniaHotel request = new QueryHotelmaniaHotel();
-			sendRequest(hotelmania, request,
-					Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
+			sendRequest(hotelmania, request, Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
 	}
@@ -410,16 +404,11 @@ public class AgHotel2 extends MetaAgent {
 			/*
 			 * Look for messages
 			 */
-			ACLMessage msg = receive(MessageTemplate
-					.and(MessageTemplate
-							.and(MessageTemplate.and(MessageTemplate
-									.MatchLanguage(codec.getName()),
-									MessageTemplate.MatchOntology(ontology
-											.getName())),
-											MessageTemplate
-											.MatchProtocol(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)),
-											MessageTemplate
-											.MatchPerformative(ACLMessage.QUERY_REF)));
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)),
+					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
 
 			/*
 			 * If no message arrives
@@ -432,8 +421,7 @@ public class AgHotel2 extends MetaAgent {
 			// If the action is Registration Request...
 			if (conc instanceof NumberOfClientsQueryRef) {
 				// execute request
-				ACLMessage reply = answerGetNumberOfClients(msg,
-						(NumberOfClientsQueryRef) conc);
+				ACLMessage reply = answerGetNumberOfClients(msg,(NumberOfClientsQueryRef) conc);
 				// send reply
 				myAgent.send(reply);
 
@@ -445,9 +433,8 @@ public class AgHotel2 extends MetaAgent {
 		private ACLMessage answerGetNumberOfClients(ACLMessage msg,
 				NumberOfClientsQueryRef numberOfClientsQueryRef) {
 
-			System.out.println(myName() + ": received "
-					+ msg.getProtocol() + " Request from "
-					+ msg.getSender().getLocalName());
+			System.out.println(myName() + ": received "	+ msg.getProtocol() + 
+					" Request from " + msg.getSender().getLocalName());
 
 			ACLMessage reply = msg.createReply();
 			if (numberOfClientsQueryRef != null) {
@@ -490,10 +477,10 @@ public class AgHotel2 extends MetaAgent {
 		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
 			// TODO: DEFINE: addBehaviour(new
 			// RegisterInHotelmaniaBehavior(this));
-		} else if (message.getProtocol().equals(
-				Constants.CREATEACCOUNT_PROTOCOL)) {
-		} else if (message.getProtocol().equals(
-				Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+		} else if (message.getProtocol().equals(Constants.BOOKROOM_PROTOCOL)){
+			
 		}
 		/*
 		 * TODO include cases for: MakeRoomBookingBehavior
@@ -505,12 +492,12 @@ public class AgHotel2 extends MetaAgent {
 	public void receivedNotUnderstood(ACLMessage message) {
 		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
 
-		} else if (message.getProtocol().equals(
-				Constants.CREATEACCOUNT_PROTOCOL)) {
+		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
 
-		} else if (message.getProtocol().equals(
-				Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
 
+		}else if( message.getProtocol().equals(Constants.BOOKROOM_PROTOCOL)){
+			
 		}
 
 	}

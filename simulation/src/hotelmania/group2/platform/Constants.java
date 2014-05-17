@@ -4,7 +4,7 @@ package hotelmania.group2.platform;
 public class Constants {
 	
 	// Protocols
-	public static final String BOOKROOM_PROTOCOL = "BOOKROOM";
+	public static final String BOOKROOM_PROTOCOL = "BookARoom";
 	public static final String RATEHOTEL_PROTOCOL = "RATEHOTEL";
 	public static final String MAKEDEPOSIT_PROTOCOL = "MAKEDEPOSIT";
 	public static final String SIGNCONTRACT_PROTOCOL = "SignContract";
@@ -52,6 +52,7 @@ public class Constants {
 	public static int DAY_IN_SECONDS = 5*1000;
 	public static int SIMULATION_DAYS = 10;
 	public static int CLIENTS_PER_DAY = 10;
+	public static int ROOMS_PER_HOTEL = 6;
 	
 	
 }

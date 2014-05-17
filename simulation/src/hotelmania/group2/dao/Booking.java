@@ -7,36 +7,46 @@ package hotelmania.group2.dao;
  */
 public class Booking {
 
-	private int days;
-	private String startDate;
-	/**
-	 * @param days2
-	 * @param startDate2
-	 */
-	public Booking(int days, String startDate) {
-		this.days = days;
-		this.startDate = startDate;
-	}
-	/**
-	 * @return the days
-	 */
-	public int getDays() {
-		return days;
-	}
-	/**
-	 * @param days the days to set
-	 */
-	public void setDays(int days) {
-		this.days = days;
-	}
-	
-	public String getStartDate() {
-		return startDate;
-	}
-	public void setStartDate(String startDate) {
-		this.startDate = startDate;
-	}
-
-	
+ private Stay stay;
+ 
+ private Price roomPrice;
+ /**
+ * 
+ */
+public Booking() {
+	// TODO Auto-generated constructor stub
+}
+/**
+ * @param stay2
+ * @param price
+ */
+public Booking(Stay stay2, Price price) {
+	this.stay = stay2;
+	this.roomPrice = price;
+}
+/**
+ * @return the roomPrice
+ */
+public Price getRoomPrice() {
+	return roomPrice;
+}
+/**
+ * @param roomPrice the roomPrice to set
+ */
+public void setRoomPrice(Price roomPrice) {
+	this.roomPrice = roomPrice;
+}
+/**
+ * @return the stay
+ */
+public Stay getStay() {
+	return stay;
+}
+/**
+ * @param stay the stay to set
+ */
+public void setStay(Stay stay) {
+	this.stay = stay;
+}
 	
 }
