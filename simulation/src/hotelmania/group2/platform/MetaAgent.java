@@ -32,7 +32,7 @@ public abstract class MetaAgent extends Agent {
 	/**
 	 * This value is updated by simulator only if the subscription is TRUE
 	 */
-	private int day = 1;
+	private int day = Constants.FIRST_DAY-1;
 	
 
 	@Override
@@ -69,8 +69,11 @@ public abstract class MetaAgent extends Agent {
 	protected void doOnNewDay() {
 	}
 	
-	public int getDay() {
-		return day;
+	public int getDay() throws Exception {
+		if (day < Constants.FIRST_DAY || !setRegisterForDayEvents()) {
+			throw new Exception("Error: The agent tried to query the day without previous subscription to updates.");
+		}
+		return this.day;
 	}
 
 	public AID locateAgent(String type, Agent myAgent) {
@@ -181,8 +184,8 @@ public abstract class MetaAgent extends Agent {
 
 		protected void handleInform(ACLMessage inform) {
 			logInformMessage(inform.getProtocol(), inform);
+			day++;
 			doOnNewDay();
-			day++; //FIXME Refactor this spaguetti
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
@@ -246,8 +249,8 @@ public abstract class MetaAgent extends Agent {
 			if (msg != null) {
 				logInformMessage(msg.getProtocol(), msg);
 //				if (msg.getProtocol().equals(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)) {
-//					doOnNewDay();
 //					day++; //FIXME Refactor this spaguetti
+//					doOnNewDay();
 //				}
 				
 				receivedInform(msg);
@@ -339,20 +342,24 @@ public abstract class MetaAgent extends Agent {
 	}
 
 	public void logAgreeMessage(String protocol, ACLMessage message) {
-		System.out.println(this.myName()+": Received <Agree> for Protocol: "+protocol + " Cause: "+message.getContent()==null? "unknown": message.getContent()); //TODO define format); //TODO define format		
+		String cause = message.getContent()==null? "unknown": message.getContent();
+		System.out.println(this.myName()+": Received <Agree> for Protocol: "+protocol + " - Cause: "+cause ); //TODO define format); //TODO define format		
 	}
 
 	public void logRefuseMessage(String protocol, ACLMessage message) {
-		System.out.println(this.myName()+": Received <Refuse> for Protocol: "+protocol + " Cause: "+message.getContent()==null? "unknown": message.getContent()); //TODO define format				
+		String cause = message.getContent()==null? "unknown": message.getContent();
+		System.out.println(this.myName()+": Received <Refuse> for Protocol: "+protocol + " - Cause: "+cause); //TODO define format				
 	}
 
 	public void logNotUnderstoodMessage(String protocol, ACLMessage message) {
-		System.out.println(this.myName()+": Received <NotUnderstood> for Protocol: "+protocol + " Cause: "+message.getContent()==null? "unknown": message.getContent()); //TODO define format); //TODO define format
+		String cause = message.getContent()==null? "unknown": message.getContent();
+		System.out.println(this.myName()+": Received <NotUnderstood> for Protocol: "+protocol + " - Cause: "+cause); //TODO define format); //TODO define format
 	}
 
 
 	public void logRejectedMessage(String protocol, ACLMessage message) {
-		System.out.println(this.myName()+": Received <Rejected> for Protocol: "+protocol + " Cause: "+message.getContent()==null? "unknown": message.getContent()); //TODO define format); //TODO define format
+		String cause = message.getContent()==null? "unknown": message.getContent();
+		System.out.println(this.myName()+": Received <Rejected> for Protocol: "+protocol + " - Cause: "+cause); //TODO define format); //TODO define format
 	}
 
 	public abstract void receivedAcceptance(ACLMessage message);

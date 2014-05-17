@@ -317,11 +317,14 @@ public class AgHotel2 extends MetaAgent {
 		SignContract request = new SignContract();
 
 		request.setHotel(identity);
-		request.setContract(hireDailyStaff(getDay()+1));
-
-//		System.out.println("[HOTEL] Wants to hire staff for day: "+(request.getContract().getDay())+ " Today is:"+day);
-		this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
-
+		
+		try {
+			request.setContract(hireDailyStaff(getDay()+1));
+			//System.out.println("[HOTEL] Wants to hire staff for day: "+(request.getContract().getDay())+ " Today is:"+day);
+			this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
+		} catch (Exception e) {//this never happens
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -453,13 +456,21 @@ public class AgHotel2 extends MetaAgent {
 
 			ACLMessage reply = msg.createReply();
 
+			boolean failure = false;
+			int theCurrentDay = Constants.FIRST_DAY;
+			try {
+				theCurrentDay = getDay();
+			} catch (Exception e1) {
+				failure=true;
+			}
+			
 			//missing parameters?
 			if (numberOfClientsQueryRef == null || numberOfClientsQueryRef.getHotel_name() == null ) {
 				this.log = Constants.NOT_UNDERSTOOD;
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 				reply.setContent("There are missing parameters: NumberOfClientsQueryRef action or hotel name");
 
-			} else if (!(numberOfClientsQueryRef.getDay() >= Constants.FIRST_DAY && numberOfClientsQueryRef.getDay() <= getDay())) {
+			} else if (failure || !(numberOfClientsQueryRef.getDay() >= Constants.FIRST_DAY && numberOfClientsQueryRef.getDay() <= theCurrentDay )) {
 				//invalid day in request?
 				this.log = Constants.REFUSE;
 				reply.setPerformative(ACLMessage.REFUSE);
