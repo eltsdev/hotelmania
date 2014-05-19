@@ -5,7 +5,6 @@ import hotelmania.group2.dao.Stay;
 import hotelmania.ontology.DayEvent;
 import hotelmania.ontology.NotificationDayEvent;
 import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.FIPAAgentManagement.FailureException;
@@ -33,9 +32,8 @@ public class AgPlatform2 extends MetaAgent
 {
 	private static final long serialVersionUID = -4208905954219155107L;
 
-	private SubscriptionResponder subscriptionResponder;
-	private Set<Subscription> suscriptions = new HashSet<Subscription>();
-	
+	private MySubscriptionResponder dayEventResponder;
+	private MySubscriptionResponder endSimulationResponder;
 	private Random r = new Random();
 
 	//------------------------------------------------- 
@@ -51,21 +49,16 @@ public class AgPlatform2 extends MetaAgent
 
 		// Behaviors
 
-		//addBehaviour(new SetTimeSpeedBehavior(this));
 		addBehaviour(new GeneratePlatformAgentsBehavior(this));
 
-		// Set up notification of day events
-		MessageTemplate subscriptionTemplate = MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-				MessageTemplate.MatchLanguage(codec.getName()),
-				MessageTemplate.MatchOntology(ontology.getName())),
-				MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)),
-				MessageTemplate.or(MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE), MessageTemplate.MatchPerformative(ACLMessage.CANCEL)));
-		
-		SubscriptionManager gestor = new MySubscriptionManager();
-		subscriptionResponder = new MySubscriptionResponder(this, subscriptionTemplate, gestor);
-		addBehaviour(subscriptionResponder);
-
+		dayEventResponder = new MySubscriptionResponder(this, Constants.SUBSCRIBETODAYEVENT_PROTOCOL);
+		addBehaviour(dayEventResponder);
 		addBehaviour(new TickerBehaviourExtension(this, Constants.DAY_IN_SECONDS));
+		
+		endSimulationResponder = new MySubscriptionResponder(this, Constants.END_SIMULATION_PROTOCOL);
+		addBehaviour(endSimulationResponder);
+
+
 	}
 
 	 private final class TickerBehaviourExtension extends TickerBehaviour {
@@ -80,10 +73,12 @@ public class AgPlatform2 extends MetaAgent
 			System.out.println("*************************************************************");
 			System.out.println("Stopping Simulation.");
 			System.out.println("*************************************************************");
-			super.stop();
+			//stop/delete all agents
 			
-			//TODO stop/delete all agents
+			
+			super.stop();
 		}
+		
 		public void onTick() 
 		{
 			//Day number
@@ -99,9 +94,9 @@ public class AgPlatform2 extends MetaAgent
 			System.out.println("*************************************************************");
 			
 			
-			System.out.println("Sending day notification to  # subscribers: "+ subscriptionResponder.getSubscriptions().size());
+			System.out.println(myName() + ": Sending day notification to  # subscribers: "+ dayEventResponder.getSubscriptions().size());
 			
-			for(Object subscriptionObj : subscriptionResponder.getSubscriptions())
+			for(Object subscriptionObj : dayEventResponder.getSubscriptions())
 			{
 				if (subscriptionObj instanceof Subscription) {
 					Subscription subscription = (Subscription) subscriptionObj;
@@ -110,7 +105,7 @@ public class AgPlatform2 extends MetaAgent
 				}
 			}
 
-			if (!subscriptionActive(day)) {
+			if (!isSubscriptionToDayEventActive(day)) {
 				stop();
 				return;
 			}
@@ -134,77 +129,7 @@ public class AgPlatform2 extends MetaAgent
 		}
 	}
 
-	 private class MySubscriptionResponder extends SubscriptionResponder {
-
-		 private static final long serialVersionUID = 1487262053281422988L;
-		 
-		 private Subscription subscription; //TODO verify if this is neccesary
-
-		 public MySubscriptionResponder(Agent agent, MessageTemplate template, SubscriptionManager gestor) {
-			 super(agent, template, gestor);
-		 }
-
-		 protected ACLMessage handleSubscription(ACLMessage proposal) throws NotUnderstoodException ,RefuseException 
-		 {
-			 System.out.println(myName()+": subscription received from "+proposal.getSender().getLocalName());
-
-			 if (checkAction(proposal)) {
-
-				 if (proposal.getConversationId() == null) {
-					 String conversationId = String.valueOf(proposal.getSender().hashCode()) + UUID.randomUUID().toString();
-					 proposal.setConversationId(conversationId);
-				 }
-				 subscription = this.createSubscription(proposal);
-				 try {
-					 this.mySubscriptionManager.register(subscription);
-				 } catch (Exception e) {
-					 e.printStackTrace();
-					 System.out.println("error subscribing " + proposal.getSender().getLocalName() );
-				 }
-				 ACLMessage agree = proposal.createReply();
-				 agree.setPerformative(ACLMessage.AGREE);
-				 return agree;
-
-			 } else {
-				 // We refuse to perform the action
-				 //System.out.println("Agent "+myName()+": Refuse");
-				 //throw new RefuseException("check-failed");
-				 ACLMessage refuse = proposal.createReply();
-				 refuse.setPerformative(ACLMessage.REFUSE);
-				 return refuse;
-			 }
-
-		 }
-
-		 private boolean checkAction(ACLMessage request) {
-			 //Avoid self-subscriptions
-			 if (request.getSender().equals(myAgent.getAID())) {
-				 return false;
-			 }
-			 // TODO verify other cases
-			 return true;
-		 }
-
-		 // If the CANCEL message has a meaningful content, use it. 
-		 // Otherwise deregister the Subscription with the same convID (default)
-		 protected ACLMessage handleCancel(ACLMessage cancel) throws FailureException {
-			 try {
-				 System.out.printf("%s: CANCEL subscription received from " +  cancel.getSender().getLocalName());
-				 //El SubscriptionManager elimina del registro la suscripcion
-				 this.mySubscriptionManager.deregister(this.subscription); //TODO check if: this.mySubscriptionManager.deregister(createSubscription(cancel));
-				 
-			 } catch (Exception e) {
-				 System.out.printf("%s: error removing subscription from " +  cancel.getSender().getLocalName());
-			 }
-
-			 ACLMessage response = cancel.createReply();
-			 response.setPerformative(ACLMessage.INFORM);
-			 return response;
-		 }
-
-	 }
-	
-	private boolean subscriptionActive(int day) {
+	private boolean isSubscriptionToDayEventActive(int day) {
 		//TODO || cancelled ;
 		return day < Constants.SIMULATION_DAYS; 
 	}
@@ -218,7 +143,7 @@ public class AgPlatform2 extends MetaAgent
 			defaultProps.load(in);
 			Constants.DAY_IN_SECONDS = Integer.parseInt(defaultProps.getProperty("day.length","15"))*1000;
 			Constants.SIMULATION_DAYS = Integer.parseInt(defaultProps.getProperty("simulation.days","10"));
-			Constants.CLIENTS_PER_DAY=Integer.parseInt(defaultProps.getProperty("simulation.days","10"));
+			Constants.CLIENTS_PER_DAY=Integer.parseInt(defaultProps.getProperty("simulation.clients_per_day","2"));
 			Constants.ROOMS_PER_HOTEL = 6;
 			Constants.CLIENTS_BUDGET=Integer.parseInt(defaultProps.getProperty("clients.budget","90"));
 			Constants.CLIENTS_BUDGET_VARIANCE=Integer.parseInt(defaultProps.getProperty("clients.budget_variance","20"));
@@ -306,16 +231,101 @@ public class AgPlatform2 extends MetaAgent
 
 	private final class MySubscriptionManager implements
 			SubscriptionManager {
+		private Set<Subscription> subscriptors = new HashSet<Subscription>();
+		
 		public boolean register(Subscription subscription) {
-		    suscriptions.add(subscription);
+		    subscriptors.add(subscription);
 		    return true;
 		}
 	
 		public boolean deregister(Subscription subscription) {
-		    suscriptions.remove(subscription);
+			subscriptors.remove(subscription);
 		    return true;
 		}
 	}
+	
+	private class MySubscriptionResponder extends SubscriptionResponder {
+
+		 private static final long serialVersionUID = 1487262053281422988L;
+		 
+		 private Subscription subscription;
+		 
+		 private String protocol;
+
+		 public MySubscriptionResponder(Agent agent, String protocol) {
+			 super(agent, 
+						// Set up notification of day events
+						MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+						MessageTemplate.MatchLanguage(codec.getName()),
+						MessageTemplate.MatchOntology(ontology.getName())),
+						MessageTemplate.MatchProtocol(protocol)),
+						MessageTemplate.or(MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE), MessageTemplate.MatchPerformative(ACLMessage.CANCEL))),
+						new MySubscriptionManager());
+			 
+			 this.protocol = protocol;
+		 }
+
+		 protected ACLMessage handleSubscription(ACLMessage proposal) throws NotUnderstoodException ,RefuseException 
+		 {
+			 System.out.println(myName()+": ["+this.protocol+"]  subscription received from "+proposal.getSender().getLocalName());
+
+			 if (checkAction(proposal)) {
+
+				 if (proposal.getConversationId() == null) {
+					 String conversationId = String.valueOf(proposal.getSender().hashCode()) + UUID.randomUUID().toString();
+					 proposal.setConversationId(conversationId);
+				 }
+				 subscription = this.createSubscription(proposal);
+				 try {
+					 this.mySubscriptionManager.register(subscription);
+				 } catch (Exception e) {
+					 e.printStackTrace();
+					 System.out.println(myName()+": ["+this.protocol+"]  error subscribing " + proposal.getSender().getLocalName() );
+				 }
+				 ACLMessage agree = proposal.createReply();
+				 agree.setPerformative(ACLMessage.AGREE);
+				 System.out.println(myName()+": ["+this.protocol+"]  subscription agree for " + proposal.getSender().getLocalName() );
+				 return agree;
+
+			 } else {
+				 // We refuse to perform the action
+				 //System.out.println("Agent "+myName()+": Refuse");
+				 //throw new RefuseException("check-failed");
+				 ACLMessage refuse = proposal.createReply();
+				 refuse.setPerformative(ACLMessage.REFUSE);
+				 System.out.println(myName()+": ["+this.protocol+"] refuse subscription from " + proposal.getSender().getLocalName() );
+				 return refuse;
+			 }
+
+		 }
+
+		 private boolean checkAction(ACLMessage request) {
+			 //Avoid self-subscriptions
+			 if (request.getSender().equals(myAgent.getAID())) {
+				 return false;
+			 }
+			 // TODO verify other cases
+			 return true;
+		 }
+
+		 // If the CANCEL message has a meaningful content, use it. 
+		 // Otherwise deregister the Subscription with the same convID (default)
+		 protected ACLMessage handleCancel(ACLMessage cancel) throws FailureException {
+			 try {
+				 System.out.printf(myName()+": ["+this.protocol+"] %s: CANCEL subscription received from " +  cancel.getSender().getLocalName());
+				 //El SubscriptionManager elimina del registro la suscripcion
+				 this.mySubscriptionManager.deregister(this.subscription); //TODO check if: this.mySubscriptionManager.deregister(createSubscription(cancel));
+				 
+			 } catch (Exception e) {
+				 System.out.printf(myName()+": ["+this.protocol+"] %s: error removing subscription from " +  cancel.getSender().getLocalName());
+			 }
+
+			 ACLMessage response = cancel.createReply();
+			 response.setPerformative(ACLMessage.INFORM);
+			 return response;
+		 }
+
+	 }
 
 	/**
 	 * Called internally (not by subscription)
@@ -336,7 +346,6 @@ public class AgPlatform2 extends MetaAgent
 				String clientName = "Client_born_"+day+"_sn_"+i;
 				ac = cc.createNewAgent(clientName, AgClient.class.getName(), new Object[]{client});
 				ac.start();
-
 
 			} catch (StaleProxyException e) {
 				e.printStackTrace();
@@ -368,7 +377,6 @@ public class AgPlatform2 extends MetaAgent
 	}
 
 
-	
 	@Override
 	public void receivedAcceptance(ACLMessage message) {
 	}
