@@ -6,6 +6,14 @@ public class HotelInformation {
 	private Hotel hotel;
 	private float rating;
 
+	
+	public HotelInformation() {
+		// TODO Auto-generated constructor stub
+	}
+	public HotelInformation(hotelmania.ontology.HotelInformation hotelInformation) {
+		hotel = new Hotel(hotelInformation.getHotel());
+		rating = hotelInformation.getRating();
+	}
 	public void setRating(float value) {
 		this.rating = value;
 	}

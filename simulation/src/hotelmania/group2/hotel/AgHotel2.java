@@ -10,6 +10,7 @@ import hotelmania.group2.platform.MetaSimpleBehaviour;
 import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.AccountStatusQueryRef;
 import hotelmania.ontology.BookRoom;
+import hotelmania.ontology.BookingOffer;
 import hotelmania.ontology.Contract;
 import hotelmania.ontology.CreateAccountRequest;
 import hotelmania.ontology.Hotel;
@@ -102,8 +103,7 @@ public class AgHotel2 extends MetaAgent {
 			// Register hotel
 			if (agHotelmania == null) {
 				// Search hotelmania agent
-				agHotelmania = locateAgent(Constants.REGISTRATION_ACTION,
-						myAgent);
+				agHotelmania = locateAgent(Constants.REGISTRATION_ACTION, myAgent);
 				// block();
 				// return;
 			} else {
@@ -193,12 +193,10 @@ public class AgHotel2 extends MetaAgent {
 					this.log = Constants.AGREE;
 				} else {
 					reply.setPerformative(ACLMessage.REFUSE);
-					//TODO reply.setContent("");
 					this.log = Constants.REFUSE;
 				}
 			} else {
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-				//TODO reply.setContent("");
 				this.log = Constants.NOT_UNDERSTOOD;
 			}
 			myAgent.send(reply);
@@ -221,6 +219,7 @@ public class AgHotel2 extends MetaAgent {
 
 	}
 
+	
 	private final class ProvideRoomInfoBehavior extends MetaCyclicBehaviour {
 
 		private static final long serialVersionUID = 1955222376582492939L;
@@ -231,8 +230,88 @@ public class AgHotel2 extends MetaAgent {
 
 		@Override
 		public void action() {
-			// TODO
-			block();
+			
+			/*
+			 * Look for messages
+			 */
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.CONSULTROOMPRICES_PROTOCOL)),
+					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
+			
+			if (msg == null) {
+				block();
+				return;
+			}
+			Concept conc = this.getConceptFromMessage(msg);
+			// If the action is Registration Request...
+			if (conc instanceof NumberOfClientsQueryRef) {
+				// execute request
+				ACLMessage reply = answerRoomPriceOffer(msg,(Stay) conc);
+				// send reply
+				myAgent.send(reply);
+
+				System.out.println(myName() + ": answer sent -> " + this.log + " to " + msg.getSender().getLocalName());
+			}
+			
+		}
+
+		/**
+		 * @param msg
+		 * @param conc
+		 * @return
+		 */
+		private ACLMessage answerRoomPriceOffer(ACLMessage msg,	Stay conc) {
+			Stay stay = conc;
+			int totalDays;
+			System.out.println(myName() + ": received "	+ msg.getProtocol() + " Request from " + msg.getSender().getLocalName());
+
+			ACLMessage reply = msg.createReply();
+		
+			//Total numbers of day to stay
+			totalDays = stay.getCheckOut()-stay.getCheckIn();
+		
+
+			//missing parameters?
+			if (conc == null) {
+				this.log = Constants.NOT_UNDERSTOOD;
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				reply.setContent("There are missing parameters: BookinhgOffer protocol or Stay predicate is null");
+
+			} else if (bookDAO.getRoom_available()==0 ||totalDays<bookDAO.getRoom_available()) {
+				//not rooms
+				this.log = Constants.REFUSE;
+				reply.setPerformative(ACLMessage.REFUSE);
+				reply.setContent("No rooms available");
+
+			} else {
+				//request is valid
+				float price = 	calculatePrice(totalDays);
+				BookingOffer offer_inform = new BookingOffer();
+				hotelmania.ontology.Price priceOffer = new hotelmania.ontology.Price();
+				priceOffer.setPrice(price);
+				offer_inform.setRoomPrice(priceOffer);
+				try {
+					this.log = Constants.INFORM;
+					reply.setPerformative(ACLMessage.INFORM);
+					myAgent.getContentManager().fillContent(reply, offer_inform);
+				} catch (CodecException | OntologyException e) {
+					e.printStackTrace();
+				}
+			}
+			return reply;
+		}
+
+		/**
+		 * @param stay
+		 */
+		private float calculatePrice(int totalDays) {
+			float price;
+	
+			price = bookDAO.getActualPrice()*totalDays;
+			
+			return price;
 		}
 
 	}
@@ -284,7 +363,7 @@ public class AgHotel2 extends MetaAgent {
 
 		@Override
 		public void action() {
-			// Create hotel account
+			// Consult hotel account
 			if (agBank == null) {
 				agBank = locateAgent(Constants.CONSULTACCOUNTSTATUS_ACTION, myAgent);
 			} else {
@@ -448,11 +527,9 @@ public class AgHotel2 extends MetaAgent {
 		 * @param numberOfClientsQueryRef
 		 * @return
 		 */
-		private ACLMessage answerGetNumberOfClients(ACLMessage msg,
-				NumberOfClientsQueryRef numberOfClientsQueryRef) {
+		private ACLMessage answerGetNumberOfClients(ACLMessage msg,	NumberOfClientsQueryRef numberOfClientsQueryRef) {
 
-			System.out.println(myName() + ": received "	+ msg.getProtocol() + 
-					" Request from " + msg.getSender().getLocalName());
+			System.out.println(myName() + ": received "	+ msg.getProtocol() + " Request from " + msg.getSender().getLocalName());
 
 			ACLMessage reply = msg.createReply();
 
