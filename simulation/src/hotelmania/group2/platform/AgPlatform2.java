@@ -1,5 +1,7 @@
 package hotelmania.group2.platform;
 
+import hotelmania.group2.dao.Client;
+import hotelmania.group2.dao.Stay;
 import hotelmania.ontology.DayEvent;
 import hotelmania.ontology.NotificationDayEvent;
 import jade.core.Agent;
@@ -23,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -32,6 +35,8 @@ public class AgPlatform2 extends MetaAgent
 
 	private SubscriptionResponder subscriptionResponder;
 	private Set<Subscription> suscriptions = new HashSet<Subscription>();
+	
+	private Random r = new Random();
 
 	//------------------------------------------------- 
 	// Setup
@@ -42,17 +47,14 @@ public class AgPlatform2 extends MetaAgent
 	{
 		super.setup();
 		loadProperties();
-		registerServices(Constants.SUBSCRIBETODAYEVENT_ACTION); //TODO + set time behavior?
+		registerServices(Constants.SUBSCRIBETODAYEVENT_ACTION, Constants.END_SIMULATION_ACTION); //TODO + set time behavior?
 
 		// Behaviors
 
 		//addBehaviour(new SetTimeSpeedBehavior(this));
 		addBehaviour(new GeneratePlatformAgentsBehavior(this));
-		//addBehaviour(new GenerateClientsBehavior(this));
-		//addBehaviour(new CreateDayEventsBehavior(this, mt ));
 
 		// Set up notification of day events
-		
 		MessageTemplate subscriptionTemplate = MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 				MessageTemplate.MatchLanguage(codec.getName()),
 				MessageTemplate.MatchOntology(ontology.getName())),
@@ -112,6 +114,8 @@ public class AgPlatform2 extends MetaAgent
 				stop();
 				return;
 			}
+			
+			doOnNewDayBeforeEveryBody(day);
 		}
 
 		private void notify(SubscriptionResponder.Subscription sub, NotificationDayEvent data) {
@@ -215,7 +219,9 @@ public class AgPlatform2 extends MetaAgent
 			Constants.DAY_IN_SECONDS = Integer.parseInt(defaultProps.getProperty("day.length","15"))*1000;
 			Constants.SIMULATION_DAYS = Integer.parseInt(defaultProps.getProperty("simulation.days","10"));
 			Constants.CLIENTS_PER_DAY=Integer.parseInt(defaultProps.getProperty("simulation.days","10"));
-			
+			Constants.ROOMS_PER_HOTEL = 6;
+			Constants.CLIENTS_BUDGET=Integer.parseInt(defaultProps.getProperty("clients.budget","90"));
+			Constants.CLIENTS_BUDGET_VARIANCE=Integer.parseInt(defaultProps.getProperty("clients.budget_variance","20"));
 			//TODO load other parameters...
 			in.close();
 		} catch (FileNotFoundException e) {
@@ -231,18 +237,16 @@ public class AgPlatform2 extends MetaAgent
 	// Behaviors
 	// --------------------------------------------------------
 
-	private final class SetTimeSpeedBehavior extends CyclicBehaviour 
-	{
-		private static final long serialVersionUID = -9078033789982364795L;
-
-		private SetTimeSpeedBehavior(Agent a) {
-			super(a);
-		}
-
-		public void action() {
-			// If no message arrives
-			block();
-		}
+	//-----------------------------------------------------------------------
+	// Special-purpose methods - they can overlap with the agent's behaviors 
+	//-----------------------------------------------------------------------
+	
+	/**
+	 * Explicitly FALSE! To avoid race conditions never let it TRUE
+	 */
+	@Override
+	protected boolean setRegisterForDayEvents() {
+		return false;
 	}
 
 	private final class GeneratePlatformAgentsBehavior extends SimpleBehaviour 
@@ -261,20 +265,18 @@ public class AgPlatform2 extends MetaAgent
 				ContainerController cc = getContainerController();
 				AgentController ac = null;
 
-				ac = cc.createNewAgent("reporter", "hotelmania.group2.platform.AgReporter", null);
+				ac = cc.createNewAgent("reporter", AgReporter.class.getName(), null);
 				ac.start();
 
-				ac = cc.createNewAgent("hotelmania", "hotelmania.group2.platform.AgHotelmania", null);
+				ac = cc.createNewAgent("hotelmania", AgHotelmania.class.getName(), null);
 				ac.start();
 
-				ac = cc.createNewAgent("agency", "hotelmania.group2.platform.AgAgency", null);
+				ac = cc.createNewAgent("agency", AgAgency.class.getName(), null);
 				ac.start();
 
-				ac = cc.createNewAgent("bank", "hotelmania.group2.platform.AgBank", null);
+				ac = cc.createNewAgent("bank", AgBank.class.getName(), null);
 				ac.start();
 				
-				ac = cc.createNewAgent("client", "hotelmania.group2.platform.AgClient", null);
-				ac.start();
 			} catch (StaleProxyException e) {
 				e.printStackTrace();
 				//				done = false;
@@ -289,51 +291,9 @@ public class AgPlatform2 extends MetaAgent
 		}
 	}
 
-	@Deprecated
-	private final class GenerateClientsBehavior extends CyclicBehaviour 
-	{
-		private static final long serialVersionUID = 7520884931937975601L;
-
-		private GenerateClientsBehavior(Agent a) {
-			super(a);
-		}
-
-		public void action() {
-			// If no message arrives
-			block();
-		}
-	}
-
 	//-----------------------------------------------------------------------
 	// Special-purpose methods - they can overlap with the agent's behaviors 
 	//-----------------------------------------------------------------------
-
-	/**
-	 * Explicitly FALSE! To avoid race conditions never let it TRUE
-	 */
-	@Override
-	protected boolean setRegisterForDayEvents() {
-		return false;
-	}
-
-	@Override
-	protected void doOnNewDay() 
-	{
-
-		//Generate Clients Behavior
-		//TODO Complete
-
-		try {
-			ContainerController cc = getContainerController();
-			AgentController ac = null;
-			ac = cc.createNewAgent("client1", "hotelmania.group2.platform.AgClient", null);
-			ac.start();
-
-
-		} catch (StaleProxyException e) {
-			e.printStackTrace();
-		}
-	}
 
 	final class CreateDayEventsBehavior extends SubscriptionResponder 
 	{
@@ -356,34 +316,72 @@ public class AgPlatform2 extends MetaAgent
 		    return true;
 		}
 	}
-	
+
+	/**
+	 * Called internally (not by subscription)
+	 */
+	private void doOnNewDayBeforeEveryBody(int day) 
+	{
+		//Generate Clients Behavior
+		ContainerController cc = getContainerController();
+		AgentController ac = null;
+		
+		for (int i = 0; i < Constants.CLIENTS_PER_DAY; i++) {
+
+			try {
+				Client client = new Client();
+				client.setStay(randomStay());
+				client.setBudget(randomBudget());
+
+				String clientName = "Client_born_"+day+"_sn_"+i;
+				ac = cc.createNewAgent(clientName, AgClient.class.getName(), new Object[]{client});
+				ac.start();
 
 
-	@Override
-	public void receivedAcceptance(ACLMessage message) {
-		// TODO Auto-generated method stub
-
+			} catch (StaleProxyException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
+	/**
+	 * A random normally distributed number. 
+	 * @return
+	 */
+	private double randomBudget() {
+		return randomBetween(Constants.CLIENTS_BUDGET, Math.sqrt(Constants.CLIENTS_BUDGET_VARIANCE));
+	}
+
+	private double randomBetween(double mean ,
+			double standardDeviation) {
+		return r.nextGaussian()*standardDeviation + mean;
+	}
+
+	private Stay randomStay() {
+		int start = randomBetween(1, Constants.SIMULATION_DAYS);
+		int days = randomBetween(0, Constants.CLIENTS_MAX_STAY_DAYS);
+		return new Stay(start ,start+days);
+	}
+
+	private int randomBetween(int lower, int upper) {
+		return r.nextInt(upper)+lower;
+	}
+
+
+	
+	@Override
+	public void receivedAcceptance(ACLMessage message) {
+	}
 
 	@Override
 	public void receivedReject(ACLMessage message) {
-		// TODO logs
 	}
-
 
 	@Override
 	public void receivedNotUnderstood(ACLMessage message) {
-//		TODO logs
-
 	}
 
-	/* (non-Javadoc)
-	 * @see hotelmania.group2.platform.MetaAgent#receiveInform()
-	 */
 	@Override
 	public void receivedInform(ACLMessage message) {
-		// TODO Auto-generated method stub
-		
 	}
 }

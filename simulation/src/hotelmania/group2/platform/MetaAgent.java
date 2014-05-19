@@ -3,6 +3,7 @@ package hotelmania.group2.platform;
 import hotelmania.ontology.SharedAgentsOntology;
 import hotelmania.ontology.SubscribeToDayEvent;
 import jade.content.Concept;
+import jade.content.Predicate;
 import jade.content.lang.Codec;
 import jade.content.lang.Codec.CodecException;
 import jade.content.lang.sl.SLCodec;
@@ -126,6 +127,33 @@ public abstract class MetaAgent extends Agent {
 	}
 	
 
+	public void sendRequestPredicate(AID receiver, Predicate content, String protocol, int performative) {
+		ACLMessage msg = new ACLMessage(performative);
+		msg.addReceiver(receiver);
+		msg.setLanguage(this.codec.getName());
+		msg.setOntology(this.ontology.getName());
+		msg.setProtocol(protocol);
+
+		// As it is an action and the encoding language the SL,
+		// it must be wrapped into an Action
+		
+		try {
+			// The ContentManager transforms the java objects into strings
+			this.getContentManager().fillContent(msg, content);
+			this.send(msg);
+		} catch (CodecException ce) {
+			ce.printStackTrace();
+		} catch (OntologyException oe) {
+			oe.printStackTrace();
+		}
+
+		System.out.println(myName() + ": REQUESTS " + content.getClass().getSimpleName());
+	}
+	
+	
+	
+	
+	
 	
 	public void registerServices(String...services) {
 		DFAgentDescription dfd = new DFAgentDescription();
@@ -342,8 +370,7 @@ public abstract class MetaAgent extends Agent {
 	}
 
 	public void logAgreeMessage(String protocol, ACLMessage message) {
-		String cause = message.getContent()==null? "unknown": message.getContent();
-		System.out.println(this.myName()+": Received <Agree> for Protocol: "+protocol + " - Cause: "+cause ); //TODO define format); //TODO define format		
+		System.out.println(this.myName()+": Received <Agree> for Protocol: "+protocol); //TODO define format		
 	}
 
 	public void logRefuseMessage(String protocol, ACLMessage message) {
@@ -353,7 +380,7 @@ public abstract class MetaAgent extends Agent {
 
 	public void logNotUnderstoodMessage(String protocol, ACLMessage message) {
 		String cause = message.getContent()==null? "unknown": message.getContent();
-		System.out.println(this.myName()+": Received <NotUnderstood> for Protocol: "+protocol + " - Cause: "+cause); //TODO define format); //TODO define format
+		System.out.println(this.myName()+": Received <NotUnderstood> for Protocol: "+protocol + " - Cause: "+cause); //TODO define format
 	}
 
 	public abstract void receivedAcceptance(ACLMessage message);

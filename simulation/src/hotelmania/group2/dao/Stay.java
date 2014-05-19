@@ -1,6 +1,3 @@
-/**
- * 
- */
 package hotelmania.group2.dao;
 
 /**
@@ -12,12 +9,16 @@ public class Stay {
 	 private int checkIn;
 	 
 	 
-	 /**
-	 * 
-	 */
 	public Stay() {
-		// TODO Auto-generated constructor stub
 	}
+	
+	
+	public Stay(int checkIn, int checkOut) {
+		super();
+		this.checkIn = checkIn;
+		this.checkOut = checkOut;
+	}
+
 	/**
 	 * @return the checkOut
 	 */
