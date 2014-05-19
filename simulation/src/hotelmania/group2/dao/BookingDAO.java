@@ -15,31 +15,39 @@ public class BookingDAO {
 		room_available = Constants.ROOMS_PER_HOTEL;
 	}
 
+	/**
+	 * @return the room_available
+	 */
+	public int getRoom_available() {
+		return room_available;
+	}
+
+	/**
+	 * @return the actualPrice
+	 */
+	public float getActualPrice() {
+		return actualPrice;
+	}
+
 	public boolean booking(hotelmania.group2.dao.BookRoom booking) {
-		
-		if(room_available<Constants.ROOMS_PER_HOTEL && actualPrice==booking.getRoomPrice().getPrice()){
+
+		if (room_available < Constants.ROOMS_PER_HOTEL && actualPrice == booking.getRoomPrice().getPrice()) {
 			this.booking.add(booking);
 			room_available--;
 			setNewPrice();
 			return true;
 		}
 		return false;
-		
-		
 
-		
 	}
-	
+
 	/**
 	 * Configure new Price according to the rooms available for today
 	 */
 	private void setNewPrice() {
-		this.actualPrice= this.actualPrice + (Constants.ROOMS_PER_HOTEL-(this.room_available-1))*50;
-		
+		this.actualPrice = this.actualPrice + (Constants.ROOMS_PER_HOTEL - (this.room_available - 1)) * 50;
+
 	}
-
-		
-
 
 	public int getClientsAtDay(int day) {
 		if (day > 0 && day < Constants.SIMULATION_DAYS) {
@@ -47,7 +55,5 @@ public class BookingDAO {
 		}
 		return -1;
 	}
-
-	
 
 }

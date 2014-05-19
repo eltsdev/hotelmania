@@ -12,6 +12,14 @@ public class Hotel {
 	private AID agent;
 
 	/**
+	 * 
+	 */
+	public Hotel(hotelmania.ontology.Hotel hotel) {
+		this.name = hotel.getHotel_name();
+		this.agent = hotel.getHotelAgent();
+	}
+	
+	/**
 	 * @param hotelAgent 
 	 * @param name
 	 */

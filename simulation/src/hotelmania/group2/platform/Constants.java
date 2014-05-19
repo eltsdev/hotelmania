@@ -11,7 +11,7 @@ public class Constants {
 	public static final String REGISTRATION_PROTOCOL = "Registration";
 	public static final String CONSULTHOTELSINFO_PROTOCOL = "QueryHotelmaniaInformation";
 	public static final String CONSULTHOTELSSTAFF_PROTOCOL = "CONSULTHOTELSSTAFF";
-	public static final String CONSULTROOMPRICES_PROTOCOL = "CONSULTROOMPRICES";
+	public static final String CONSULTROOMPRICES_PROTOCOL = "BookingOffer";
 	public static final String CONSULTACCOUNTSTATUS_PROTOCOL = "AccountStatus";
 	public static final String CREATEACCOUNT_PROTOCOL = "CreateAccount";
 	public static final String CHARGEACCOUNT_PROTOCOL = "CHARGEACCOUNT";
