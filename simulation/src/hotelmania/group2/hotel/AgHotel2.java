@@ -21,6 +21,7 @@ import hotelmania.ontology.RegistrationRequest;
 import hotelmania.ontology.SignContract;
 import jade.content.Concept;
 import jade.content.ContentElement;
+import jade.content.Predicate;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
@@ -46,7 +47,7 @@ public class AgHotel2 extends MetaAgent {
 	@Override
 	protected void setup() {
 		super.setup();
-		this.registerServices(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION, Constants.BOOKROOM_ACTION);
+		this.registerServices(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION, Constants.BOOKROOM_ACTION, Constants.CONSULTROOMPRICES_ACTION);
 		
 		identity.setHotel_name(getHotelName());
 		identity.setHotelAgent(getAID());
@@ -56,7 +57,7 @@ public class AgHotel2 extends MetaAgent {
 		addBehaviour(new ConsultBankAccountInfoBehavior(this));
 		addBehaviour(new ProvideHotelNumberOfClientsBehavior(this));
 		addBehaviour(new MakeRoomBookingBehavior(this));
-		// addBehaviour(new ProvideRoomInfoBehavior(this));
+		addBehaviour(new ProvideRoomInfoBehavior(this));
 		// addBehaviour(new ConsultHotelInfoBehavior(this));
 
 		
@@ -244,11 +245,12 @@ public class AgHotel2 extends MetaAgent {
 				block();
 				return;
 			}
-			Concept conc = this.getConceptFromMessage(msg);
+			Predicate conc = this.getPredicateFromMessage(msg);
+			System.out.println(conc.getClass().getName());
 			// If the action is Registration Request...
-			if (conc instanceof NumberOfClientsQueryRef) {
+			if (conc instanceof hotelmania.ontology.Stay) {
 				// execute request
-				ACLMessage reply = answerRoomPriceOffer(msg,(Stay) conc);
+				ACLMessage reply = answerRoomPriceOffer(msg,(hotelmania.ontology.Stay) conc);
 				// send reply
 				myAgent.send(reply);
 
@@ -262,8 +264,8 @@ public class AgHotel2 extends MetaAgent {
 		 * @param conc
 		 * @return
 		 */
-		private ACLMessage answerRoomPriceOffer(ACLMessage msg,	Stay conc) {
-			Stay stay = conc;
+		private ACLMessage answerRoomPriceOffer(ACLMessage msg,	hotelmania.ontology.Stay conc) {
+			hotelmania.ontology.Stay stay = conc;
 			int totalDays;
 			System.out.println(myName() + ": received "	+ msg.getProtocol() + " Request from " + msg.getSender().getLocalName());
 
