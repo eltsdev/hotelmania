@@ -9,7 +9,7 @@ import jade.core.CaseInsensitiveString;
 
 /** file: SharedAgentsOntology.java
  * @author ontology bean generator
- * @version 2014/05/17, 11:25:36
+ * @version 2014/05/22, 14:05:24
  */
 public class SharedAgentsOntology extends jade.content.onto.Ontology  {
   //NAME
@@ -35,6 +35,7 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     public static final String HOTELINFORMATION_HOTEL="hotel";
     public static final String HOTELINFORMATION_RATING="rating";
     public static final String HOTELINFORMATION="HotelInformation";
+    public static final String NOTIFICATIONENDSIMULATION="NotificationEndSimulation";
     public static final String NOTIFICATIONDAYEVENT_DAYEVENT="dayEvent";
     public static final String NOTIFICATIONDAYEVENT="NotificationDayEvent";
     public static final String ACCOUNTSTATUSQUERYREF_ID_ACCOUNT="id_account";
@@ -49,13 +50,11 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     public static final String SIGNCONTRACT="SignContract";
     public static final String REGISTRATIONREQUEST_HOTEL="hotel";
     public static final String REGISTRATIONREQUEST="RegistrationRequest";
+    public static final String ENDSIMULATION="EndSimulation";
     public static final String QUERYHOTELMANIAHOTEL="QueryHotelmaniaHotel";
     public static final String MAKEDEPOSIT_HOTEL="hotel";
     public static final String MAKEDEPOSIT_MONEY="money";
     public static final String MAKEDEPOSIT="MakeDeposit";
-    public static final String CONSULTROOMPRICE_DAYS="days";
-    public static final String CONSULTROOMPRICE_STARTDAY="startDay";
-    public static final String CONSULTROOMPRICE="ConsultRoomPrice";
     public static final String RATEHOTEL_HOTEL="hotel";
     public static final String RATEHOTEL_RATINGS="ratings";
     public static final String RATEHOTEL="RateHotel";
@@ -78,8 +77,8 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     public static final String ACCOUNT_BALANCE="balance";
     public static final String ACCOUNT="Account";
     public static final String HOTELSTAFFINFO_CONTRACT="contract";
-    public static final String HOTELSTAFFINFO_HOTEL="hotel";
     public static final String HOTELSTAFFINFO_COOKERSTAFF="cookerStaff";
+    public static final String HOTELSTAFFINFO_HOTEL="hotel";
     public static final String HOTELSTAFFINFO="HotelStaffInfo";
     public static final String RATING_ROOM_STAFF_RATING="room_staff_rating";
     public static final String RATING_COOKERS_RATING="cookers_rating";
@@ -145,12 +144,12 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     add(chargeAccountSchema, hotelmania.ontology.ChargeAccount.class);
     AgentActionSchema rateHotelSchema = new AgentActionSchema(RATEHOTEL);
     add(rateHotelSchema, hotelmania.ontology.RateHotel.class);
-    AgentActionSchema consultRoomPriceSchema = new AgentActionSchema(CONSULTROOMPRICE);
-    add(consultRoomPriceSchema, hotelmania.ontology.ConsultRoomPrice.class);
     AgentActionSchema makeDepositSchema = new AgentActionSchema(MAKEDEPOSIT);
     add(makeDepositSchema, hotelmania.ontology.MakeDeposit.class);
     AgentActionSchema queryHotelmaniaHotelSchema = new AgentActionSchema(QUERYHOTELMANIAHOTEL);
     add(queryHotelmaniaHotelSchema, hotelmania.ontology.QueryHotelmaniaHotel.class);
+    AgentActionSchema endSimulationSchema = new AgentActionSchema(ENDSIMULATION);
+    add(endSimulationSchema, hotelmania.ontology.EndSimulation.class);
     AgentActionSchema registrationRequestSchema = new AgentActionSchema(REGISTRATIONREQUEST);
     add(registrationRequestSchema, hotelmania.ontology.RegistrationRequest.class);
     AgentActionSchema signContractSchema = new AgentActionSchema(SIGNCONTRACT);
@@ -167,6 +166,8 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     // adding Predicate(s)
     PredicateSchema notificationDayEventSchema = new PredicateSchema(NOTIFICATIONDAYEVENT);
     add(notificationDayEventSchema, hotelmania.ontology.NotificationDayEvent.class);
+    PredicateSchema notificationEndSimulationSchema = new PredicateSchema(NOTIFICATIONENDSIMULATION);
+    add(notificationEndSimulationSchema, hotelmania.ontology.NotificationEndSimulation.class);
     PredicateSchema hotelInformationSchema = new PredicateSchema(HOTELINFORMATION);
     add(hotelInformationSchema, hotelmania.ontology.HotelInformation.class);
     PredicateSchema accountStatusSchema = new PredicateSchema(ACCOUNTSTATUS);
@@ -197,8 +198,8 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     ratingSchema.add(RATING_CLEANLINESS_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
     ratingSchema.add(RATING_COOKERS_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
     ratingSchema.add(RATING_ROOM_STAFF_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
-    hotelStaffInfoSchema.add(HOTELSTAFFINFO_COOKERSTAFF, contractSchema, 0, ObjectSchema.UNLIMITED);
     hotelStaffInfoSchema.add(HOTELSTAFFINFO_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
+    hotelStaffInfoSchema.add(HOTELSTAFFINFO_COOKERSTAFF, contractSchema, 0, ObjectSchema.UNLIMITED);
     hotelStaffInfoSchema.add(HOTELSTAFFINFO_CONTRACT, contractSchema, ObjectSchema.MANDATORY);
     accountSchema.add(ACCOUNT_BALANCE, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
     accountSchema.add(ACCOUNT_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
@@ -213,8 +214,6 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     chargeAccountSchema.add(CHARGEACCOUNT_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     rateHotelSchema.add(RATEHOTEL_RATINGS, ratingSchema, ObjectSchema.OPTIONAL);
     rateHotelSchema.add(RATEHOTEL_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
-    consultRoomPriceSchema.add(CONSULTROOMPRICE_STARTDAY, (TermSchema)getSchema(BasicOntology.STRING), ObjectSchema.OPTIONAL);
-    consultRoomPriceSchema.add(CONSULTROOMPRICE_DAYS, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
     makeDepositSchema.add(MAKEDEPOSIT_MONEY, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
     makeDepositSchema.add(MAKEDEPOSIT_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     registrationRequestSchema.add(REGISTRATIONREQUEST_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);

@@ -8,7 +8,7 @@ import jade.core.*;
 /**
 * Protege name: Price
 * @author ontology bean generator
-* @version 2014/05/17, 11:25:36
+* @version 2014/05/22, 14:05:24
 */
 public class Price implements Concept {
 
