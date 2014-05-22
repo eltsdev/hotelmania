@@ -1,4 +1,4 @@
-; Mon May 19 11:36:19 CEST 2014
+; Thu May 22 14:05:27 CEST 2014
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -694,3 +694,7 @@
 ;+		(allowed-classes Hotel)
 ;+		(cardinality 0 1)
 		(create-accessor read-write)))
+
+(defclass NotificationEndSimulation
+	(is-a Predicate)
+	(role concrete))
