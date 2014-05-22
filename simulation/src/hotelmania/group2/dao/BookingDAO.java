@@ -55,5 +55,26 @@ public class BookingDAO {
 		}
 		return -1;
 	}
+	
+	public boolean checkDays (int[] days){
+		if (days.length <= 0) {
+			return false;
+		}
+		for (int i = 0; i < days.length; i++) {
+			int clients = this.getClientsAtDay(i);
+			if (clients == this.room_available) {
+				return false;
+			}
+		}
+		return true;
+		
+	}
 
+	
+	
+	
+	
+	
+	
+	
 }

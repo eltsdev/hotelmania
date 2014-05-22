@@ -34,7 +34,7 @@ public class AgBank extends MetaAgent {
 		addBehaviour(new ChargeAccountBehavior(this));
 
 		// Used by clients to pay to hotels
-		addBehaviour(new MakeDepositBehavior(this));
+		addBehaviour(new ReceiveClientDepositBehavior(this));
 
 		// Provide info account to hotel
 		addBehaviour(new ProvideHotelAccountInfoBehavior(this));
@@ -344,11 +344,11 @@ public class AgBank extends MetaAgent {
 
 	}
 
-	private final class MakeDepositBehavior extends MetaCyclicBehaviour {
+	private final class ReceiveClientDepositBehavior extends MetaCyclicBehaviour {
 
 		private static final long serialVersionUID = 5591566038041266929L;
 
-		public MakeDepositBehavior(Agent a) {
+		public ReceiveClientDepositBehavior(Agent a) {
 			super(a);
 		}
 

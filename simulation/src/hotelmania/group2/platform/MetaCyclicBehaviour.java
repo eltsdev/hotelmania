@@ -2,6 +2,7 @@ package hotelmania.group2.platform;
 
 import jade.content.Concept;
 import jade.content.ContentElement;
+import jade.content.Predicate;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
@@ -31,7 +32,22 @@ public class MetaCyclicBehaviour extends CyclicBehaviour {
 				Concept conc = agAction.getAction();
 				return conc;
 			}
-			System.out.println("getConceptFromMessage = null : No content extracted because it is not an action");
+			System.out.println(myAgent.getLocalName() +" : getConceptFromMessage = null : No content extracted because it is not an action");
+		} catch (CodecException | OntologyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	public Predicate getPredicateFromMessage(ACLMessage msg) {
+		ContentElement content;
+		try {
+			content = myAgent.getContentManager().extractContent(msg);
+			if (content instanceof Predicate) {
+				return (Predicate)content;
+			}
+			System.out.println(myAgent.getLocalName() +" : getConceptFromMessage = null : No content extracted because it is not an action");
 		} catch (CodecException | OntologyException e) {
 			e.printStackTrace();
 		}

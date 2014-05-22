@@ -1,3 +1,4 @@
+
 package hotelmania.group2.platform;
 
 import hotelmania.group2.dao.Client;
