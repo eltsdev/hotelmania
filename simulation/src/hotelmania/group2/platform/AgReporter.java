@@ -1,5 +1,6 @@
 package hotelmania.group2.platform;
 
+import hotelmania.ontology.GetFinanceReport;
 import hotelmania.ontology.QueryHotelmaniaHotel;
 import jade.core.AID;
 import jade.core.Agent;
@@ -17,23 +18,14 @@ public class AgReporter extends MetaAgent
 	protected void setup() 
 	{
 		// Behaviors
-		addBehaviour(new GenerateSimulationReportBehavior(this));
+//		addBehaviour(new GenerateSimulationReportBehavior(this));
 		addBehaviour(new ObtainInformationFromAgentsBehavior(this));
 	}
 	
-	/**
-	 * //TODO to decide
-	 */
 	@Override
 	protected boolean setRegisterForDayEvents() {
 		return false;
 	}
-	
-	@Override
-	protected void doOnNewDay() {
-		//TODO blank.
-	}
-
 		
 	// --------------------------------------------------------
 	// Behaviors
@@ -70,15 +62,15 @@ public class AgReporter extends MetaAgent
 		public void action() {
 			if (agHotelmania == null) {
 				agHotelmania = locateAgent(Constants.CONSULTHOTELSINFO_ACTION, myAgent);
-			} else {
-				this.consultHotelInfo();
-				this.setDone(true);
 			}
 
 			if (agBank== null) {
-				agBank = locateAgent(Constants.CONSULTFINANCEREPORT, myAgent);
-			} else {
+				agBank = locateAgent(Constants.CONSULTFINANCEREPORT_ACTION, myAgent);
+			}
+
+			if (agBank != null && agHotelmania!= null) {
 				this.consultFinanceReport();
+				this.consultHotelInfo(); 
 				this.setDone(true);
 			}
 		}
@@ -90,7 +82,9 @@ public class AgReporter extends MetaAgent
 		}
 
 		private void consultFinanceReport() {
-			// TODO Auto-generated method stub
+			GetFinanceReport consult_request = new GetFinanceReport();
+			sendRequest(agBank, consult_request,
+					Constants.CONSULTFINANCEREPORT_PROTOCOL, ACLMessage.QUERY_REF);
 
 		}
 
@@ -114,9 +108,6 @@ public class AgReporter extends MetaAgent
 		
 	}
 
-	/* (non-Javadoc)
-	 * @see hotelmania.group2.platform.MetaAgent#receiveInform()
-	 */
 	@Override
 	public void receivedInform(ACLMessage message) {
 		// TODO Auto-generated method stub
@@ -137,7 +128,7 @@ public class AgReporter extends MetaAgent
 		System.out.println("==================================================================");
 		System.out.println("SIMULATION RESULTS");
 		System.out.println("==================================================================");
-		
+
 		
 	}
 

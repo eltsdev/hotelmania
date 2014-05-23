@@ -456,7 +456,7 @@ public class AgBank extends MetaAgent {
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
 							MessageTemplate
-							.MatchProtocol(Constants.CONSULTFINANCEREPORT)),
+							.MatchProtocol(Constants.CONSULTFINANCEREPORT_ACTION)),
 							MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
 
 			/*
