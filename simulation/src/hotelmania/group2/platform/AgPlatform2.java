@@ -183,20 +183,20 @@ public class AgPlatform2 extends MetaAgent
 
 		public void action() {
 			try {
-				ContainerController cc = getContainerController();
-				AgentController ac = null;
+				ContainerController containController = getContainerController();
+				AgentController agentController = null;
 
-				ac = cc.createNewAgent("reporter", AgReporter.class.getName(), null);
-				ac.start();
+				agentController = containController.createNewAgent("reporter", AgReporter.class.getName(), null);
+				agentController.start();
 
-				ac = cc.createNewAgent("bank", AgBank.class.getName(), null);
-				ac.start();
+				agentController = containController.createNewAgent("bank", AgBank.class.getName(), null);
+				agentController.start();
 
-				ac = cc.createNewAgent("hotelmania", AgHotelmania.class.getName(), null);
-				ac.start();
+				agentController = containController.createNewAgent("hotelmania", AgHotelmania.class.getName(), null);
+				agentController.start();
 
-				ac = cc.createNewAgent("agency", AgAgency.class.getName(), null);
-				ac.start();
+				agentController = containController.createNewAgent("agency", AgAgency.class.getName(), null);
+				agentController.start();
 
 				setDone(true);
 			} catch (StaleProxyException e) {
@@ -354,7 +354,7 @@ public class AgPlatform2 extends MetaAgent
 	private double randomBetween(double lower, double upper) {
 		return randomNumber.nextDouble()*(upper-lower)+lower;
 	}
-
+	
 	private Stay randomStay() {
 		int start = randomBetween(1, Constants.SIMULATION_DAYS);
 		int days = randomBetween(0, Constants.CLIENTS_MAX_STAY_DAYS);

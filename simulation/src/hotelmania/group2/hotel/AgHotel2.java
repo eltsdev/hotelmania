@@ -207,7 +207,7 @@ public class AgHotel2 extends MetaAgent {
 			Price price = new Price();
 			price.setPrice(book.getBookingOffer().getRoomPrice().getPrice());
 			hotelmania.group2.dao.BookRoom booking= new hotelmania.group2.dao.BookRoom(stay, price);
-			if(bookDAO.booking(booking)){
+			if(bookDAO.book(booking)){
 				return true;
 			}else{
 				return false;
@@ -277,7 +277,7 @@ public class AgHotel2 extends MetaAgent {
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 				reply.setContent("There are missing parameters: BookinhgOffer protocol or Stay predicate is null");
 
-			} else if (bookDAO.getRoom_available()==0 ||totalDays<bookDAO.getRoom_available()) {
+			} else if (bookDAO.isThereRoomAvailableAtDays(stay.getCheckIn(),stay.getCheckOut())) {//TODO pasarle el checkin y checkout
 				//not rooms
 				this.log = Constants.REFUSE;
 				reply.setPerformative(ACLMessage.REFUSE);
@@ -305,9 +305,9 @@ public class AgHotel2 extends MetaAgent {
 		 * @param stay
 		 */
 		private float calculatePrice(int totalDays) {
-			float price;
+			float price = 5;
 	
-			price = bookDAO.getActualPrice()*totalDays;
+			//price = bookDAO.getActualPrice()*totalDays;
 			
 			return price;
 		}
