@@ -356,8 +356,8 @@ public class AgPlatform2 extends MetaAgent
 	
 	private Stay randomStay() {
 		int start = randomBetween(1, Constants.SIMULATION_DAYS);
-		int days = randomBetween(start, Constants.SIMULATION_DAYS);
-		return new Stay(start ,start+days);
+		int end = randomBetween(start, Constants.SIMULATION_DAYS);
+		return new Stay(start ,end);
 	}
 
 	private int randomBetween(int lower, int upper) {

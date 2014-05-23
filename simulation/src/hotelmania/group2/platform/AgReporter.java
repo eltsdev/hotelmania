@@ -68,8 +68,9 @@ public class AgReporter extends MetaAgent
 
 		public void action() {
 			block();
-//			TODO askForReportData();
-//			generateSimulationReport();			
+//			FIXME askForReportData();
+//			generateSimulationReport();	
+			setDone(true);
 		}
 
 
