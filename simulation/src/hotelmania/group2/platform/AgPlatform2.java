@@ -35,7 +35,7 @@ public class AgPlatform2 extends MetaAgent
 
 	private MySubscriptionResponder dayEventResponder;
 	private MySubscriptionResponder endSimulationResponder;
-	private Random r = new Random();
+	private Random randomNumber = new Random();
 
 	//------------------------------------------------- 
 	// Setup
@@ -188,20 +188,20 @@ public class AgPlatform2 extends MetaAgent
 		public void action() {
 			//TODO Complete
 			try {
-				ContainerController cc = getContainerController();
-				AgentController ac = null;
+				ContainerController containController = getContainerController();
+				AgentController agentController = null;
 
-				ac = cc.createNewAgent("reporter", AgReporter.class.getName(), null);
-				ac.start();
+				agentController = containController.createNewAgent("reporter", AgReporter.class.getName(), null);
+				agentController.start();
 
-				ac = cc.createNewAgent("hotelmania", AgHotelmania.class.getName(), null);
-				ac.start();
+				agentController = containController.createNewAgent("hotelmania", AgHotelmania.class.getName(), null);
+				agentController.start();
 
-				ac = cc.createNewAgent("agency", AgAgency.class.getName(), null);
-				ac.start();
+				agentController = containController.createNewAgent("agency", AgAgency.class.getName(), null);
+				agentController.start();
 
-				ac = cc.createNewAgent("bank", AgBank.class.getName(), null);
-				ac.start();
+				agentController = containController.createNewAgent("bank", AgBank.class.getName(), null);
+				agentController.start();
 				
 			} catch (StaleProxyException e) {
 				e.printStackTrace();
@@ -364,7 +364,7 @@ public class AgPlatform2 extends MetaAgent
 
 	private double randomBetween(double mean ,
 			double standardDeviation) {
-		return r.nextGaussian()*standardDeviation + mean;
+		return randomNumber.nextGaussian()*standardDeviation + mean;
 	}
 
 	private Stay randomStay() {
@@ -374,7 +374,7 @@ public class AgPlatform2 extends MetaAgent
 	}
 
 	private int randomBetween(int lower, int upper) {
-		return r.nextInt(upper)+lower;
+		return randomNumber.nextInt(upper)+lower;
 	}
 
 
