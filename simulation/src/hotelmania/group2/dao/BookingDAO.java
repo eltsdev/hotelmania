@@ -59,7 +59,7 @@ public class BookingDAO {
 				System.out.println("[ERROR] BookingDAO.isThereRoomAvailableAtDays checkin should be grater than 0: checkin->" + checkin + " checkout->" + checkout);
 			}
 			if (checkout > Constants.SIMULATION_DAYS) {
-				System.out.println("[ERROR] BookingDAO.isThereRoomAvailableAtDays checkout should not be grater than simulation days: checkin->" + checkin + " checkout->" + checkout);
+				System.out.println("[ERROR] BookingDAO.isThereRoomAvailableAtDays checkout should not be grater than simulation days: checkin->" + checkin + " checkout->" + checkout + " SimulationDays->" + Constants.SIMULATION_DAYS);
 			}
 			return false;
 		}
