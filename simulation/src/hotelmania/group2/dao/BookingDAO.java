@@ -41,14 +41,28 @@ public class BookingDAO {
 	}
 
 	public boolean isThereRoomAvailableAtDays(int checkin, int checkout) {
-		int[] daysClientsArray = this.generateArrayOfClients(this.bookings);
-		int numberOfClients;
-		for (int i = checkin; i < checkout; i++) {
-			numberOfClients = daysClientsArray[i];
-			if (numberOfClients >= this.roomsAvailable) {
-				return false;
+		if (checkin < checkout && checkin > 0 && checkout <= Constants.SIMULATION_DAYS) {
+			int[] daysClientsArray = this.generateArrayOfClients(this.bookings);
+			int numberOfClients;
+			for (int i = checkin; i < checkout; i++) {
+				numberOfClients = daysClientsArray[i];
+				if (numberOfClients >= this.roomsAvailable) {
+					return false;
+				}
 			}
+			return true;
+		} else {
+			if (checkin >= checkout) {
+				System.out.println("checkin should be lower than checkout: checkin->" + checkin + " checkout->" + checkout);
+			}
+			if (checkin < 1) {
+				System.out.println("checkin should be grater than 0: checkin->" + checkin + " checkout->" + checkout);
+			}
+			if (checkout > Constants.SIMULATION_DAYS) {
+				System.out.println("checkout should not be grater than simulation days: checkin->" + checkin + " checkout->" + checkout);
+			}
+			return false;
 		}
-		return true;
+		
 	}
 }
