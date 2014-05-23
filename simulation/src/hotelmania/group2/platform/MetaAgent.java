@@ -224,7 +224,7 @@ public abstract class MetaAgent extends Agent {
 			e.printStackTrace();
 		}
 
-		addBehaviour(new EndSimulationSubscriptor(this, msg)); //FIXME  USE THE REAL ONE! 		
+		addBehaviour(new EndSimulationSubscriptor(this, msg)); 		
 	}
 
 	
@@ -446,6 +446,7 @@ public abstract class MetaAgent extends Agent {
 	 */
 	@Override
 	protected void takeDown() {
+		System.out.println(this.myName()+": DIED");
 		super.takeDown();
 	}
 

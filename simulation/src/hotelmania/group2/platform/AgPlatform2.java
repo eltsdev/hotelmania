@@ -54,7 +54,7 @@ public class AgPlatform2 extends MetaAgent
 
 		dayEventResponder = new MySubscriptionResponder(this, Constants.SUBSCRIBETODAYEVENT_PROTOCOL);
 		addBehaviour(dayEventResponder);
-		addBehaviour(new TickerBehaviourExtension(this, Constants.DAY_IN_SECONDS));
+		addBehaviour(new TickerBehaviourExtension(this, Constants.DAY_IN_MILLISECONDS));
 		
 		endSimulationResponder = new MySubscriptionResponder(this, Constants.END_SIMULATION_PROTOCOL);
 		addBehaviour(endSimulationResponder);
@@ -142,10 +142,9 @@ public class AgPlatform2 extends MetaAgent
 		try {
 			in = new FileInputStream("resources/settings.properties");
 			defaultProps.load(in);
-			Constants.DAY_IN_SECONDS = Integer.parseInt(defaultProps.getProperty("day.length","15"))*1000;
+			Constants.DAY_IN_MILLISECONDS = Integer.parseInt(defaultProps.getProperty("day.length","15"))*1000;
 			Constants.SIMULATION_DAYS = Integer.parseInt(defaultProps.getProperty("simulation.days","10"));
 			Constants.CLIENTS_PER_DAY=Integer.parseInt(defaultProps.getProperty("simulation.clients_per_day","2"));
-			Constants.ROOMS_PER_HOTEL = 6;
 			Constants.CLIENTS_BUDGET=Integer.parseInt(defaultProps.getProperty("clients.budget","90"));
 			Constants.CLIENTS_BUDGET_VARIANCE=Integer.parseInt(defaultProps.getProperty("clients.budget_variance","20"));
 			//TODO load other parameters...
@@ -175,23 +174,23 @@ public class AgPlatform2 extends MetaAgent
 		return false;
 	}
 
-	private final class GeneratePlatformAgentsBehavior extends SimpleBehaviour 
+	private final class GeneratePlatformAgentsBehavior extends MetaSimpleBehaviour 
 	{
 		private static final long serialVersionUID = -9078033789982364797L;
-
-		boolean done;
 
 		private GeneratePlatformAgentsBehavior(Agent a) {
 			super(a);
 		}
 
 		public void action() {
-			//TODO Complete
 			try {
 				ContainerController cc = getContainerController();
 				AgentController ac = null;
 
 				ac = cc.createNewAgent("reporter", AgReporter.class.getName(), null);
+				ac.start();
+
+				ac = cc.createNewAgent("bank", AgBank.class.getName(), null);
 				ac.start();
 
 				ac = cc.createNewAgent("hotelmania", AgHotelmania.class.getName(), null);
@@ -200,20 +199,10 @@ public class AgPlatform2 extends MetaAgent
 				ac = cc.createNewAgent("agency", AgAgency.class.getName(), null);
 				ac.start();
 
-				ac = cc.createNewAgent("bank", AgBank.class.getName(), null);
-				ac.start();
-				
+				setDone(true);
 			} catch (StaleProxyException e) {
 				e.printStackTrace();
-				//				done = false;
-				//				block();
 			}
-			done = true;
-		}
-
-		@Override
-		public boolean done() {
-			return done;
 		}
 	}
 
@@ -344,7 +333,7 @@ public class AgPlatform2 extends MetaAgent
 				client.setStay(randomStay());
 				client.setBudget(randomBudget());
 
-				String clientName = "Client_born_"+day+"_sn_"+i;
+				String clientName = "Client_born_"+day+"_#_"+i;
 				ac = cc.createNewAgent(clientName, AgClient.class.getName(), new Object[]{client});
 				ac.start();
 
@@ -359,12 +348,14 @@ public class AgPlatform2 extends MetaAgent
 	 * @return
 	 */
 	private double randomBudget() {
-		return randomBetween(Constants.CLIENTS_BUDGET, Math.sqrt(Constants.CLIENTS_BUDGET_VARIANCE));
+		return randomBetween(Constants.CLIENTS_BUDGET - Constants.CLIENTS_BUDGET_VARIANCE, 
+							Constants.CLIENTS_BUDGET + Constants.CLIENTS_BUDGET_VARIANCE);
 	}
 
-	private double randomBetween(double mean ,
-			double standardDeviation) {
-		return r.nextGaussian()*standardDeviation + mean;
+	private double randomBetween(double lower, double upper) {
+		System.err.println("for "+lower + " to " + upper);
+		System.err.println(r.nextDouble()*(upper-lower)+lower);
+		return r.nextDouble()*(upper-lower)+lower;
 	}
 
 	private Stay randomStay() {

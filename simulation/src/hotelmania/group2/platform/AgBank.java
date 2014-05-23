@@ -1,5 +1,7 @@
 package hotelmania.group2.platform;
 
+import java.util.ArrayList;
+
 import hotelmania.group2.dao.Account;
 import hotelmania.group2.dao.AccountDAO;
 import hotelmania.group2.dao.Hotel;
@@ -38,6 +40,9 @@ public class AgBank extends MetaAgent {
 
 		// Provide info account to hotel
 		addBehaviour(new ProvideHotelAccountInfoBehavior(this));
+		
+		// Get finance report
+		//TODO addBehaviour(new GetFinanceReportBehavior(this));
 		
 		registerServices(Constants.CREATEACCOUNT_ACTION,
 				Constants.CONSULTACCOUNTSTATUS_ACTION);
@@ -432,6 +437,20 @@ public class AgBank extends MetaAgent {
 
 	}
 
+	private final class GetFinanceReportBehavior extends MetaSimpleBehaviour {
+		private static final long serialVersionUID = 3826752372367438517L;
+		
+		public GetFinanceReportBehavior(Agent a) {
+			super(a);
+		}
+
+		@Override
+		public void action() {
+			
+		}
+
+	}
+	
 	@Override
 	public void receivedAcceptance(ACLMessage message) {
 		// TODO switch by message.getProtocol()
@@ -474,4 +493,21 @@ public class AgBank extends MetaAgent {
 		
 	}
 
+	@Override
+	protected void takeDown() {
+		buildFinanceReport();
+		super.takeDown();
+	}
+
+	private void buildFinanceReport() {
+		System.out.println("====================================================================");
+		System.out.println("SIMULATION REPORT - FINANCE");
+		System.out.println("====================================================================");
+		ArrayList<Account> accounts = accountDAO.getListAccount();
+		for (Account account : accounts) {
+			System.out.print(account.getHotel().getName());
+			System.out.print("\t");
+			System.out.println(account.getBalance());
+		}		
+	}
 }

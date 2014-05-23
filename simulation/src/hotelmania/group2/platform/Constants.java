@@ -52,12 +52,12 @@ public class Constants {
 	public static final String HOTEL_NAME = "Hotel2";
 	public static final int FIRST_DAY = 1;
 	
-	// Simulation parameters (these defaults are overriden by settings.properties)
-	public static int DAY_IN_SECONDS = 5*1000;
-	public static int SIMULATION_DAYS = 10;
-	public static int CLIENTS_PER_DAY = 10;
-	public static int ROOMS_PER_HOTEL = 6;
-	public static int CLIENTS_BUDGET=90;
-	public static int CLIENTS_BUDGET_VARIANCE=20;
+	// Simulation parameters
+	public static final int ROOMS_PER_HOTEL = 6;
 	public static final int CLIENTS_MAX_STAY_DAYS = 7;
+	public static int DAY_IN_MILLISECONDS;
+	public static int SIMULATION_DAYS;
+	public static int CLIENTS_PER_DAY;
+	public static double CLIENTS_BUDGET;
+	public static double CLIENTS_BUDGET_VARIANCE;
 }

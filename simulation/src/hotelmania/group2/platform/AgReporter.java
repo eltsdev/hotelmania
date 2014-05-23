@@ -58,12 +58,8 @@ public class AgReporter extends MetaAgent
 	{
 		private static final long serialVersionUID = -3157976627925663055L;
 
-		private AID agClient; //TODO many...
-		private AID agHotel; //TODO many...
-		private AID agSimulator;
 		private AID agHotelmania;
 		private AID agBank;
-		private AID agAgency;
 
 		private ObtainInformationFromAgentsBehavior(Agent a) {
 			super(a);
@@ -101,5 +97,4 @@ public class AgReporter extends MetaAgent
 		// TODO Auto-generated method stub
 		
 	}
-
 }

@@ -169,7 +169,7 @@ public class AgClient extends MetaAgent {
 				sendRequestPredicate(hotel.getHotelAgent(), request_stay,Constants.CONSULTROOMPRICES_PROTOCOL, ACLMessage.QUERY_REF);
 
 			}
-			long time= (long) (Constants.DAY_IN_SECONDS * 0.5);
+			long time= (long) (Constants.DAY_IN_MILLISECONDS * 0.5);
 			doWait(time);
 			
 			BookingOffer lowest_price_booking=computeBestRoomPrice(bookingOffers);

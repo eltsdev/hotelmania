@@ -49,7 +49,7 @@ public class AgHotel2 extends MetaAgent {
 		super.setup();
 		this.registerServices(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION, Constants.BOOKROOM_ACTION, Constants.CONSULTROOMPRICES_ACTION);
 		
-		identity.setHotel_name(getHotelName());
+		identity.setHotel_name(myName());
 		identity.setHotelAgent(getAID());
 		
 		addBehaviour(new RegisterInHotelmaniaBehavior(this));
@@ -69,10 +69,6 @@ public class AgHotel2 extends MetaAgent {
 		return Constants.HOTEL_NAME;
 	}
 	
-	public String getHotelName() {
-		return Constants.HOTEL_NAME;
-	}
-
 	/**
 	 * This means: I AM interested on this event.
 	 */
