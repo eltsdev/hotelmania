@@ -361,7 +361,7 @@ public class AgPlatform2 extends MetaAgent
 	}
 
 	private int randomBetween(int lower, int upper) {
-		return randomNumber.nextInt(upper)+lower;
+		return randomNumber.nextInt(upper-lower)+lower;
 	}
 
 
