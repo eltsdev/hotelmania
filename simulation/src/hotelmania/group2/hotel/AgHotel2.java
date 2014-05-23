@@ -244,9 +244,9 @@ public class AgHotel2 extends MetaAgent {
 			Predicate conc = this.getPredicateFromMessage(msg);
 			System.out.println(conc.getClass().getName());
 			// If the action is Registration Request...
-			if (conc instanceof hotelmania.ontology.Stay) {
+			if (conc instanceof hotelmania.ontology.StayQueryRef) {
 				// execute request
-				ACLMessage reply = answerRoomPriceOffer(msg,(hotelmania.ontology.Stay) conc);
+				ACLMessage reply = answerRoomPriceOffer(msg,(hotelmania.ontology.StayQueryRef) conc);
 				// send reply
 				myAgent.send(reply);
 
@@ -260,24 +260,24 @@ public class AgHotel2 extends MetaAgent {
 		 * @param conc
 		 * @return
 		 */
-		private ACLMessage answerRoomPriceOffer(ACLMessage msg,	hotelmania.ontology.Stay conc) {
-			hotelmania.ontology.Stay stay = conc;
-			int totalDays;
+		private ACLMessage answerRoomPriceOffer(ACLMessage msg,	hotelmania.ontology.StayQueryRef conc) {
 			System.out.println(myName() + ": received "	+ msg.getProtocol() + " Request from " + msg.getSender().getLocalName());
-
+			int totalDays;
 			ACLMessage reply = msg.createReply();
 		
-			//Total numbers of day to stay
-			totalDays = stay.getCheckOut()-stay.getCheckIn();
-		
-
 			//missing parameters?
 			if (conc == null) {
 				this.log = Constants.NOT_UNDERSTOOD;
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 				reply.setContent("There are missing parameters: BookinhgOffer protocol or Stay predicate is null");
+				return reply;
 
-			} else if (bookDAO.isThereRoomAvailableAtDays(stay.getCheckIn(),stay.getCheckOut())) {//TODO pasarle el checkin y checkout
+			}
+			hotelmania.ontology.Stay stay = conc.getStay();
+			//Total numbers of day to stay
+			totalDays = stay.getCheckOut()-stay.getCheckIn();
+
+			if (!bookDAO.isThereRoomAvailableAtDays(stay.getCheckIn(),stay.getCheckOut())) {
 				//not rooms
 				this.log = Constants.REFUSE;
 				reply.setPerformative(ACLMessage.REFUSE);

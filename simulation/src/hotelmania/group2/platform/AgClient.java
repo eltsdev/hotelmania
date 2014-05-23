@@ -177,10 +177,10 @@ public class AgClient extends MetaAgent {
 			long time= (long) (Constants.DAY_IN_MILLISECONDS * 0.5);
 			doWait(time);
 			
-			BookingOffer lowest_price_booking=computeBestRoomPrice(bookingOffers);
+			BookingOffer lowestPriceBooking=computeBestRoomPrice(bookingOffers);
 			this.setDone(true);
-			if (lowest_price_booking != null) {
-				addBehaviour(new RequestBookingInHotelBehavior(myAgent, lowest_price_booking));
+			if (lowestPriceBooking != null) {
+				addBehaviour(new RequestBookingInHotelBehavior(myAgent, lowestPriceBooking));
 			} else {
 				System.out.println("no minimum hotel was found: " + bookingOffers.size());
 				
@@ -194,17 +194,17 @@ public class AgClient extends MetaAgent {
 		 */
 		private BookingOffer computeBestRoomPrice(ArrayList<BookingOffer> bookingOffers) {
 			float minimunPrice = 0;
-			BookingOffer lowest_price_booking = null;
+			BookingOffer lowestPriceBooking = null;
 			for (BookingOffer bookingOffer : bookingOffers) {
 				float actual_price = bookingOffer.getPrice();
 				if (actual_price != -1) {
 					if (minimunPrice < actual_price) {
 						minimunPrice = actual_price;
-						lowest_price_booking = bookingOffer;
+						lowestPriceBooking = bookingOffer;
 					}
 				}
 			}
-			return lowest_price_booking;
+			return lowestPriceBooking;
 		}
 	}
 
