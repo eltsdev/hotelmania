@@ -9,7 +9,7 @@ import jade.core.CaseInsensitiveString;
 
 /** file: SharedAgentsOntology.java
  * @author ontology bean generator
- * @version 2014/05/22, 14:05:24
+ * @version 2014/05/23, 16:31:32
  */
 public class SharedAgentsOntology extends jade.content.onto.Ontology  {
   //NAME
@@ -27,15 +27,14 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     public static final String BOOKINGOFFER="BookingOffer";
     public static final String NUMBEROFCLIENTS_NUM_CLIENTS="num_clients";
     public static final String NUMBEROFCLIENTS="NumberOfClients";
-    public static final String STAY_CHECKIN="checkIn";
-    public static final String STAY_CHECKOUT="checkOut";
-    public static final String STAY="Stay";
     public static final String ACCOUNTSTATUS_ACCOUNT="account";
     public static final String ACCOUNTSTATUS="AccountStatus";
     public static final String HOTELINFORMATION_HOTEL="hotel";
     public static final String HOTELINFORMATION_RATING="rating";
     public static final String HOTELINFORMATION="HotelInformation";
     public static final String NOTIFICATIONENDSIMULATION="NotificationEndSimulation";
+    public static final String STAYQUERYREF_STAY="stay";
+    public static final String STAYQUERYREF="StayQueryRef";
     public static final String NOTIFICATIONDAYEVENT_DAYEVENT="dayEvent";
     public static final String NOTIFICATIONDAYEVENT="NotificationDayEvent";
     public static final String ACCOUNTSTATUSQUERYREF_ID_ACCOUNT="id_account";
@@ -77,14 +76,17 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     public static final String ACCOUNT_BALANCE="balance";
     public static final String ACCOUNT="Account";
     public static final String HOTELSTAFFINFO_CONTRACT="contract";
-    public static final String HOTELSTAFFINFO_COOKERSTAFF="cookerStaff";
     public static final String HOTELSTAFFINFO_HOTEL="hotel";
+    public static final String HOTELSTAFFINFO_COOKERSTAFF="cookerStaff";
     public static final String HOTELSTAFFINFO="HotelStaffInfo";
     public static final String RATING_ROOM_STAFF_RATING="room_staff_rating";
     public static final String RATING_COOKERS_RATING="cookers_rating";
     public static final String RATING_CLEANLINESS_RATING="cleanliness_rating";
     public static final String RATING_PRICE_RATING="price_rating";
     public static final String RATING="Rating";
+    public static final String STAY_CHECKIN="checkIn";
+    public static final String STAY_CHECKOUT="checkOut";
+    public static final String STAY="Stay";
     public static final String ROOMHOTELINFO_ROOMSAVAILABLE="roomsAvailable";
     public static final String ROOMHOTELINFO_COST="cost";
     public static final String ROOMHOTELINFO="RoomHotelInfo";
@@ -122,6 +124,8 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     add(dayEventSchema, hotelmania.ontology.DayEvent.class);
     ConceptSchema roomHotelInfoSchema = new ConceptSchema(ROOMHOTELINFO);
     add(roomHotelInfoSchema, hotelmania.ontology.RoomHotelInfo.class);
+    ConceptSchema staySchema = new ConceptSchema(STAY);
+    add(staySchema, hotelmania.ontology.Stay.class);
     ConceptSchema ratingSchema = new ConceptSchema(RATING);
     add(ratingSchema, hotelmania.ontology.Rating.class);
     ConceptSchema hotelStaffInfoSchema = new ConceptSchema(HOTELSTAFFINFO);
@@ -166,14 +170,14 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     // adding Predicate(s)
     PredicateSchema notificationDayEventSchema = new PredicateSchema(NOTIFICATIONDAYEVENT);
     add(notificationDayEventSchema, hotelmania.ontology.NotificationDayEvent.class);
+    PredicateSchema stayQueryRefSchema = new PredicateSchema(STAYQUERYREF);
+    add(stayQueryRefSchema, hotelmania.ontology.StayQueryRef.class);
     PredicateSchema notificationEndSimulationSchema = new PredicateSchema(NOTIFICATIONENDSIMULATION);
     add(notificationEndSimulationSchema, hotelmania.ontology.NotificationEndSimulation.class);
     PredicateSchema hotelInformationSchema = new PredicateSchema(HOTELINFORMATION);
     add(hotelInformationSchema, hotelmania.ontology.HotelInformation.class);
     PredicateSchema accountStatusSchema = new PredicateSchema(ACCOUNTSTATUS);
     add(accountStatusSchema, hotelmania.ontology.AccountStatus.class);
-    PredicateSchema staySchema = new PredicateSchema(STAY);
-    add(staySchema, hotelmania.ontology.Stay.class);
     PredicateSchema numberOfClientsSchema = new PredicateSchema(NUMBEROFCLIENTS);
     add(numberOfClientsSchema, hotelmania.ontology.NumberOfClients.class);
     PredicateSchema bookingOfferSchema = new PredicateSchema(BOOKINGOFFER);
@@ -194,12 +198,14 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     dayEventSchema.add(DAYEVENT_DAY, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
     roomHotelInfoSchema.add(ROOMHOTELINFO_COST, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
     roomHotelInfoSchema.add(ROOMHOTELINFO_ROOMSAVAILABLE, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
+    staySchema.add(STAY_CHECKOUT, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
+    staySchema.add(STAY_CHECKIN, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
     ratingSchema.add(RATING_PRICE_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
     ratingSchema.add(RATING_CLEANLINESS_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
     ratingSchema.add(RATING_COOKERS_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
     ratingSchema.add(RATING_ROOM_STAFF_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
-    hotelStaffInfoSchema.add(HOTELSTAFFINFO_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     hotelStaffInfoSchema.add(HOTELSTAFFINFO_COOKERSTAFF, contractSchema, 0, ObjectSchema.UNLIMITED);
+    hotelStaffInfoSchema.add(HOTELSTAFFINFO_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     hotelStaffInfoSchema.add(HOTELSTAFFINFO_CONTRACT, contractSchema, ObjectSchema.MANDATORY);
     accountSchema.add(ACCOUNT_BALANCE, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
     accountSchema.add(ACCOUNT_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
@@ -224,11 +230,10 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     createAccountRequestSchema.add(CREATEACCOUNTREQUEST_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     accountStatusQueryRefSchema.add(ACCOUNTSTATUSQUERYREF_ID_ACCOUNT, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.MANDATORY);
     notificationDayEventSchema.add(NOTIFICATIONDAYEVENT_DAYEVENT, dayEventSchema, ObjectSchema.MANDATORY);
+    stayQueryRefSchema.add(STAYQUERYREF_STAY, staySchema, ObjectSchema.OPTIONAL);
     hotelInformationSchema.add(HOTELINFORMATION_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
     hotelInformationSchema.add(HOTELINFORMATION_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     accountStatusSchema.add(ACCOUNTSTATUS_ACCOUNT, accountSchema, ObjectSchema.MANDATORY);
-    staySchema.add(STAY_CHECKOUT, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
-    staySchema.add(STAY_CHECKIN, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
     numberOfClientsSchema.add(NUMBEROFCLIENTS_NUM_CLIENTS, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
     bookingOfferSchema.add(BOOKINGOFFER_ROOMPRICE, priceSchema, ObjectSchema.OPTIONAL);
 

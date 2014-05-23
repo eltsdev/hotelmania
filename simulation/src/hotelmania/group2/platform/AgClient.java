@@ -13,6 +13,7 @@ import hotelmania.ontology.QueryHotelmaniaHotel;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;
 import hotelmania.ontology.Stay;
+import hotelmania.ontology.StayQueryRef;
 import jade.content.ContentElement;
 import jade.content.ContentElementList;
 import jade.content.lang.Codec.CodecException;
@@ -160,9 +161,13 @@ public class AgClient extends MetaAgent {
 			int checkout = client.getStay().getCheckOut();
 
 			// Config Days to stay in a Hotel
-			Stay request_stay = new Stay();
-			request_stay.setCheckIn(checkin);
-			request_stay.setCheckOut(checkout);
+			Stay stay = new Stay();
+			stay.setCheckIn(checkin);
+			stay.setCheckOut(checkout);
+			
+			//Create StayQueryRef predicate
+			StayQueryRef request_stay = new StayQueryRef();
+			request_stay.setStay(stay);
 
 			for (int i = 0; i < bookingOffers.size(); i++) {
 				hotel = bookingOffers.get(i).getHotelInformation().getHotel().getConcept();

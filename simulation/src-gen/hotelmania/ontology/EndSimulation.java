@@ -8,7 +8,7 @@ import jade.core.*;
 /**
 * Protege name: EndSimulation
 * @author ontology bean generator
-* @version 2014/05/22, 14:05:25
+* @version 2014/05/23, 16:31:32
 */
 public class EndSimulation implements AgentAction {
 

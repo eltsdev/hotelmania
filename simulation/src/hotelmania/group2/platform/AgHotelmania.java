@@ -3,7 +3,6 @@ package hotelmania.group2.platform;
 import hotelmania.group2.dao.HotelDAO;
 import hotelmania.group2.dao.RatingDAO;
 import hotelmania.ontology.Hotel;
-import hotelmania.ontology.HotelInformation;
 import hotelmania.ontology.QueryHotelmaniaHotel;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.RegistrationRequest;
@@ -31,9 +30,7 @@ public class AgHotelmania extends MetaAgent
 		super.setup();
 
 		//Register the services
-		this.registerServices(Constants.REGISTRATION_ACTION,
-				Constants.RATEHOTEL_ACTION,
-				Constants.CONSULTHOTELSINFO_ACTION);
+		this.registerServices(Constants.REGISTRATION_ACTION, Constants.RATEHOTEL_ACTION, Constants.CONSULTHOTELSINFO_ACTION);
 
 		//add the behaviours
 		addBehaviour(new ReceiveRegisterRequestBehavior(this));
@@ -124,9 +121,7 @@ public class AgHotelmania extends MetaAgent
 		 * @return Answer type
 		 */
 		private ACLMessage answerRegistrationRequest(ACLMessage msg, RegistrationRequest registrationRequestData) {
-			System.out.println(myName()
-					+ ": received Registration Request from "
-					+ msg.getSender().getLocalName());
+			System.out.println(myName() + ": received Registration Request from " + msg.getSender().getLocalName());
 			
 			ACLMessage reply = msg.createReply();
 			
