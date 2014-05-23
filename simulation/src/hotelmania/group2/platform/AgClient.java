@@ -341,8 +341,8 @@ public class AgClient extends MetaAgent {
 		}
 
 		private void consultHotelInfo(AID hotelmania) {
-			QueryHotelmaniaHotel request = new QueryHotelmaniaHotel();
-			sendRequest(hotelmania, request,
+			QueryHotelmaniaHotel consult_request = new QueryHotelmaniaHotel();
+			sendRequest(hotelmania, consult_request,
 					Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 

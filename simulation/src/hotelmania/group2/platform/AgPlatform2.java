@@ -6,7 +6,6 @@ import hotelmania.group2.dao.Stay;
 import hotelmania.ontology.DayEvent;
 import hotelmania.ontology.NotificationDayEvent;
 import jade.core.Agent;
-import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.FIPAAgentManagement.FailureException;
 import jade.domain.FIPAAgentManagement.NotUnderstoodException;
@@ -35,7 +34,7 @@ public class AgPlatform2 extends MetaAgent
 
 	private MySubscriptionResponder dayEventResponder;
 	private MySubscriptionResponder endSimulationResponder;
-	private Random r = new Random();
+	private Random randomNumber = new Random();
 
 	//------------------------------------------------- 
 	// Setup
@@ -353,9 +352,7 @@ public class AgPlatform2 extends MetaAgent
 	}
 
 	private double randomBetween(double lower, double upper) {
-		System.err.println("for "+lower + " to " + upper);
-		System.err.println(r.nextDouble()*(upper-lower)+lower);
-		return r.nextDouble()*(upper-lower)+lower;
+		return randomNumber.nextDouble()*(upper-lower)+lower;
 	}
 
 	private Stay randomStay() {
@@ -365,7 +362,7 @@ public class AgPlatform2 extends MetaAgent
 	}
 
 	private int randomBetween(int lower, int upper) {
-		return r.nextInt(upper)+lower;
+		return randomNumber.nextInt(upper)+lower;
 	}
 
 
