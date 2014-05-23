@@ -57,9 +57,7 @@ public class AgClient extends MetaAgent {
 		}
 		// Behaviors
 
-		//addBehaviour(new RequestBookingInHotelBehavior(this));
 		addBehaviour(new ConsultHotelInfoBehavior(this));
-		//addBehaviour(new ConsultHotelNumberOfClientsBehavior(this));
 		// TODO refuse offer
 	}
 
@@ -79,8 +77,7 @@ public class AgClient extends MetaAgent {
 	// --------------------------------------------------------
 	// Behaviors
 	// --------------------------------------------------------
-	private final class RequestBookingInHotelBehavior extends
-			MetaSimpleBehaviour {
+	private final class RequestBookingInHotelBehavior extends MetaSimpleBehaviour {
 
 		private static final long serialVersionUID = -1417563883440156372L;
 
@@ -99,9 +96,10 @@ public class AgClient extends MetaAgent {
 			AID agHotel = this.actual_booking.getHotelInformation().getHotel().getAgent();
 			if (agHotel != null) {
 				bookRoom(this.actual_booking);
-				this.setDone(true);
+				
 				Hotel hotel= actual_booking.getHotelInformation().getHotel().getConcept();
 //				bookingDeadline();
+				this.setDone(true);
 //				addBehaviour(new RateHotelBehavior(myAgent, hotel));
 
 			}
@@ -178,15 +176,15 @@ public class AgClient extends MetaAgent {
 			doWait(time);
 			
 			BookingOffer lowestPriceBooking=computeBestRoomPrice(bookingOffers);
-			this.setDone(true);
+		
 			if (lowestPriceBooking != null) {
 				addBehaviour(new RequestBookingInHotelBehavior(myAgent, lowestPriceBooking));
 			} else {
-				System.out.println("no minimum hotel was found: " + bookingOffers.size());
+				System.out.println(getLocalName()+ ": no minimum hotel was found: " + bookingOffers.size());
 				
 			}
 
-			
+			this.setDone(true);
 		}
 
 		/**
@@ -444,6 +442,7 @@ public class AgClient extends MetaAgent {
 				if (content instanceof hotelmania.ontology.BookingOffer) {
 					hotelmania.ontology.BookingOffer record = (hotelmania.ontology.BookingOffer) content;
 					Float price = Float.valueOf(record.getRoomPrice().getPrice());
+					//Seek the Hotel in BookingOffers and set the price to the BookOffer.
 					for (BookingOffer bookingOffer : bookingOffers) {
 						if (bookingOffer.getHotelInformation().getHotel().getAgent().equals(message.getSender())) {
 							bookingOffer.setPrice(price);
