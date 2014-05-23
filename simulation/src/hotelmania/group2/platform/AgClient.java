@@ -339,9 +339,6 @@ public class AgClient extends MetaAgent {
 			} else {
 				this.consultHotelInfo(hotelmania);
 				this.setDone(true);
-				
-			
-				
 			}
 		}
 

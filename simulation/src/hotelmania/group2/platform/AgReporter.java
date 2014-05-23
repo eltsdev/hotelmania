@@ -1,5 +1,6 @@
 package hotelmania.group2.platform;
 
+import hotelmania.ontology.QueryHotelmaniaHotel;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
@@ -54,7 +55,7 @@ public class AgReporter extends MetaAgent
 		}
 	}
 
-	private final class ObtainInformationFromAgentsBehavior extends MetaCyclicBehaviour 
+	private final class ObtainInformationFromAgentsBehavior extends MetaSimpleBehaviour 
 	{
 		private static final long serialVersionUID = -3157976627925663055L;
 
@@ -66,9 +67,27 @@ public class AgReporter extends MetaAgent
 		}
 
 		public void action() {
-			// If no message arrives
 			block();
+//			TODO askForReportData();
+//			generateSimulationReport();			
 		}
+
+
+		public void askForReportData() {
+		QueryHotelmaniaHotel consult_request = new QueryHotelmaniaHotel();
+		sendRequest(agHotelmania, consult_request,
+				Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
+		}
+
+
+		public void generateSimulationReport() {
+			System.out.println("==================================================================");
+			System.out.println("SIMULATION RESULTS");
+			System.out.println("==================================================================");
+			
+			
+		}
+
 	}
 
 	@Override

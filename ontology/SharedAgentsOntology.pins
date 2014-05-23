@@ -1,7 +1,7 @@
-; Fri May 23 16:36:05 CEST 2014
+; Fri May 23 17:06:35 CEST 2014
 ; 
-;+ (version "3.5")
-;+ (build "Build 663")
+;+ (version "3.4.8")
+;+ (build "Build 629")
 
 ([Account] of  %3AJADE-CLASS
 
@@ -71,6 +71,10 @@
 
 	(%3AJADE-IGNORE FALSE))
 
+([GetFinanceReport] of  %3AJADE-CLASS
+
+	(%3AJADE-IGNORE FALSE))
+
 ([Hotel] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE FALSE))
@@ -117,7 +121,7 @@
 
 ([project+annotation] of  %3APROJECT-ANNOTATION
 
-	(%3ALOCATION "C:\\Users\\user\\Documents\\GitHub\\hotelmania\\simulation\\src-gen")
+	(%3ALOCATION "E:\\elts\\Documentos\\GitHub\\hotelmania\\simulation\\src-gen")
 	(%3AONTOLOGYNAME "SharedAgents")
 	(%3APACKAGE "hotelmania.ontology")
 	(%3ASUPPORT "j2se"))

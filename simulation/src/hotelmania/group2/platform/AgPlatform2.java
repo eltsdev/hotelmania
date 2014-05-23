@@ -58,7 +58,6 @@ public class AgPlatform2 extends MetaAgent
 		endSimulationResponder = new MySubscriptionResponder(this, Constants.END_SIMULATION_PROTOCOL);
 		addBehaviour(endSimulationResponder);
 
-
 	}
 
 	 private final class TickerBehaviourExtension extends TickerBehaviour {
@@ -357,7 +356,7 @@ public class AgPlatform2 extends MetaAgent
 	
 	private Stay randomStay() {
 		int start = randomBetween(1, Constants.SIMULATION_DAYS);
-		int days = randomBetween(0, Constants.CLIENTS_MAX_STAY_DAYS);
+		int days = randomBetween(start, Constants.SIMULATION_DAYS);
 		return new Stay(start ,start+days);
 	}
 

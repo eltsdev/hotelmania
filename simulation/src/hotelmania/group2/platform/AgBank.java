@@ -9,9 +9,11 @@ import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.AccountStatusQueryRef;
 import hotelmania.ontology.ChargeAccount;
 import hotelmania.ontology.CreateAccountRequest;
+import hotelmania.ontology.GetFinanceReport;
 import hotelmania.ontology.MakeDeposit;
 import jade.content.Concept;
 import jade.content.ContentElement;
+import jade.content.ContentElementList;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
@@ -42,8 +44,8 @@ public class AgBank extends MetaAgent {
 		addBehaviour(new ProvideHotelAccountInfoBehavior(this));
 		
 		// Get finance report
-		//TODO addBehaviour(new GetFinanceReportBehavior(this));
-		
+		addBehaviour(new GetFinanceReportBehavior(this));
+
 		registerServices(Constants.CREATEACCOUNT_ACTION,
 				Constants.CONSULTACCOUNTSTATUS_ACTION);
 
@@ -446,9 +448,80 @@ public class AgBank extends MetaAgent {
 
 		@Override
 		public void action() {
-			
+			/*
+			 * Look for messages
+			 */
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.and(
+							MessageTemplate.MatchLanguage(codec.getName()),
+							MessageTemplate.MatchOntology(ontology.getName())),
+							MessageTemplate
+							.MatchProtocol(Constants.CONSULTFINANCEREPORT)),
+							MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
+
+			/*
+			 * If no message arrives
+			 */
+			if (msg == null) {
+				block();
+				return;
+			}
+
+			/*
+			 * The ContentManager transforms the message content (string) in objects
+			 */
+			try {
+				ContentElement ce = getContentManager().extractContent(msg);
+				// We expect an action inside the message
+				if (ce instanceof Action) {
+					Action agAction = (Action) ce;
+					Concept conc = agAction.getAction();
+					if (conc instanceof GetFinanceReport) {
+						// execute action
+						ContentElementList data = buildFinanceReport();
+						sendResponse(msg, data);
+					}
+				}
+
+			} catch (CodecException | OntologyException e) {
+				e.printStackTrace();
+			}
 		}
 
+		private void sendResponse(ACLMessage msg, ContentElementList accounts) {
+			ACLMessage reply = msg.createReply();
+
+			if (accounts != null && !accounts.isEmpty()) {
+				this.log = Constants.INFORM;
+				reply.setPerformative(ACLMessage.INFORM);
+				// The ContentManager transforms the java objects into strings
+				try {
+					myAgent.getContentManager().fillContent(reply, accounts);
+				} catch (CodecException | OntologyException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}				
+
+			} else {
+				this.log = Constants.REFUSE;
+				reply.setPerformative(ACLMessage.REFUSE);
+				reply.setContent("No hotels registered yet.");
+			}
+			//..there is no option of NOT UNDERSTOOD
+
+			//Send
+			System.out.println(myName() + ": answer sent -> " + this.log);
+			myAgent.send(reply);
+		}
+
+		private ContentElementList buildFinanceReport() {
+			ContentElementList result = new ContentElementList();
+			ArrayList<Account> accounts = accountDAO.getListAccount();
+			for (Account account : accounts) {
+				result.add((ContentElement) account.getConcept());
+			}
+			return result;
+		}
 	}
 	
 	@Override
@@ -491,23 +564,5 @@ public class AgBank extends MetaAgent {
 	public void receivedInform(ACLMessage message) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	protected void takeDown() {
-		buildFinanceReport();
-		super.takeDown();
-	}
-
-	private void buildFinanceReport() {
-		System.out.println("====================================================================");
-		System.out.println("SIMULATION REPORT - FINANCE");
-		System.out.println("====================================================================");
-		ArrayList<Account> accounts = accountDAO.getListAccount();
-		for (Account account : accounts) {
-			System.out.print(account.getHotel().getName());
-			System.out.print("\t");
-			System.out.println(account.getBalance());
-		}		
 	}
 }

@@ -291,11 +291,12 @@ public abstract class MetaAgent extends Agent {
 			}
 	
 			public void action() {
-				ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+				ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 						MessageTemplate.MatchLanguage(codec.getName()),
 						MessageTemplate.MatchOntology(ontology.getName())),
-						MessageTemplate.MatchPerformative(ACLMessage.AGREE)),
-						MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))));
+						MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))),
+						MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))),
+						MessageTemplate.MatchPerformative(ACLMessage.AGREE)));
 	
 				if (msg != null) {
 					logAgreeMessage(msg.getProtocol(), msg);
@@ -318,11 +319,12 @@ public abstract class MetaAgent extends Agent {
 		}
 	
 		public void action() {
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 					MessageTemplate.MatchLanguage(codec.getName()),
 					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchPerformative(ACLMessage.INFORM)),
-					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))));
+					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))),
+					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))),
+					MessageTemplate.MatchPerformative(ACLMessage.INFORM)));
 	
 			if (msg != null) {
 				logInformMessage(msg.getProtocol(), msg);
@@ -351,12 +353,12 @@ public abstract class MetaAgent extends Agent {
 		}
 
 		public void action() {
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 					MessageTemplate.MatchLanguage(codec.getName()),
 					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchPerformative(ACLMessage.REFUSE)),
-					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))));
-					
+					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))),
+					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))),
+					MessageTemplate.MatchPerformative(ACLMessage.REFUSE)));					
 			if (msg != null) {
 				logRefuseMessage(msg.getProtocol(), msg);
 				receivedReject(msg);
@@ -377,11 +379,12 @@ public abstract class MetaAgent extends Agent {
 		}
 
 		public void action() {
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 					MessageTemplate.MatchLanguage(codec.getName()),
 					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchPerformative(ACLMessage.NOT_UNDERSTOOD)),
-					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))));
+					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))),
+					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))),
+					MessageTemplate.MatchPerformative(ACLMessage.NOT_UNDERSTOOD)));
 			
 			if (msg != null) {
 				logNotUnderstoodMessage(msg.getProtocol(), msg);
@@ -403,11 +406,12 @@ public abstract class MetaAgent extends Agent {
 		}
 
 		public void action() {
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 					MessageTemplate.MatchLanguage(codec.getName()),
 					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchPerformative(ACLMessage.FAILURE)),
-					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))));
+					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))),
+					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))),
+					MessageTemplate.MatchPerformative(ACLMessage.FAILURE)));
 			
 			if (msg != null) {
 				logFailureMessage(msg.getProtocol(), msg);

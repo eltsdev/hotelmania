@@ -18,7 +18,7 @@ public class Constants {
 	public static final String SUBSCRIBETODAYEVENT_PROTOCOL = "SubscribeToDayEvent";	
 	public static final String CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL = "NumberOfClients";	
 	public static final String END_SIMULATION_PROTOCOL = "EndSimulation";
-	
+	public static final String CONSULTFINANCEREPORT_PROTOCOL = "CONSULTFINANCEREPORT";
 
 	// Request Actions
 	public static final String BOOKROOM_ACTION = BOOKROOM_PROTOCOL;
@@ -35,6 +35,7 @@ public class Constants {
 	public static final String CONSULTROOMPRICES_ACTION = CONSULTROOMPRICES_PROTOCOL;
 	public static final String CONSULTACCOUNTSTATUS_ACTION = CONSULTACCOUNTSTATUS_PROTOCOL;
 	public static final String CONSULTHOTELNUMBEROFCLIENTS_ACTION = CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL;
+	public static final String CONSULTFINANCEREPORT = CONSULTFINANCEREPORT_PROTOCOL;
 	
 	// Subscribe Actions
 	public static final String SUBSCRIBETODAYEVENT_ACTION = SUBSCRIBETODAYEVENT_PROTOCOL;
@@ -54,7 +55,6 @@ public class Constants {
 	
 	// Simulation parameters
 	public static final int ROOMS_PER_HOTEL = 6;
-	public static final int CLIENTS_MAX_STAY_DAYS = 7;
 	public static int DAY_IN_MILLISECONDS;
 	public static int SIMULATION_DAYS;
 	public static int CLIENTS_PER_DAY;
