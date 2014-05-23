@@ -207,11 +207,8 @@ public class AgHotel2 extends MetaAgent {
 			Price price = new Price();
 			price.setPrice(book.getBookingOffer().getRoomPrice().getPrice());
 			hotelmania.group2.dao.BookRoom booking= new hotelmania.group2.dao.BookRoom(stay, price);
-			if(bookDAO.book(booking)){
-				return true;
-			}else{
-				return false;
-			}
+			return bookDAO.book(booking);
+			
 		}
 
 	}
@@ -305,8 +302,8 @@ public class AgHotel2 extends MetaAgent {
 		 * @param stay
 		 */
 		private float calculatePrice(int totalDays) {
-			float price = 5;
-	
+			float price = 50;
+			//TODO Calculate price Properly
 			//price = bookDAO.getActualPrice()*totalDays;
 			
 			return price;
@@ -388,7 +385,6 @@ public class AgHotel2 extends MetaAgent {
 	 * Behavior for hiring the staff
 	 */
 	private void hireDailyStaffBehaviorAction() {
-
 		AID agAgency = locateAgent(Constants.SIGNCONTRACT_ACTION, this);
 
 		SignContract request = new SignContract();
@@ -396,6 +392,7 @@ public class AgHotel2 extends MetaAgent {
 		request.setHotel(identity);
 		
 		try {
+			//TODO Contract must be dynamic
 			request.setContract(hireDailyStaff(getDay()+1));
 			//System.out.println("[HOTEL] Wants to hire staff for day: "+(request.getContract().getDay())+ " Today is:"+day);
 			this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
