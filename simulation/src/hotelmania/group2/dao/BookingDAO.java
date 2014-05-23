@@ -11,9 +11,9 @@ public class BookingDAO {
 	public BookingDAO() {
 	}
 
-	public boolean book(hotelmania.group2.dao.BookRoom booking) {
-		if (this.isThereRoomAvailableAtDays(booking.getStay().getCheckIn(), booking.getStay().getCheckOut())) {
-			this.bookings.add(booking);
+	public boolean book(hotelmania.group2.dao.BookRoom bookRoom) {
+		if (this.isThereRoomAvailableAtDays(bookRoom.getStay().getCheckIn(), bookRoom.getStay().getCheckOut())) {
+			this.bookings.add(bookRoom);
 			return true;
 		}
 		return false;
@@ -21,7 +21,7 @@ public class BookingDAO {
 	}
 
 	public int getClientsAtDay(int day) {
-		if (day >= 0 && day < Constants.SIMULATION_DAYS) {
+		if (day > 0 && day < Constants.SIMULATION_DAYS) {
 			int[] daysClientsArray = this.generateArrayOfClients(this.bookings);
 			return daysClientsArray[day];
 		}
@@ -29,12 +29,12 @@ public class BookingDAO {
 	}
 	
 	private int[] generateArrayOfClients(ArrayList<hotelmania.group2.dao.BookRoom> bookings) {
-		int[] daysClientsArray = new int[Constants.SIMULATION_DAYS];
+		int[] daysClientsArray = new int[Constants.SIMULATION_DAYS+1];
 		for (BookRoom booking : bookings) {
 			int checkin = booking.getStay().getCheckIn();
 			int checkout = booking.getStay().getCheckOut();
 			for (int i = checkin; i < checkout; i++) {
-				daysClientsArray[i-1]++;
+				daysClientsArray[i]++;
 			}
 		}
 		return daysClientsArray;
