@@ -20,6 +20,7 @@ import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
 
 import java.util.ArrayList;
@@ -154,6 +155,67 @@ public class AgClient extends MetaAgent {
 		 */
 		@Override
 		public void action() {
+			long time = (long) (Constants.DAY_IN_MILLISECONDS * 0.25);
+			addBehaviour(new sendPredicatesToHotelsBehaviour(myAgent, time));
+			addBehaviour(new chooseCheapestHotelBehaviour(myAgent, time*2));
+//			Hotel hotel;
+//			int checkin = client.getStay().getCheckIn();
+//			int checkout = client.getStay().getCheckOut();
+//
+//			// Config Days to stay in a Hotel
+//			Stay stay = new Stay();
+//			stay.setCheckIn(checkin);
+//			stay.setCheckOut(checkout);
+//			
+//			//Create StayQueryRef predicate
+//			StayQueryRef request_stay = new StayQueryRef();
+//			request_stay.setStay(stay);
+//
+//			for (int i = 0; i < bookingOffers.size(); i++) {
+//				hotel = bookingOffers.get(i).getHotelInformation().getHotel().getConcept();
+//				sendRequestPredicate(hotel.getHotelAgent(), request_stay,Constants.CONSULTROOMPRICES_PROTOCOL, ACLMessage.QUERY_REF);
+//
+//			}
+//			long time= (long) (Constants.DAY_IN_MILLISECONDS * 0.5);
+//			doWait(time);
+//			
+//			BookingOffer lowestPriceBooking=computeBestRoomPrice(bookingOffers);
+//		
+//			if (lowestPriceBooking != null) {
+//				addBehaviour(new RequestBookingInHotelBehavior(myAgent, lowestPriceBooking));
+//			} else {
+//				System.out.println(getLocalName()+ ": no minimum hotel was found: " + bookingOffers.size());
+//				
+//			}
+
+			this.setDone(true);
+		}
+
+//		private BookingOffer computeBestRoomPrice(ArrayList<BookingOffer> bookingOffers) {
+//			float minimunPrice = 0;
+//			BookingOffer lowestPriceBooking = null;
+//			for (BookingOffer bookingOffer : bookingOffers) {
+//				float actual_price = bookingOffer.getPrice();
+//				if (actual_price != -1) {
+//					if (minimunPrice < actual_price) {
+//						minimunPrice = actual_price;
+//						lowestPriceBooking = bookingOffer;
+//					}
+//				}
+//			}
+//			return lowestPriceBooking;
+//		}
+	}
+	
+	private final class sendPredicatesToHotelsBehaviour extends WakerBehaviour {
+		private static final long serialVersionUID = 1L;
+
+		public sendPredicatesToHotelsBehaviour(Agent a, long timeout) {
+			super(a, timeout);
+		}
+		
+		@Override
+		protected void handleElapsedTimeout() {
 			Hotel hotel;
 			int checkin = client.getStay().getCheckIn();
 			int checkout = client.getStay().getCheckOut();
@@ -172,24 +234,28 @@ public class AgClient extends MetaAgent {
 				sendRequestPredicate(hotel.getHotelAgent(), request_stay,Constants.CONSULTROOMPRICES_PROTOCOL, ACLMessage.QUERY_REF);
 
 			}
-			long time= (long) (Constants.DAY_IN_MILLISECONDS * 0.5);
-			doWait(time);
-			
-			BookingOffer lowestPriceBooking=computeBestRoomPrice(bookingOffers);
+		}
 		
+	}
+	
+	private final class chooseCheapestHotelBehaviour extends WakerBehaviour {
+		private static final long serialVersionUID = 1L;
+
+		public chooseCheapestHotelBehaviour(Agent a, long timeout) {
+			super(a, timeout);
+		}
+		
+		@Override
+		protected void handleElapsedTimeout() {
+			BookingOffer lowestPriceBooking=computeBestRoomPrice(bookingOffers);
 			if (lowestPriceBooking != null) {
+				System.out.println(getLocalName() + ": Has chosen lowestPriceBooking:" + lowestPriceBooking.getHotelInformation().getHotel().getName() + " Price: " + lowestPriceBooking.getPrice());
 				addBehaviour(new RequestBookingInHotelBehavior(myAgent, lowestPriceBooking));
 			} else {
 				System.out.println(getLocalName()+ ": no minimum hotel was found: " + bookingOffers.size());
-				
 			}
-
-			this.setDone(true);
 		}
-
-		/**
-		 * @param bookingOffers
-		 */
+		
 		private BookingOffer computeBestRoomPrice(ArrayList<BookingOffer> bookingOffers) {
 			float minimunPrice = 0;
 			BookingOffer lowestPriceBooking = null;
