@@ -1,14 +1,11 @@
 package simulation;
 
-import static org.junit.Assert.*;
-
-import java.util.Iterator;
-
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import hotelmania.group2.dao.BookRoom;
 import hotelmania.group2.dao.BookingDAO;
 import hotelmania.group2.dao.Stay;
 import hotelmania.group2.platform.Constants;
-import hotelmania.ontology.Booking;
 
 import org.junit.Before;
 import org.junit.Test;
