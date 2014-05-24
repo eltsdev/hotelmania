@@ -43,4 +43,9 @@ public class Stay {
 	public void setCheckIn(int checkIn) {
 		this.checkIn = checkIn;
 	}
+
+
+	public double getDays() {
+		return this.checkOut-this.checkIn;
+	}
 }

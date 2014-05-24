@@ -2,9 +2,10 @@
 package hotelmania.group2.platform;
 
 import hotelmania.group2.dao.Client;
-import hotelmania.group2.dao.Stay;
 import hotelmania.ontology.DayEvent;
 import hotelmania.ontology.NotificationDayEvent;
+import hotelmania.ontology.NotificationEndSimulation;
+import jade.content.Predicate;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.FIPAAgentManagement.FailureException;
@@ -24,7 +25,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Properties;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -34,7 +34,6 @@ public class AgPlatform2 extends MetaAgent
 
 	private MySubscriptionResponder dayEventResponder;
 	private MySubscriptionResponder endSimulationResponder;
-	private Random randomNumber = new Random();
 
 	//------------------------------------------------- 
 	// Setup
@@ -53,36 +52,63 @@ public class AgPlatform2 extends MetaAgent
 
 		dayEventResponder = new MySubscriptionResponder(this, Constants.SUBSCRIBETODAYEVENT_PROTOCOL);
 		addBehaviour(dayEventResponder);
-		addBehaviour(new TickerBehaviourExtension(this, Constants.DAY_IN_MILLISECONDS));
+		addBehaviour(new DayTickerBehaviour(this, Constants.DAY_IN_MILLISECONDS));
 		
 		endSimulationResponder = new MySubscriptionResponder(this, Constants.END_SIMULATION_PROTOCOL);
 		addBehaviour(endSimulationResponder);
 
 	}
 
-	 private final class TickerBehaviourExtension extends TickerBehaviour {
+	 private final class DayTickerBehaviour extends TickerBehaviour {
 		private static final long serialVersionUID = 6616055369402031518L;
 
-		private TickerBehaviourExtension(Agent a, long period) {
+		private DayTickerBehaviour(Agent a, long period) {
 			super(a, period);
 		}
 
 		@Override
 		public void stop() {
-			System.out.println("*************************************************************");
-			System.out.println("Stopping Simulation.");
-			System.out.println("*************************************************************");
 			//stop/delete all agents
-			
-			
+			sendEndSimulationEventToSubscriptors();
+			//stop platform
 			super.stop();
 		}
 		
+		private void sendEndSimulationEventToSubscriptors() {
+			NotificationEndSimulation event = new NotificationEndSimulation(); 
+			
+			System.out.println("*************************************************************");
+			System.out.println("Simulation End");
+			System.out.println("*************************************************************");
+			
+			System.out.println(myName() + ": Sending end simulation order to  # subscribers: "+ endSimulationResponder.getSubscriptions().size());
+			
+			for(Object subscriptionObj : endSimulationResponder.getSubscriptions())
+			{
+				if (subscriptionObj instanceof Subscription) {
+					Subscription subscription = (Subscription) subscriptionObj;
+					notify(subscription, event);
+					System.out.println(myName()+": sending end simulation event to: "+subscription.getMessage().getSender().getLocalName());
+				}
+			}
+		}
+
 		public void onTick() 
 		{
 			//Day number
 			int day = getTickCount();
-			
+
+			if (isSimulationEnd(day)) {
+				stop();
+				return;
+			}
+
+			sendDayNotificationToSubscriptors(day);
+
+			generateClientsBehavior(day);
+		}
+
+		private void sendDayNotificationToSubscriptors(int day) {
 			NotificationDayEvent notificationDayEvent = new NotificationDayEvent();
 			DayEvent dayEvent = new DayEvent();
 			dayEvent.setDay(day);
@@ -103,16 +129,9 @@ public class AgPlatform2 extends MetaAgent
 					System.out.println(myName()+": sending day event to: "+subscription.getMessage().getSender().getLocalName());
 				}
 			}
-
-			if (!isSubscriptionToDayEventActive(day)) {
-				stop();
-				return;
-			}
-			
-			doOnNewDayBeforeEveryBody(day);
 		}
 
-		private void notify(SubscriptionResponder.Subscription sub, NotificationDayEvent data) {
+		private void notify(SubscriptionResponder.Subscription sub, Predicate data) {
 			try {
 				ACLMessage notification = sub.getMessage().createReply();
 				notification.addUserDefinedParameter(ACLMessage.IGNORE_FAILURE, "true");
@@ -126,12 +145,14 @@ public class AgPlatform2 extends MetaAgent
 				//FIXME: Check whether a FAILURE message should be sent back.       
 			}
 		}
+		
+		private boolean isSimulationEnd(int day) {
+			//TODO || cancelled ;
+			return day > Constants.SIMULATION_DAYS; 
+		}
 	}
 
-	private boolean isSubscriptionToDayEventActive(int day) {
-		//TODO || cancelled ;
-		return day < Constants.SIMULATION_DAYS; 
-	}
+
 
 	private void loadProperties() {
 		// create and load default properties
@@ -146,6 +167,7 @@ public class AgPlatform2 extends MetaAgent
 			Constants.CLIENTS_BUDGET=Integer.parseInt(defaultProps.getProperty("clients.budget","90"));
 			Constants.CLIENTS_BUDGET_VARIANCE=Integer.parseInt(defaultProps.getProperty("clients.budget_variance","20"));
 			//TODO load other parameters...
+			Constants.REPORT_FILE=defaultProps.getProperty("","results.txt");
 			in.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -169,6 +191,14 @@ public class AgPlatform2 extends MetaAgent
 	 */
 	@Override
 	protected boolean setRegisterForDayEvents() {
+		return false;
+	}
+	
+	/**
+	 * Explicitly FALSE! To avoid race conditions never let it TRUE
+	 */
+	@Override
+	protected boolean setRegisterForEndSimulation() {
 		return false;
 	}
 
@@ -315,10 +345,7 @@ public class AgPlatform2 extends MetaAgent
 
 	 }
 
-	/**
-	 * Called internally (not by subscription)
-	 */
-	private void doOnNewDayBeforeEveryBody(int day) 
+	private void generateClientsBehavior(int day) 
 	{
 		//Generate Clients Behavior
 		ContainerController cc = getContainerController();
@@ -327,9 +354,7 @@ public class AgPlatform2 extends MetaAgent
 		for (int i = 0; i < Constants.CLIENTS_PER_DAY; i++) {
 
 			try {
-				Client client = new Client();
-				client.setStay(randomStay());
-				client.setBudget(randomBudget());
+				Client client = ClientGenerator.randomClient();
 
 				String clientName = "Client_born_"+day+"_#_"+i;
 				ac = cc.createNewAgent(clientName, AgClient.class.getName(), new Object[]{client});
@@ -340,30 +365,6 @@ public class AgPlatform2 extends MetaAgent
 			}
 		}
 	}
-
-	/**
-	 * A random normally distributed number. 
-	 * @return
-	 */
-	private double randomBudget() {
-		return randomBetween(Constants.CLIENTS_BUDGET - Constants.CLIENTS_BUDGET_VARIANCE, 
-							Constants.CLIENTS_BUDGET + Constants.CLIENTS_BUDGET_VARIANCE);
-	}
-
-	private double randomBetween(double lower, double upper) {
-		return randomNumber.nextDouble()*(upper-lower)+lower;
-	}
-	
-	private Stay randomStay() {
-		int start = randomBetween(1, Constants.SIMULATION_DAYS-1);
-		int end = randomBetween(start+1, Constants.SIMULATION_DAYS);
-		return new Stay(start ,end);
-	}
-
-	private int randomBetween(int lower, int upper) {
-		return randomNumber.nextInt(upper-lower)+lower;
-	}
-
 
 	@Override
 	public void receivedAcceptance(ACLMessage message) {

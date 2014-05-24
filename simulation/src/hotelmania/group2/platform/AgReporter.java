@@ -1,13 +1,31 @@
 package hotelmania.group2.platform;
 
+import hotelmania.group2.dao.ReportRecord;
+import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.GetFinanceReport;
+import hotelmania.ontology.HotelInformation;
+import jade.content.ContentElement;
+import jade.content.ContentElementList;
+import jade.content.lang.Codec.CodecException;
+import jade.content.onto.OntologyException;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+
 public class AgReporter extends MetaAgent
 {
 	private static final long serialVersionUID = -4208905954219155107L;
+
+	private AID agHotelmania;
+	private AID agBank;
+	private boolean ratingsDataReceived;
+	private boolean financeDataReceived;
+	private HashMap<String, ReportRecord> report;
 
 	//------------------------------------------------- 
 	// Setup
@@ -16,9 +34,10 @@ public class AgReporter extends MetaAgent
 	@Override
 	protected void setup() 
 	{
+		super.setup();
 		// Behaviors
-//		addBehaviour(new GenerateSimulationReportBehavior(this));
-		addBehaviour(new ObtainInformationFromAgentsBehavior(this));
+		addBehaviour(new LocateAgentsBehavior(this));
+		report = new HashMap<>();
 	}
 	
 	@Override
@@ -29,31 +48,12 @@ public class AgReporter extends MetaAgent
 	// --------------------------------------------------------
 	// Behaviors
 	// --------------------------------------------------------
-	
-	private final class GenerateSimulationReportBehavior extends MetaCyclicBehaviour 
-	{
-		private static final long serialVersionUID = 7520884931937975601L;
 
-		private GenerateSimulationReportBehavior(Agent a) {
-			super(a);
-		}
-
-		public void action() {
-			//TODO blank.
-			
-			//If no message arrives
-			block();
-		}
-	}
-
-	private final class ObtainInformationFromAgentsBehavior extends MetaSimpleBehaviour 
+	private final class LocateAgentsBehavior extends MetaSimpleBehaviour 
 	{
 		private static final long serialVersionUID = -3157976627925663055L;
 
-		private AID agHotelmania;
-		private AID agBank;
-
-		private ObtainInformationFromAgentsBehavior(Agent a) {
+		private LocateAgentsBehavior(Agent a) {
 			super(a);
 		}
 
@@ -68,67 +68,184 @@ public class AgReporter extends MetaAgent
 			}
 
 			if (agBank != null && agHotelmania!= null) {
-				this.consultFinanceReport();
-				this.consultHotelInfo(); 
 				this.setDone(true);
 			}
 		}
-
-		public void consultHotelInfo() {
-			sendRequestEmpty(agHotelmania, 
-					Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
-		}
-
-		private void consultFinanceReport() {
-			GetFinanceReport consult_request = new GetFinanceReport();
-			sendRequest(agBank, consult_request,
-					Constants.CONSULTFINANCEREPORT_PROTOCOL, ACLMessage.QUERY_REF);
-
-		}
-
+	}
+	
+	@Override
+	public boolean doBeforeDie() {
+		// RequestReportDataBehavior
+		this.consultFinanceReport();
+		this.consultHotelInfo(); 
+		return false;
 	}
 
+	public void consultHotelInfo() {
+		sendRequestEmpty(agHotelmania, 
+				Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
+	}
+
+	private void consultFinanceReport() {
+		GetFinanceReport consult_request = new GetFinanceReport();
+		sendRequest(agBank, consult_request,
+				Constants.CONSULTFINANCEREPORT_PROTOCOL, ACLMessage.QUERY_REF);
+	}
+
+	//---------------------------------------------------
+	// Reception of responses
+	//---------------------------------------------------
+	
 	@Override
 	public void receivedAcceptance(ACLMessage message) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void receivedReject(ACLMessage message) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void receivedNotUnderstood(ACLMessage message) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void receivedInform(ACLMessage message) {
-		// TODO Auto-generated method stub
-		
 		if (message.getProtocol().equals(Constants.CONSULTFINANCEREPORT_PROTOCOL)) {
-			//TODO
-			generateSimulationReport();
+			handleConsultFinanceReportInform(message);
+			this.financeDataReceived = true;
 		}
 		
 		else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
-			//TODO
-			generateSimulationReport();
+			handleConsultHotelsInfoInform(message);
+			this.ratingsDataReceived = true;
 		}
 		
+		if (this.ratingsDataReceived && this.financeDataReceived) {
+			String reportText = generateSimulationReport();
+			printToFile(reportText, Constants.REPORT_FILE);
+			
+			//Die!
+			doDelete();
+		}
 	}
 	
-	public void generateSimulationReport() {
-		System.out.println("==================================================================");
-		System.out.println("SIMULATION RESULTS");
-		System.out.println("==================================================================");
-
-		
+	private void handleConsultFinanceReportInform(ACLMessage message) {
+		try {
+			ContentElement content = getContentManager().extractContent(message);
+			if (content != null) {
+				if (content instanceof ContentElementList) {
+					ContentElementList list = (ContentElementList) content;
+					System.out.println(myName() + ": Number of hotel accounts: " + list.size());
+					this.importAccountBalanceList(list);
+					
+				} else if (content instanceof AccountStatus) {
+					AccountStatus financeStatus = (AccountStatus) content;
+					addBalanceToReport(financeStatus.getAccount().getHotel().getHotel_name(), financeStatus.getAccount().getBalance());
+					System.out.println(myName() + ": Number of hotels accounts: 1 = " + financeStatus.getAccount().getHotel().getHotel_name());
+				}
+				
+			} else {
+				System.out.println(myName() + ": Null number of hotels acounts");
+			}
+		} catch (CodecException | OntologyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("Message: " + message.getContent());
+		}
 	}
 
+	private void importAccountBalanceList(ContentElementList list) {
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i) instanceof AccountStatus) {
+				AccountStatus financeStatus = (AccountStatus) list.get(i);
+				addBalanceToReport(financeStatus.getAccount().getHotel().getHotel_name(), financeStatus.getAccount().getBalance());
+			}
+
+		}
+	}
+
+	private void handleConsultHotelsInfoInform(ACLMessage message) {
+		try {
+			ContentElement content = getContentManager().extractContent(message);
+			if (content != null) {
+				if (content instanceof ContentElementList) {
+					ContentElementList list = (ContentElementList) content;
+					System.out.println(myName() + ": Number of hotels ratings: " + list.size());
+					this.importRatingsList(list);
+				} else if (content instanceof HotelInformation) {
+					HotelInformation hotel = (HotelInformation) content;
+					addRatingToReport(hotel.getHotel().getHotel_name(), hotel.getRating());
+					System.out.println(myName() + ": Number of hotels ratings: 1 = " + hotel.getHotel().getHotel_name());
+				}
+			} else {
+				System.out.println(myName() + ": Null number of hotels ratings");
+			}
+		} catch (CodecException | OntologyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("Message: " + message.getContent());
+		}
+	}
+
+	private void importRatingsList(ContentElementList list) {
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i) instanceof HotelInformation) {
+				HotelInformation hotel = (HotelInformation) list.get(i);
+				addRatingToReport(hotel.getHotel().getHotel_name(), hotel.getRating());
+			}
+
+		}
+	}
+
+	private void addRatingToReport(String hotelName, float rating) {
+		ReportRecord record = report.get(hotelName);
+		if (record == null) {
+			record = new ReportRecord();
+			record.setHotel(hotelName);
+		}
+		record.setRating(rating);
+		report.put(hotelName, record);
+	}
+	
+	private void addBalanceToReport(String hotelName, float balance) {
+		ReportRecord record = report.get(hotelName);
+		if (record == null) {
+			record = new ReportRecord();
+			record.setHotel(hotelName);
+		}
+		record.setBalance(balance);
+		report.put(hotelName, record);
+	}
+
+	public String generateSimulationReport() {
+		StringBuilder r = new StringBuilder();
+		r.append("==================================================================");
+		r.append("SIMULATION RESULTS");
+		r.append("==================================================================");
+		r.append("Hotel\t\tRating\t\tBalance");
+		r.append("__________________________________________________________________");
+		for (ReportRecord record : this.report.values()) {
+			r.append(record.toString());
+		}
+		return r.toString();
+	}
+
+	private void printToFile(String data, String fileName) {
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter(fileName, "UTF-8");
+			writer.println(data);
+			writer.close();	
+			System.out.println("SIMULATION REPORT GENERATED: "+fileName);
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			System.out.println("SIMULATION REPORT FAILED TO WRITE IN: "+fileName);
+
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }

@@ -60,4 +60,5 @@ public class Constants {
 	public static int CLIENTS_PER_DAY;
 	public static double CLIENTS_BUDGET;
 	public static double CLIENTS_BUDGET_VARIANCE;
+	public static String REPORT_FILE;
 }

@@ -47,7 +47,8 @@ public class AgBank extends MetaAgent {
 		addBehaviour(new GetFinanceReportBehavior(this));
 
 		registerServices(Constants.CREATEACCOUNT_ACTION,
-				Constants.CONSULTACCOUNTSTATUS_ACTION);
+				Constants.CONSULTACCOUNTSTATUS_ACTION,
+				Constants.CONSULTFINANCEREPORT_ACTION);
 
 	}
 
@@ -518,9 +519,16 @@ public class AgBank extends MetaAgent {
 			ContentElementList result = new ContentElementList();
 			ArrayList<Account> accounts = accountDAO.getListAccount();
 			for (Account account : accounts) {
-				result.add((ContentElement) account.getConcept());
+				result.add((ContentElement) toAccountStatus(account));
 			}
 			return result;
+		}
+
+		private AccountStatus toAccountStatus(Account account) {
+			AccountStatus status = new AccountStatus();
+			status.setAccount(account.getConcept());
+			
+			return status;
 		}
 	}
 	
@@ -564,5 +572,10 @@ public class AgBank extends MetaAgent {
 	public void receivedInform(ACLMessage message) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public boolean doBeforeDie() {
+		return false;
 	}
 }

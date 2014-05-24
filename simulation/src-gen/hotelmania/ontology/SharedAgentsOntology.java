@@ -9,7 +9,7 @@ import jade.core.CaseInsensitiveString;
 
 /** file: SharedAgentsOntology.java
  * @author ontology bean generator
- * @version 2014/05/24, 08:49:20
+ * @version 2014/05/24, 18:36:35
  */
 public class SharedAgentsOntology extends jade.content.onto.Ontology  {
   //NAME
@@ -191,7 +191,7 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     ratingSchema.add(RATING_CLEANLINESS_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
     ratingSchema.add(RATING_ROOM_STAFF_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
     priceSchema.add(PRICE_AMOUNT, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
-    accountSchema.add(ACCOUNT_BALANCE, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
+    accountSchema.add(ACCOUNT_BALANCE, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
     accountSchema.add(ACCOUNT_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     accountSchema.add(ACCOUNT_ID_ACCOUNT, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.MANDATORY);
     dayEventSchema.add(DAYEVENT_DAY, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);

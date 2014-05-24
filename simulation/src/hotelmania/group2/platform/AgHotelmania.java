@@ -354,12 +354,13 @@ public class AgHotelmania extends MetaAgent
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see hotelmania.group2.platform.MetaAgent#receiveInform()
-	 */
 	@Override
 	public void receivedInform(ACLMessage message) {
-		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public boolean doBeforeDie() {
+		return false;
 	}
 }

@@ -28,6 +28,7 @@ public abstract class MetaAgent extends Agent {
 	
 	// Codec for the SL language used
 	protected Codec codec = new SLCodec();
+
 	// External communication protocol's ontology
 	protected Ontology ontology = SharedAgentsOntology.getInstance();
 	
@@ -35,7 +36,17 @@ public abstract class MetaAgent extends Agent {
 	 * This value is updated by simulator only if the subscription is TRUE
 	 */
 	private int day = Constants.FIRST_DAY-1;
-	
+
+	/**
+	 * Message template used for all kind of agents (except for subscriptions)
+	 */
+	public final MessageTemplate BASIC_MESSAGE_TEMPLATE = MessageTemplate.and(MessageTemplate.and(
+			MessageTemplate.MatchLanguage(codec.getName()),
+			MessageTemplate.MatchOntology(ontology.getName())),
+			MessageTemplate.not(
+					MessageTemplate.or(
+					MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL),
+					MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))));
 
 	@Override
 	protected void setup() {
@@ -52,10 +63,7 @@ public abstract class MetaAgent extends Agent {
 		getContentManager().registerLanguage(this.codec);
 		getContentManager().registerOntology(this.ontology);
 		
-		if(setRegisterForDayEvents())
-		{
-			addBehaviour(new LocateSimulatorBehavior(this));
-		}
+		addBehaviour(new LocateSimulatorBehavior(this));
 	}
 	
 	public String myName()
@@ -68,6 +76,11 @@ public abstract class MetaAgent extends Agent {
 	 * @return
 	 */
 	protected abstract boolean setRegisterForDayEvents();
+	
+	protected boolean setRegisterForEndSimulation()
+	{
+		return true;
+	}
 
 	protected void doOnNewDay() {
 	}
@@ -209,7 +222,7 @@ public abstract class MetaAgent extends Agent {
 		addBehaviour(new DayEventSubscriptor(this, msg));
 	}
 
-	private void addSubscriptionToSimulationEnd(AID agSimulator) {
+	private void addSubscriptionToEndSimulation(AID agSimulator) {
 
 		if (agSimulator == null) {
 			return;
@@ -279,7 +292,13 @@ public abstract class MetaAgent extends Agent {
 
 		protected void handleInform(ACLMessage inform) {
 			logInformMessage(inform.getProtocol(), inform);
-			MetaAgent.this.doDelete();
+			boolean die = doBeforeDie();
+			if (die) {
+				myAgent.doDelete();
+				System.out.println(myName()+": DIED");
+			}else {
+				System.out.println(myName()+": RESISTED TO DIE");
+			}
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
@@ -294,18 +313,16 @@ public abstract class MetaAgent extends Agent {
 	private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour {
 			
 			private static final long serialVersionUID = -4878774871721189228L;
+
+			MessageTemplate agreeTemplate = MessageTemplate.and(BASIC_MESSAGE_TEMPLATE,
+					MessageTemplate.MatchPerformative(ACLMessage.AGREE));
 	
 			private ReceiveAcceptanceMsgBehavior(Agent a) {
 				super(a);
 			}
 	
 			public void action() {
-				ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-						MessageTemplate.MatchLanguage(codec.getName()),
-						MessageTemplate.MatchOntology(ontology.getName())),
-						MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))),
-						MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))),
-						MessageTemplate.MatchPerformative(ACLMessage.AGREE)));
+				ACLMessage msg = receive(agreeTemplate);
 	
 				if (msg != null) {
 					logAgreeMessage(msg.getProtocol(), msg);
@@ -322,18 +339,16 @@ public abstract class MetaAgent extends Agent {
 	private final class ReceiveInformMsgBehavior extends CyclicBehaviour {
 	
 		private static final long serialVersionUID = -4878774871721189228L;
-	
+
+		MessageTemplate informTemplate = MessageTemplate.and(BASIC_MESSAGE_TEMPLATE,
+				MessageTemplate.MatchPerformative(ACLMessage.INFORM));
+
 		private ReceiveInformMsgBehavior(Agent a) {
 			super(a);
 		}
 	
 		public void action() {
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))),
-					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))),
-					MessageTemplate.MatchPerformative(ACLMessage.INFORM)));
+			ACLMessage msg = receive(informTemplate);
 	
 			if (msg != null) {
 				logInformMessage(msg.getProtocol(), msg);
@@ -357,17 +372,16 @@ public abstract class MetaAgent extends Agent {
 		
 		private static final long serialVersionUID = 1L;
 
+		MessageTemplate refuseTemplate = MessageTemplate.and(BASIC_MESSAGE_TEMPLATE,
+				MessageTemplate.MatchPerformative(ACLMessage.REFUSE));
+
 		private ReceiveRefuseMsgBehavior(Agent a) {
 			super(a);
 		}
 
 		public void action() {
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))),
-					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))),
-					MessageTemplate.MatchPerformative(ACLMessage.REFUSE)));					
+			ACLMessage msg = receive(refuseTemplate);
+			
 			if (msg != null) {
 				logRefuseMessage(msg.getProtocol(), msg);
 				receivedReject(msg);
@@ -383,17 +397,15 @@ public abstract class MetaAgent extends Agent {
 		
 		private static final long serialVersionUID = 1L;
 
+		MessageTemplate notUnderstoodTemplate = MessageTemplate.and(BASIC_MESSAGE_TEMPLATE,
+				MessageTemplate.MatchPerformative(ACLMessage.NOT_UNDERSTOOD));
+		
 		private ReceiveNotUnderstoodMsgBehavior(Agent a) {
 			super(a);
 		}
 
 		public void action() {
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))),
-					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))),
-					MessageTemplate.MatchPerformative(ACLMessage.NOT_UNDERSTOOD)));
+			ACLMessage msg = receive(notUnderstoodTemplate);
 			
 			if (msg != null) {
 				logNotUnderstoodMessage(msg.getProtocol(), msg);
@@ -410,17 +422,15 @@ public abstract class MetaAgent extends Agent {
 
 		private static final long serialVersionUID = 1L;
 
+		MessageTemplate failureTemplate = MessageTemplate.and(BASIC_MESSAGE_TEMPLATE,
+				MessageTemplate.MatchPerformative(ACLMessage.FAILURE));
+		
 		private ReceiveFailureMsgBehavior(Agent a) {
 			super(a);
 		}
 
 		public void action() {
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL))),
-					MessageTemplate.not(MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))),
-					MessageTemplate.MatchPerformative(ACLMessage.FAILURE)));
+			ACLMessage msg = receive(failureTemplate);
 			
 			if (msg != null) {
 				logFailureMessage(msg.getProtocol(), msg);
@@ -447,8 +457,14 @@ public abstract class MetaAgent extends Agent {
 			if (agSimulator == null) {
 				agSimulator = locateAgent(Constants.SUBSCRIBETODAYEVENT_ACTION, myAgent);
 			}else {
-				addSubscriptionToDayEventBehavior(agSimulator);
-				addSubscriptionToSimulationEnd(agSimulator);
+				if(setRegisterForDayEvents())
+				{
+					addSubscriptionToDayEventBehavior(agSimulator);
+				}
+				
+				if (setRegisterForEndSimulation()) {
+					addSubscriptionToEndSimulation(agSimulator);
+				}
 				this.setDone(true);
 			}
 		}
@@ -456,16 +472,13 @@ public abstract class MetaAgent extends Agent {
 
 	/**
 	 * Invoked just before the agent dies
+	 * @return die true if this agent shall die immediately. False if the agent needs to keep alive.
 	 */
-	@Override
-	protected void takeDown() {
-		System.out.println(this.myName()+": DIED");
-		super.takeDown();
+	public boolean doBeforeDie() {
+		return true;
 	}
 
 	//TODO define format for logs
-	
-	
 	public void logInformMessage(String protocol, ACLMessage message) {
 		System.out.println(this.myName()+": Received <Inform> for Protocol: "+protocol); 		
 	}

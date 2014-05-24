@@ -8,7 +8,7 @@ import jade.core.*;
 /**
 * Protege name: BookingOffer
 * @author ontology bean generator
-* @version 2014/05/24, 08:49:20
+* @version 2014/05/24, 18:36:35
 */
 public class BookingOffer implements Predicate {
 

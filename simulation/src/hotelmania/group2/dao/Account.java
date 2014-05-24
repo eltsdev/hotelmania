@@ -71,6 +71,4 @@ public class Account {
 		concept.setId_account(this.id);
 		return concept;
 	}
-	
-
 }

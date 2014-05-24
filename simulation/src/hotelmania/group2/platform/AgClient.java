@@ -34,9 +34,6 @@ public class AgClient extends MetaAgent {
 
 	private Client client;
 
-	public AgClient() {
-	}
-
 	// -------------------------------------------------
 	// Setup
 	// -------------------------------------------------
@@ -49,11 +46,9 @@ public class AgClient extends MetaAgent {
 		Object[] args = getArguments();
 		if (args != null && args.length == 1 && args[0] instanceof Client) {
 			this.client = (Client) args[0];
-			System.out.println("Client arguments: " + this.client.getBudget()+ " - " + this.client.getStay().getCheckIn() + " - " + this.client.getStay().getCheckOut());
 		} else {
 			// throw new Exception("Invalid parameters to create this agent");
-			System.err
-					.println("Invalid parameters to create this agent client");
+			System.err.println(myName()+": Invalid parameters to create this agent client");
 		}
 		// Behaviors
 
@@ -67,11 +62,6 @@ public class AgClient extends MetaAgent {
 	@Override
 	protected boolean setRegisterForDayEvents() {
 		return true;
-	}
-
-	@Override
-	protected void doOnNewDay() {
-		// TODO to implement...
 	}
 
 	// --------------------------------------------------------
@@ -573,8 +563,8 @@ public class AgClient extends MetaAgent {
 			ContentElementList list) {
 		// Hotel
 		for (int i = 0; i < list.size(); i++) {
-			HotelInformation hotelInformation = (HotelInformation) list.get(i);
-			if (hotelInformation instanceof HotelInformation) {
+			if (list.get(i) instanceof HotelInformation) {
+				HotelInformation hotelInformation = (HotelInformation) list.get(i);
 				BookingOffer booking = new BookingOffer(new hotelmania.group2.dao.HotelInformation(hotelInformation));
 				this.bookingOffers.add(booking);
 			}
