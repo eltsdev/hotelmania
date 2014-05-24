@@ -22,7 +22,7 @@ public class AccountDAO {
 	public Account registerNewAccount(Hotel hotel, int balance) {
 		for (Account account : this.listAccount) {
 			if (account.getHotel().equals(hotel)) {
-				return account;
+				return null;
 			}
 		}
 		Account account = new Account(hotel, balance, this.currentId);

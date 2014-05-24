@@ -15,21 +15,27 @@ public class RatingDAO {
 	 * @param ratings
 	 * @return
 	 */
-	public boolean registerNewRating(String hotel, float clean, float cooker,
-			float price, float room) {
-
-		Rating rate = new Rating(hotel, clean, cooker, price, room);
-
-		rates.add(rate);
-	//	computeRating();
+	public boolean addRating(String hotel, float cleanliness, float chefs, float price, float roomStaff) {
+		boolean ratingFound = false;
+		for (Rating rating : this.rates) {
+			if (rating.getHotel().equals(hotel)) {
+				rating.addRating(cleanliness, chefs, price, roomStaff);
+				ratingFound = true;
+			}
+		}
+		if (!ratingFound) {
+			Rating rate = new Rating(hotel, cleanliness, chefs, price, roomStaff);
+			rates.add(rate);
+		}
 		return true;
 	}
-
-	private void computeRating() {
-		for (int i = 0; i < rates.size(); i++) {
-			//TODO could be using HashMap?
+	
+	public Rating getRatingOfHotel(String hotel) {
+		for (Rating rating : this.rates) {
+			if (rating.getHotel().equals(hotel)) {
+				return rating;
+			}
 		}
-		
+		return null;//TODO return empty or default rating?
 	}
-
 }
