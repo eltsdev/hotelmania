@@ -6,26 +6,25 @@ package hotelmania.group2.dao;
  */
 public class Rating {
 
-	private float price_rating;
-	private float cleanliness_rating;
-	private float room_staff_rating;
-	private float chef_rating;
+	private float priceRating;
+	private float cleanlinessRating;
+	private float roomStaffRating;
+	private float chefRating;
 	private String hotel;
 
 	/**
-	 * @param hotel_name
-	 * @param cleanliness_rating2
-	 * @param cookers_raring2
-	 * @param price_rating2
-	 * @param room_staff_rating2
+	 * @param hotelName
+	 * @param cleanlinessRating
+	 * @param chefRating
+	 * @param priceRating
+	 * @param roomStaffRating
 	 */
-	public Rating(String hotel_name, float cleanliness_rating2,
-			float cookers_raring2, float price_rating2, float room_staff_rating2) {
-		price_rating = price_rating2;
-		cleanliness_rating = cleanliness_rating2;
-		room_staff_rating = room_staff_rating2;
-		setChef_rating(cookers_raring2);
-		hotel = hotel_name;
+	public Rating(String hotelName, float cleanlinessRating, float chefRating, float priceRating, float roomStaffRating) {
+		this.priceRating = priceRating;
+		this.cleanlinessRating = cleanlinessRating;
+		this.roomStaffRating = roomStaffRating;
+		this.chefRating = chefRating;
+		this.hotel = hotelName;
 
 	}
 
@@ -45,36 +44,42 @@ public class Rating {
 	}
 
 	public void setPrice_rating(float value) {
-		this.price_rating = value;
+		this.priceRating = value;
 	}
 
 	public float getPrice_rating() {
-		return this.price_rating;
+		return this.priceRating;
 	}
 
 	public void setCleanliness_rating(float value) {
-		this.cleanliness_rating = value;
+		this.cleanlinessRating = value;
 	}
 
 	public float getCleanliness_rating() {
-		return this.cleanliness_rating;
+		return this.cleanlinessRating;
 	}
 
 	public void setRoom_staff_rating(float value) {
-		this.room_staff_rating = value;
+		this.roomStaffRating = value;
 	}
 
 	public float getRoom_staff_rating() {
-		return this.room_staff_rating;
+		return this.roomStaffRating;
 	}
 
 	public float getChef_rating() {
-		return chef_rating;
+		return chefRating;
 	}
 
 	public void setChef_rating(float chef_rating) {
-		this.chef_rating = chef_rating;
+		this.chefRating = chef_rating;
 	}
-
+	
+	public void addRating(float cleanliness, float chefs, float price, float roomStaff) {
+		this.cleanlinessRating = (cleanliness + this.cleanlinessRating)/2;
+		this.chefRating = (chefs + this.chefRating)/2;
+		this.priceRating = (price + this.priceRating)/2;
+		this.roomStaffRating = (roomStaff + this.roomStaffRating)/2;
+	}
 
 }

@@ -57,5 +57,16 @@ public class Hotel {
 		return concept;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Hotel)) {
+			return false;
+		}
+		Hotel hotel = (Hotel) obj;
+		if (hotel.getName().equals(this.name)) {
+			return true;
+		}
+		return false;
+	}
 
 }

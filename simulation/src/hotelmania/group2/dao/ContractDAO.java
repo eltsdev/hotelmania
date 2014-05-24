@@ -7,15 +7,15 @@ public class ContractDAO {
 	
 	private List<Contract> contracts = new ArrayList<Contract>();
 	
-	public void createContract(Contract c) {
-		contracts.add(c);
+	public void createContract(Contract contract) {
+		this.contracts.add(contract);
 	}
 
 	public List<Contract> getCurrentContractsByHotel(String hotelName, int day) {
 		List<Contract> result = new ArrayList<Contract>();
-		for (Contract c : contracts) {
-			if (c.getHotelName().equals(hotelName) && c.getDate() == day) {
-				result.add(c);
+		for (Contract contract : contracts) {
+			if (contract.getHotelName().equals(hotelName) && contract.getDate() == day) {
+				result.add(contract);
 			}
 		}
 		return result;
@@ -23,9 +23,9 @@ public class ContractDAO {
 
 	public List<Contract> getAllContractsByHotel(String hotelName) {
 		List<Contract> result = new ArrayList<Contract>();
-		for (Contract c : contracts) {
-			if (c.getHotelName().equals(hotelName)) {
-				result.add(c);
+		for (Contract contract : contracts) {
+			if (contract.getHotelName().equals(hotelName)) {
+				result.add(contract);
 			}
 		}
 		return result;

@@ -303,7 +303,7 @@ public class AgHotelmania extends MetaAgent
 		 * @return
 		 */
 		private boolean registerNewRating(RateHotel ratingData) {
-			return ratingDAO .registerNewRating(ratingData.getHotel()
+			return ratingDAO .addRating(ratingData.getHotel()
 					.getHotel_name(), ratingData.getRatings()
 					.getCleanliness_rating(), ratingData.getRatings()
 					.getChef_rating(), ratingData.getRatings()
