@@ -8,9 +8,9 @@ import jade.core.*;
 /**
 * Protege name: NumberOfClientsQueryRef
 * @author ontology bean generator
-* @version 2014/05/23, 16:54:57
+* @version 2014/05/24, 08:49:20
 */
-public class NumberOfClientsQueryRef implements AgentAction {
+public class NumberOfClientsQueryRef implements Predicate {
 
    /**
 * Protege name: day
@@ -21,17 +21,6 @@ public class NumberOfClientsQueryRef implements AgentAction {
    }
    public int getDay() {
      return this.day;
-   }
-
-   /**
-* Protege name: hotel_name
-   */
-   private String hotel_name;
-   public void setHotel_name(String value) { 
-    this.hotel_name=value;
-   }
-   public String getHotel_name() {
-     return this.hotel_name;
    }
 
 }

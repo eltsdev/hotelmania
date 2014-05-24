@@ -1,4 +1,4 @@
-; Fri May 23 17:06:35 CEST 2014
+; Sat May 24 08:49:22 CEST 2014
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -9,104 +9,12 @@
 	(role abstract)
 	(single-slot checkOut
 		(type INTEGER)
-;+		(cardinality 0 1)
+;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot account
 		(type INSTANCE)
 ;+		(allowed-classes Account)
 ;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(single-slot price
-		(type FLOAT)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot hotel_rated
-		(type INSTANCE)
-;+		(allowed-classes Hotel)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(single-slot staff_rating
-		(type STRING)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(single-slot room_staff_rating
-		(type FLOAT)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(multislot resolvers
-		(type SYMBOL)
-;+		(allowed-parents AID)
-		(create-accessor read-write))
-	(single-slot %3AJADE-PROPERTIES-DIRECTORY
-		(type STRING)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot recepcionist_novice
-		(type INTEGER)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(single-slot price_rating
-		(type FLOAT)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(single-slot %3AJADE-JAVA-CODE
-		(type STRING)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot bookingOffer
-		(type INSTANCE)
-;+		(allowed-classes BookingOffer)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot startDay
-		(type STRING)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot id_account
-		(type INTEGER)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(single-slot dayEvent
-		(type INSTANCE)
-;+		(allowed-classes DayEvent)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(single-slot %3AJADE-PROPERTIES-PACKAGE
-		(type STRING)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot chef_3stars
-		(type INTEGER)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(single-slot cookers_rating
-		(type FLOAT)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(multislot addresses
-		(type STRING)
-		(create-accessor read-write))
-	(single-slot balance
-		(type FLOAT)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot %3AJADE-JAVA-BASE-CLASS
-		(type STRING)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(multislot cookerStaff
-		(type INSTANCE)
-;+		(allowed-classes Contract)
-		(create-accessor read-write))
-	(single-slot %3AJADE-PROPERTIES-COMPATIBILITY
-		(type SYMBOL)
-		(allowed-values J2ME JavaBeans Classes)
-		(default Classes)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot money
-		(type FLOAT)
-;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot room_service_staff
 		(type INTEGER)
@@ -130,6 +38,11 @@
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot price
+		(type INSTANCE)
+;+		(allowed-classes Price)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
 	(single-slot roomPrice
 		(type INSTANCE)
 ;+		(allowed-classes Price)
@@ -139,13 +52,18 @@
 		(type FLOAT)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
+	(single-slot hotel_rated
+		(type INSTANCE)
+;+		(allowed-classes Hotel)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
 	(single-slot cost
 		(type FLOAT)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot checkIn
 		(type INTEGER)
-;+		(cardinality 0 1)
+;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot hotel
 		(type INSTANCE)
@@ -157,16 +75,28 @@
 ;+		(allowed-classes Hotel)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
+	(single-slot staff_rating
+		(type STRING)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
 	(single-slot %3AJADE-PROPERTIES-GENERATE-BEANS
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
 		(default TRUE)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot room_staff_rating
+		(type FLOAT)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
 	(multislot hotels
 		(type INSTANCE)
 ;+		(allowed-classes HotelInformation)
 		(cardinality 1 ?VARIABLE)
+		(create-accessor read-write))
+	(multislot resolvers
+		(type SYMBOL)
+;+		(allowed-parents AID)
 		(create-accessor read-write))
 	(single-slot hotel_name
 		(type STRING)
@@ -183,6 +113,10 @@
 		(create-accessor read-write))
 	(single-slot rating
 		(type FLOAT)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot %3AJADE-PROPERTIES-DIRECTORY
+		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot %3AJADE-UNNAMED-SLOT
@@ -194,21 +128,42 @@
 	(single-slot hotelAgent
 		(type INSTANCE)
 ;+		(allowed-classes AID)
-;+		(cardinality 1 1)
+;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot days
 		(type INTEGER)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
+	(single-slot recepcionist_novice
+		(type INTEGER)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot price_rating
+		(type FLOAT)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
 	(single-slot stay
 		(type INSTANCE)
 ;+		(allowed-classes Stay)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot %3AJADE-JAVA-CODE
+		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot %3AJADE-IGNORE
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
 		(default FALSE)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot bookingOffer
+		(type INSTANCE)
+;+		(allowed-classes Price)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot startDay
+		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(multislot %3AJADE-INCLUDED-PROPERTIES
@@ -219,18 +174,31 @@
 		(type INTEGER)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
+	(single-slot id_account
+		(type INTEGER)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot dayEvent
+		(type INSTANCE)
+;+		(allowed-classes DayEvent)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot %3AJADE-PROPERTIES-PACKAGE
+		(type STRING)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot chef_3stars
+		(type INTEGER)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot amount
+		(type FLOAT)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
 	(single-slot %3AJADE-PROPERTIES-GENERATE-ONTOLOGY
 		(type SYMBOL)
 		(allowed-values FALSE TRUE)
 		(default TRUE)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot SharedAgentsOntology_Class20001
-		(type STRING)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot SharedAgentsOntology_Class20002
-		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot hotel_rating
@@ -240,9 +208,24 @@
 		(create-accessor read-write))
 	(single-slot num_clients
 		(type INTEGER)
-;+		(cardinality 0 1)
+;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot cleanliness_rating
+		(type FLOAT)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(multislot addresses
+		(type STRING)
+		(create-accessor read-write))
+	(single-slot balance
+		(type FLOAT)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot %3AJADE-JAVA-BASE-CLASS
+		(type STRING)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot chef_rating
 		(type FLOAT)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
@@ -263,14 +246,20 @@
 		(type STRING)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
+	(single-slot %3AJADE-PROPERTIES-COMPATIBILITY
+		(type SYMBOL)
+		(allowed-values J2ME JavaBeans Classes)
+		(default Classes)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
 	(single-slot %3AONTOLOGYNAME
 ;+		(comment "name of the ontology")
 		(type STRING)
 ;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot SharedAgentsOntology_Class0
-		(type STRING)
-;+		(cardinality 0 1)
+	(single-slot money
+		(type FLOAT)
+;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot roomsAvailable
 		(type INTEGER)
@@ -344,19 +333,21 @@
 	(is-a USER)
 	(role abstract))
 
-(defclass AID
+(defclass Account
 	(is-a Concept)
 	(role concrete)
-	(multislot addresses
-		(type STRING)
+	(single-slot balance
+		(type FLOAT)
+;+		(cardinality 0 1)
 		(create-accessor read-write))
-	(single-slot name_
-		(type STRING)
+	(single-slot hotel
+		(type INSTANCE)
+;+		(allowed-classes Hotel)
+;+		(cardinality 0 1)
+		(create-accessor read-write))
+	(single-slot id_account
+		(type INTEGER)
 ;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(multislot resolvers
-		(type SYMBOL)
-;+		(allowed-parents AID)
 		(create-accessor read-write)))
 
 (defclass AgentAction "The common ancestor for all actions in an ontology (e.g. Sell, Buy...)"
@@ -377,78 +368,34 @@
 ;+		(cardinality 0 1)
 		(create-accessor read-write)))
 
-(defclass RegistrationRequest
-	(is-a AgentAction)
-	(role concrete)
-	(single-slot hotel
-		(type INSTANCE)
-;+		(allowed-classes Hotel)
-;+		(cardinality 0 1)
-		(create-accessor read-write)))
-
 (defclass BookRoom
 	(is-a AgentAction)
 	(role concrete)
 	(single-slot stay
 		(type INSTANCE)
 ;+		(allowed-classes Stay)
-;+		(cardinality 0 1)
+;+		(cardinality 1 1)
 		(create-accessor read-write))
-	(single-slot bookingOffer
+	(single-slot price
 		(type INSTANCE)
-;+		(allowed-classes BookingOffer)
-;+		(cardinality 0 1)
-		(create-accessor read-write)))
-
-(defclass ChargeAccount
-	(is-a AgentAction)
-	(role concrete)
-	(single-slot money
-		(type FLOAT)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot hotel
-		(type INSTANCE)
-;+		(allowed-classes Hotel)
-;+		(cardinality 0 1)
-		(create-accessor read-write)))
-
-(defclass QueryHotelmaniaHotel
-	(is-a AgentAction)
-	(role concrete))
-
-(defclass ConsultHotelStaff
-	(is-a AgentAction)
-	(role concrete)
-	(single-slot hotel
-		(type INSTANCE)
-;+		(allowed-classes Hotel)
-;+		(cardinality 0 1)
-		(create-accessor read-write)))
-
-(defclass ConsultAccountStatus
-	(is-a AgentAction)
-	(role concrete)
-	(single-slot hotel
-		(type INSTANCE)
-;+		(allowed-classes Hotel)
-;+		(cardinality 0 1)
-		(create-accessor read-write)))
-
-(defclass MakeDeposit
-	(is-a AgentAction)
-	(role concrete)
-	(single-slot money
-		(type FLOAT)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot hotel
-		(type INSTANCE)
-;+		(allowed-classes Hotel)
-;+		(cardinality 0 1)
+;+		(allowed-classes Price)
+;+		(cardinality 1 1)
 		(create-accessor read-write)))
 
 (defclass CreateAccountRequest
+	(is-a AgentAction)
+	(role concrete)
+	(single-slot hotel
+		(type INSTANCE)
+;+		(allowed-classes Hotel)
+;+		(cardinality 0 1)
+		(create-accessor read-write)))
+
+(defclass EndSimulation
+	(is-a AgentAction)
+	(role concrete))
+
+(defclass RegistrationRequest
 	(is-a AgentAction)
 	(role concrete)
 	(single-slot hotel
@@ -475,16 +422,48 @@
 	(is-a AgentAction)
 	(role concrete))
 
-(defclass NumberOfClientsQueryRef
+(defclass ChargeAccount
 	(is-a AgentAction)
 	(role concrete)
-	(single-slot day
-		(type INTEGER)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot hotel_name
-		(type STRING)
+	(single-slot money
+		(type FLOAT)
 ;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot hotel
+		(type INSTANCE)
+;+		(allowed-classes Hotel)
+;+		(cardinality 0 1)
+		(create-accessor read-write)))
+
+(defclass ConsultAccountStatus
+	(is-a AgentAction)
+	(role concrete)
+	(single-slot hotel
+		(type INSTANCE)
+;+		(allowed-classes Hotel)
+;+		(cardinality 0 1)
+		(create-accessor read-write)))
+
+(defclass ConsultHotelStaff
+	(is-a AgentAction)
+	(role concrete)
+	(single-slot hotel
+		(type INSTANCE)
+;+		(allowed-classes Hotel)
+;+		(cardinality 0 1)
+		(create-accessor read-write)))
+
+(defclass MakeDeposit
+	(is-a AgentAction)
+	(role concrete)
+	(single-slot money
+		(type FLOAT)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(single-slot hotel
+		(type INSTANCE)
+;+		(allowed-classes Hotel)
+;+		(cardinality 0 1)
 		(create-accessor read-write)))
 
 (defclass AccountStatusQueryRef
@@ -495,13 +474,24 @@
 ;+		(cardinality 1 1)
 		(create-accessor read-write)))
 
-(defclass EndSimulation
-	(is-a AgentAction)
-	(role concrete))
-
 (defclass GetFinanceReport
 	(is-a AgentAction)
 	(role concrete))
+
+(defclass AID
+	(is-a Concept)
+	(role concrete)
+	(multislot addresses
+		(type STRING)
+		(create-accessor read-write))
+	(single-slot name_
+		(type STRING)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
+	(multislot resolvers
+		(type SYMBOL)
+;+		(allowed-parents AID)
+		(create-accessor read-write)))
 
 (defclass Hotel
 	(is-a Concept)
@@ -509,37 +499,33 @@
 	(single-slot hotelAgent
 		(type INSTANCE)
 ;+		(allowed-classes AID)
-;+		(cardinality 1 1)
+;+		(cardinality 0 1)
 		(create-accessor read-write))
 	(single-slot hotel_name
 		(type STRING)
 ;+		(cardinality 1 1)
 		(create-accessor read-write)))
 
-(defclass Booking
+(defclass Price
 	(is-a Concept)
 	(role concrete)
-	(single-slot startDay
-		(type STRING)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot days
-		(type INTEGER)
-;+		(cardinality 0 1)
+	(single-slot amount
+		(type FLOAT)
+;+		(cardinality 1 1)
 		(create-accessor read-write)))
 
 (defclass Rating
 	(is-a Concept)
 	(role concrete)
+	(single-slot chef_rating
+		(type FLOAT)
+;+		(cardinality 1 1)
+		(create-accessor read-write))
 	(single-slot price_rating
 		(type FLOAT)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot cleanliness_rating
-		(type FLOAT)
-;+		(cardinality 1 1)
-		(create-accessor read-write))
-	(single-slot cookers_rating
 		(type FLOAT)
 ;+		(cardinality 1 1)
 		(create-accessor read-write))
@@ -580,21 +566,15 @@
 ;+		(cardinality 1 1)
 		(create-accessor read-write)))
 
-(defclass HotelStaffInfo
+(defclass Stay
 	(is-a Concept)
 	(role concrete)
-	(multislot cookerStaff
-		(type INSTANCE)
-;+		(allowed-classes Contract)
+	(single-slot checkOut
+		(type INTEGER)
+;+		(cardinality 1 1)
 		(create-accessor read-write))
-	(single-slot hotel
-		(type INSTANCE)
-;+		(allowed-classes Hotel)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot contract
-		(type INSTANCE)
-;+		(allowed-classes Contract)
+	(single-slot checkIn
+		(type INTEGER)
 ;+		(cardinality 1 1)
 		(create-accessor read-write)))
 
@@ -614,43 +594,6 @@
 	(is-a Concept)
 	(role concrete)
 	(single-slot day
-		(type INTEGER)
-;+		(cardinality 0 1)
-		(create-accessor read-write)))
-
-(defclass Account
-	(is-a Concept)
-	(role concrete)
-	(single-slot balance
-		(type FLOAT)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot hotel
-		(type INSTANCE)
-;+		(allowed-classes Hotel)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot id_account
-		(type INTEGER)
-;+		(cardinality 1 1)
-		(create-accessor read-write)))
-
-(defclass Price
-	(is-a Concept)
-	(role concrete)
-	(single-slot price
-		(type FLOAT)
-;+		(cardinality 0 1)
-		(create-accessor read-write)))
-
-(defclass Stay
-	(is-a Concept)
-	(role concrete)
-	(single-slot checkOut
-		(type INTEGER)
-;+		(cardinality 0 1)
-		(create-accessor read-write))
-	(single-slot checkIn
 		(type INTEGER)
 ;+		(cardinality 0 1)
 		(create-accessor read-write)))
@@ -682,7 +625,7 @@
 	(role concrete)
 	(single-slot num_clients
 		(type INTEGER)
-;+		(cardinality 0 1)
+;+		(cardinality 1 1)
 		(create-accessor read-write)))
 
 (defclass BookingOffer
@@ -699,7 +642,7 @@
 	(role concrete)
 	(single-slot rating
 		(type FLOAT)
-;+		(cardinality 0 1)
+;+		(cardinality 1 1)
 		(create-accessor read-write))
 	(single-slot hotel
 		(type INSTANCE)
@@ -717,5 +660,13 @@
 	(single-slot stay
 		(type INSTANCE)
 ;+		(allowed-classes Stay)
+;+		(cardinality 1 1)
+		(create-accessor read-write)))
+
+(defclass NumberOfClientsQueryRef
+	(is-a Predicate)
+	(role concrete)
+	(single-slot day
+		(type INTEGER)
 ;+		(cardinality 0 1)
 		(create-accessor read-write)))

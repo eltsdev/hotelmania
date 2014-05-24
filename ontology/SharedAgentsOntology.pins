@@ -1,4 +1,4 @@
-; Fri May 23 17:06:35 CEST 2014
+; Sat May 24 08:49:22 CEST 2014
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -26,10 +26,6 @@
 ([AID] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE TRUE))
-
-([Booking] of  %3AJADE-CLASS
-
-	(%3AJADE-IGNORE FALSE))
 
 ([BookingOffer] of  %3AJADE-CLASS
 
@@ -83,10 +79,6 @@
 
 	(%3AJADE-IGNORE FALSE))
 
-([HotelStaffInfo] of  %3AJADE-CLASS
-
-	(%3AJADE-IGNORE FALSE))
-
 ([MakeDeposit] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE FALSE))
@@ -125,10 +117,6 @@
 	(%3AONTOLOGYNAME "SharedAgents")
 	(%3APACKAGE "hotelmania.ontology")
 	(%3ASUPPORT "j2se"))
-
-([QueryHotelmaniaHotel] of  %3AJADE-CLASS
-
-	(%3AJADE-IGNORE FALSE))
 
 ([RateHotel] of  %3AJADE-CLASS
 

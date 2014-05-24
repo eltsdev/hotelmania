@@ -8,19 +8,19 @@ import jade.core.*;
 /**
 * Protege name: Price
 * @author ontology bean generator
-* @version 2014/05/23, 16:54:57
+* @version 2014/05/24, 08:49:20
 */
 public class Price implements Concept {
 
    /**
-* Protege name: price
+* Protege name: amount
    */
-   private float price;
-   public void setPrice(float value) { 
-    this.price=value;
+   private float amount;
+   public void setAmount(float value) { 
+    this.amount=value;
    }
-   public float getPrice() {
-     return this.price;
+   public float getAmount() {
+     return this.amount;
    }
 
 }

@@ -3,7 +3,6 @@ package hotelmania.group2.platform;
 import hotelmania.group2.dao.HotelDAO;
 import hotelmania.group2.dao.RatingDAO;
 import hotelmania.ontology.Hotel;
-import hotelmania.ontology.QueryHotelmaniaHotel;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.RegistrationRequest;
 import jade.content.Concept;
@@ -175,15 +174,11 @@ public class AgHotelmania extends MetaAgent
 			
 			System.out.println(myName() + ": received HotelsInfo Request from " + msg.getSender().getLocalName());
 			
-			 //The ContentManager transforms the message content (string) in
-			Concept conc =  this.getConceptFromMessage(msg);
-			if (conc instanceof QueryHotelmaniaHotel) {
-				// execute request
-				ContentElementList hotels = getAllHotels();
-				
-				// Send reply
-				sendResponseOfHotelRecords(msg, hotels);
-			}
+			// execute request
+			ContentElementList hotels = getAllHotels();
+			
+			// Send reply
+			sendResponseOfHotelRecords(msg, hotels);
 		}
 
 		private void sendResponseOfHotelRecords(ACLMessage msg, ContentElementList hotels) {
@@ -311,7 +306,7 @@ public class AgHotelmania extends MetaAgent
 			return ratingDAO .registerNewRating(ratingData.getHotel()
 					.getHotel_name(), ratingData.getRatings()
 					.getCleanliness_rating(), ratingData.getRatings()
-					.getCookers_rating(), ratingData.getRatings()
+					.getChef_rating(), ratingData.getRatings()
 					.getPrice_rating(), ratingData.getRatings()
 					.getRoom_staff_rating()); //TODO use a method to convert the object...
 		}

@@ -8,9 +8,20 @@ import jade.core.*;
 /**
 * Protege name: Rating
 * @author ontology bean generator
-* @version 2014/05/23, 16:54:57
+* @version 2014/05/24, 08:49:20
 */
 public class Rating implements Concept {
+
+   /**
+* Protege name: chef_rating
+   */
+   private float chef_rating;
+   public void setChef_rating(float value) { 
+    this.chef_rating=value;
+   }
+   public float getChef_rating() {
+     return this.chef_rating;
+   }
 
    /**
 * Protege name: price_rating
@@ -32,17 +43,6 @@ public class Rating implements Concept {
    }
    public float getCleanliness_rating() {
      return this.cleanliness_rating;
-   }
-
-   /**
-* Protege name: cookers_rating
-   */
-   private float cookers_rating;
-   public void setCookers_rating(float value) { 
-    this.cookers_rating=value;
-   }
-   public float getCookers_rating() {
-     return this.cookers_rating;
    }
 
    /**

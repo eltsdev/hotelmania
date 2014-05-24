@@ -8,7 +8,7 @@ import jade.core.*;
 /**
 * Protege name: CreateAccountRequest
 * @author ontology bean generator
-* @version 2014/05/23, 16:54:58
+* @version 2014/05/24, 08:49:20
 */
 public class CreateAccountRequest implements AgentAction {
 

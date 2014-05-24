@@ -9,7 +9,6 @@ import hotelmania.ontology.MakeDeposit;
 import hotelmania.ontology.NumberOfClients;
 import hotelmania.ontology.NumberOfClientsQueryRef;
 import hotelmania.ontology.Price;
-import hotelmania.ontology.QueryHotelmaniaHotel;
 import hotelmania.ontology.RateHotel;
 import hotelmania.ontology.Rating;
 import hotelmania.ontology.Stay;
@@ -122,14 +121,12 @@ public class AgClient extends MetaAgent {
 
 		BookRoom action_booking = new BookRoom();
 		Price price = new Price();
-		price.setPrice(bookingOffer.getPrice());
+		price.setAmount(bookingOffer.getPrice());
 		Stay stay = new Stay();
 		stay.setCheckIn(checkin);
 		stay.setCheckOut(checkout);
 
-		hotelmania.ontology.BookingOffer bookOffer = new hotelmania.ontology.BookingOffer();
-		bookOffer.setRoomPrice(price);
-		action_booking.setBookingOffer(bookOffer);
+		action_booking.setPrice(price);
 		action_booking.setStay(stay);
 
 		sendRequest(agHotel, action_booking, Constants.BOOKROOM_PROTOCOL,
@@ -376,7 +373,7 @@ public class AgClient extends MetaAgent {
  
  		// TODO This part must be dynamic
  		Rating rating = new Rating();
- 		rating.setCookers_rating(10);
+ 		rating.setChef_rating(10);
  		rating.setPrice_rating(10);
  		rating.setRoom_staff_rating(10);
  		 action_rating.setHotel(this.hotel);
@@ -407,9 +404,7 @@ public class AgClient extends MetaAgent {
 		}
 
 		private void consultHotelInfo(AID hotelmania) {
-			QueryHotelmaniaHotel consult_request = new QueryHotelmaniaHotel();
-			sendRequest(hotelmania, consult_request,
-					Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
+			sendRequestEmpty(hotelmania, Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
 	}
@@ -438,13 +433,7 @@ public class AgClient extends MetaAgent {
 
 		private void consultHotelInfo() {
 			NumberOfClientsQueryRef request = new NumberOfClientsQueryRef();
-			// request.setHotel_name("hotelII");
-			if (actual_hotel == null) {
-				request.setHotel_name("Hotel2");
-			} else {
-				request.setHotel_name(myName());
-			}
-			sendRequest(hotel, request,
+			sendRequestPredicate(hotel, request,
 					Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
@@ -507,7 +496,7 @@ public class AgClient extends MetaAgent {
 				// TODO complete handling
 				if (content instanceof hotelmania.ontology.BookingOffer) {
 					hotelmania.ontology.BookingOffer record = (hotelmania.ontology.BookingOffer) content;
-					Float price = Float.valueOf(record.getRoomPrice().getPrice());
+					Float price = Float.valueOf(record.getRoomPrice().getAmount());
 					//Seek the Hotel in BookingOffers and set the price to the BookOffer.
 					for (BookingOffer bookingOffer : bookingOffers) {
 						if (bookingOffer.getHotelInformation().getHotel().getAgent().equals(message.getSender())) {

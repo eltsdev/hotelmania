@@ -9,7 +9,7 @@ public class Rating {
 	private float price_rating;
 	private float cleanliness_rating;
 	private float room_staff_rating;
-	private float cookers_rating;
+	private float chef_rating;
 	private String hotel;
 
 	/**
@@ -24,7 +24,7 @@ public class Rating {
 		price_rating = price_rating2;
 		cleanliness_rating = cleanliness_rating2;
 		room_staff_rating = room_staff_rating2;
-		cookers_rating = cookers_raring2;
+		setChef_rating(cookers_raring2);
 		hotel = hotel_name;
 
 	}
@@ -68,12 +68,13 @@ public class Rating {
 		return this.room_staff_rating;
 	}
 
-	public void setCookers_raring(float value) {
-		this.cookers_rating = value;
+	public float getChef_rating() {
+		return chef_rating;
 	}
 
-	public float getCookers_raring() {
-		return this.cookers_rating;
+	public void setChef_rating(float chef_rating) {
+		this.chef_rating = chef_rating;
 	}
+
 
 }

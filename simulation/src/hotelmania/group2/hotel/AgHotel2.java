@@ -16,7 +16,6 @@ import hotelmania.ontology.CreateAccountRequest;
 import hotelmania.ontology.Hotel;
 import hotelmania.ontology.NumberOfClients;
 import hotelmania.ontology.NumberOfClientsQueryRef;
-import hotelmania.ontology.QueryHotelmaniaHotel;
 import hotelmania.ontology.RegistrationRequest;
 import hotelmania.ontology.SignContract;
 import jade.content.Concept;
@@ -205,7 +204,7 @@ public class AgHotel2 extends MetaAgent {
 			stay.setCheckIn(book.getStay().getCheckIn());
 			stay.setCheckOut(book.getStay().getCheckOut());
 			Price price = new Price();
-			price.setPrice(book.getBookingOffer().getRoomPrice().getPrice());
+			price.setPrice(book.getPrice().getAmount());
 			hotelmania.group2.dao.BookRoom booking= new hotelmania.group2.dao.BookRoom(stay, price);
 			return bookDAO.book(booking);
 			
@@ -285,7 +284,7 @@ public class AgHotel2 extends MetaAgent {
 				float price = 	calculatePrice(totalDays);
 				BookingOffer offer_inform = new BookingOffer();
 				hotelmania.ontology.Price priceOffer = new hotelmania.ontology.Price();
-				priceOffer.setPrice(price);
+				priceOffer.setAmount(price);
 				offer_inform.setRoomPrice(priceOffer);
 				try {
 					this.log = Constants.INFORM;
@@ -467,9 +466,7 @@ public class AgHotel2 extends MetaAgent {
 		}
 
 		private void consultHotelInfo(AID hotelmania) {
-			//FIXME TEST ONTOLOGY CHANGE: QueryHotelmaniaHotel request = new QueryHotelmaniaHotel();
-			QueryHotelmaniaHotel request = new QueryHotelmaniaHotel();
-			sendRequest(hotelmania, request, Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
+			sendRequestEmpty(hotelmania, Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
 	}
@@ -537,7 +534,7 @@ public class AgHotel2 extends MetaAgent {
 			}
 			
 			//missing parameters?
-			if (numberOfClientsQueryRef == null || numberOfClientsQueryRef.getHotel_name() == null ) {
+			if (numberOfClientsQueryRef == null) {
 				this.log = Constants.NOT_UNDERSTOOD;
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 				reply.setContent("There are missing parameters: NumberOfClientsQueryRef action or hotel name");
@@ -550,7 +547,7 @@ public class AgHotel2 extends MetaAgent {
 
 			} else {
 				//request is valid
-				hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getHotel_name(), numberOfClientsQueryRef.getDay());
+				hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getDay());
 				try {
 					this.log = Constants.INFORM;
 					reply.setPerformative(ACLMessage.INFORM);
@@ -562,7 +559,7 @@ public class AgHotel2 extends MetaAgent {
 			return reply;
 		}
 
-		private hotelmania.ontology.NumberOfClients getNumberOfClients(String hotelName, int day) { 
+		private hotelmania.ontology.NumberOfClients getNumberOfClients(int day) { 
 			hotelmania.ontology.NumberOfClients numberOfClients = new NumberOfClients(); 
 			int clients = bookDAO.getClientsAtDay(day);
 			numberOfClients.setNum_clients(clients);

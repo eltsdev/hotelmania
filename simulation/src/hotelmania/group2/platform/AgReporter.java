@@ -1,7 +1,6 @@
 package hotelmania.group2.platform;
 
 import hotelmania.ontology.GetFinanceReport;
-import hotelmania.ontology.QueryHotelmaniaHotel;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
@@ -76,8 +75,7 @@ public class AgReporter extends MetaAgent
 		}
 
 		public void consultHotelInfo() {
-			QueryHotelmaniaHotel consult_request = new QueryHotelmaniaHotel();
-			sendRequest(agHotelmania, consult_request,
+			sendRequestEmpty(agHotelmania, 
 					Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 

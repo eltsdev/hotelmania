@@ -152,6 +152,15 @@ public abstract class MetaAgent extends Agent {
 		System.out.println(myName() + ": REQUESTS " + content.getClass().getSimpleName());
 	}
 	
+	public void sendRequestEmpty(AID receiver, String protocol, int performative) {
+		ACLMessage msg = new ACLMessage(performative);
+		msg.addReceiver(receiver);
+		msg.setLanguage(this.codec.getName());
+		msg.setOntology(this.ontology.getName());
+		msg.setProtocol(protocol);
+		this.send(msg);
+		System.out.println(myName() + ": REQUESTS protocol: " + protocol);
+	}
 	
 	public void registerServices(String...services) {
 		DFAgentDescription dfd = new DFAgentDescription();
