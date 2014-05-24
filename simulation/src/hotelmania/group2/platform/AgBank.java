@@ -110,7 +110,7 @@ public class AgBank extends MetaAgent {
 				
 						//Execute
 						Hotel hotel = new Hotel(request.getHotel().getHotel_name(), msg.getSender());
-						hotelmania.ontology.Account account = registerNewAccount(hotel );
+						hotelmania.ontology.Account account = registerNewAccount(hotel);
 
 						/*
 						 * Inform Account Status

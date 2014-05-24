@@ -64,6 +64,14 @@ public class Account {
 		this.id = id;
 	}
 	
+	public void charge(float quantity) {
+		this.balance -= quantity;
+	}
+	
+	public void deposit(float quantity) {
+		this.balance += quantity;
+	}
+	
 	public hotelmania.ontology.Account getConcept() {
 		hotelmania.ontology.Account concept = new hotelmania.ontology.Account();
 		concept.setBalance(this.balance);
