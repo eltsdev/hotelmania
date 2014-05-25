@@ -90,7 +90,9 @@ public class AgBank extends MetaAgent {
 				block();
 				return;
 			}
-
+			
+			log.logReceivedMsg(msg);
+			
 			/*
 			 * The ContentManager transforms the message content (string) in
 			 */
@@ -117,10 +119,6 @@ public class AgBank extends MetaAgent {
 						 * Inform Account Status
 						 */
 						sendResponse(msg, account);
-
-						System.out.println(myName() + ": " + log
-								+ " Create Account success");
-
 					}
 				}
 
@@ -137,21 +135,17 @@ public class AgBank extends MetaAgent {
 			predicate_account.setAccount(accountOnto);
 			
 			if (accountOnto == null) {
-				this.log = Constants.FAILURE;
 				inform.setPerformative(ACLMessage.FAILURE);
-
 			} else {
 				try {
-					this.log = Constants.INFORM;
 					inform.setPerformative(ACLMessage.INFORM);
 					getContentManager().fillContent(inform, predicate_account);
-					send(inform);
-					
 				} catch (CodecException | OntologyException e) {
 					e.printStackTrace();
 				}
 			}
-			//FIXME: OJO this is not sent!			return inform;
+			send(inform);
+			log.logSendReply(inform);
 		}
 
 		/**
@@ -160,24 +154,16 @@ public class AgBank extends MetaAgent {
 		 * @return
 		 */
 		private void validateAndSendAgree(ACLMessage msg, CreateAccountRequest accountData) {
-			System.out.println(myName()
-					+ ": received Create Account Request from "
-					+ msg.getSender().getLocalName());
-
 			ACLMessage reply = msg.createReply();
 			
 			if (accountData != null && accountData.getHotel() != null) {
 				reply.setPerformative(ACLMessage.AGREE);
-				this.log = Constants.AGREE;
 			} else {
 				reply.setPerformative(ACLMessage.REFUSE);
-				this.log = Constants.REFUSE;
 			}
 
 			myAgent.send(reply);
-
-			System.out.println(myName() + ": answer sent -> "
-					+ log);
+			log.logSendReply(reply);
 		}
 
 		/**
@@ -232,29 +218,20 @@ public class AgBank extends MetaAgent {
 				// send reply
 				ACLMessage reply = answerGetInfoAccount(msg, account);
 				myAgent.send(reply);
-
-				System.out.println(myName() + ": answer sent -> "
-						+ this.log);
+				log.logSendReply(reply);
 			}
 		}
 
 		private ACLMessage answerGetInfoAccount(ACLMessage msg, Account account) {
-
-			System.out.println(myName()
-					+ ": received " + msg.getProtocol() + " Request from "
-					+ msg.getSender().getLocalName());
-
 			ACLMessage reply = msg.createReply();
 
 			// Send the response
 			if (account == null) {
-				this.log = Constants.FAILURE;
 				reply.setPerformative(ACLMessage.FAILURE);
 			} else {
 				AccountStatus accountStatus = new AccountStatus();
 				accountStatus.setAccount(account.getConcept());
 				try {
-					this.log = Constants.INFORM;
 					reply.setPerformative(ACLMessage.INFORM);
 					myAgent.getContentManager().fillContent(reply, accountStatus);
 				} catch (CodecException | OntologyException e) {
@@ -294,6 +271,8 @@ public class AgBank extends MetaAgent {
 				return;
 			}
 
+			log.logReceivedMsg(msg);
+			
 			/*
 			 * The ContentManager transforms the message content (string) in
 			 */
@@ -308,12 +287,9 @@ public class AgBank extends MetaAgent {
 					// If the action is Charge Account...
 					if (conc instanceof ChargeAccount) {
 						// execute request
-						ACLMessage reply = chargeAccount(msg,
-								(ChargeAccount) conc);
+						ACLMessage reply = chargeAccount(msg,(ChargeAccount) conc);
 						myAgent.send(reply);
-
-						System.out.println(myName()
-								+ ": answer sent -> " + log);
+						log.logSendReply(reply);
 					}
 				}
 
@@ -323,23 +299,16 @@ public class AgBank extends MetaAgent {
 		}
 
 		private ACLMessage chargeAccount(ACLMessage msg, ChargeAccount money) {
-			System.out.println(myName()
-					+ ": received Cliente Deposit Request from "
-					+ msg.getSender().getLocalName());
-
 			ACLMessage reply = msg.createReply();
 
 			if (money != null && money.getHotel() != null) {
 				if (chargeMoney(money)) {
 					reply.setPerformative(ACLMessage.AGREE);
-					this.log = Constants.AGREE;
 				} else {
 					reply.setPerformative(ACLMessage.REFUSE);
-					this.log = Constants.REFUSE;
 				}
 			} else {
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-				this.log = Constants.NOT_UNDERSTOOD;
 			}
 
 			return reply;
@@ -382,6 +351,8 @@ public class AgBank extends MetaAgent {
 				return;
 			}
 
+			log.logReceivedMsg(msg);
+			
 			/*
 			 * The ContentManager transforms the message content (string) in
 			 */
@@ -398,9 +369,7 @@ public class AgBank extends MetaAgent {
 						// execute request
 						ACLMessage reply = makeDeposit(msg, (MakeDeposit) conc);
 						myAgent.send(reply);
-
-						System.out.println(myName()
-								+ ": answer sent -> " + log);
+						log.logSendReply(reply);
 					}
 				}
 
@@ -411,23 +380,16 @@ public class AgBank extends MetaAgent {
 		}
 
 		private ACLMessage makeDeposit(ACLMessage msg, MakeDeposit deposit) {
-			System.out.println(myName()
-					+ ": received Cliente Deposit Request from "
-					+ msg.getSender().getLocalName());
-
 			ACLMessage reply = msg.createReply();
 
 			if (deposit != null && deposit.getHotel() != null) {
 				if (registerNewDeposit(deposit)) {
-					this.log = Constants.AGREE;
 					reply.setPerformative(ACLMessage.AGREE);
 					// TODO attach the hotels info!!!
 				} else {
-					this.log = Constants.REFUSE;
 					reply.setPerformative(ACLMessage.REFUSE);
 				}
 			} else {
-				this.log = Constants.NOT_UNDERSTOOD;
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 			}
 			return reply;
@@ -467,6 +429,8 @@ public class AgBank extends MetaAgent {
 				block();
 				return;
 			}
+			
+			log.logReceivedMsg(msg);
 
 			/*
 			 * The ContentManager transforms the message content (string) in objects
@@ -493,7 +457,6 @@ public class AgBank extends MetaAgent {
 			ACLMessage reply = msg.createReply();
 
 			if (accounts != null && !accounts.isEmpty()) {
-				this.log = Constants.INFORM;
 				reply.setPerformative(ACLMessage.INFORM);
 				// The ContentManager transforms the java objects into strings
 				try {
@@ -504,15 +467,14 @@ public class AgBank extends MetaAgent {
 				}				
 
 			} else {
-				this.log = Constants.REFUSE;
 				reply.setPerformative(ACLMessage.REFUSE);
 				reply.setContent("No hotels registered yet.");
 			}
 			//..there is no option of NOT UNDERSTOOD
 
 			//Send
-			System.out.println(myName() + ": answer sent -> " + this.log);
 			myAgent.send(reply);
+			log.logSendReply(reply);
 		}
 
 		private ContentElementList buildFinanceReport() {

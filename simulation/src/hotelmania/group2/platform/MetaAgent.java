@@ -26,6 +26,8 @@ public abstract class MetaAgent extends Agent {
 
 	private static final long serialVersionUID = 3898945377957867754L;
 	
+	protected Logger log = new Logger(this);
+	
 	// Codec for the SL language used
 	protected Codec codec = new SLCodec();
 
@@ -52,7 +54,7 @@ public abstract class MetaAgent extends Agent {
 	protected void setup() {
 		super.setup();
 		
-		System.out.println(myName() + ": HAS ENTERED");
+		Logger.logDebug(myName() + ": HAS ENTERED");
 		
 		addBehaviour(new ReceiveInformMsgBehavior(this));
 		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
@@ -114,7 +116,7 @@ public abstract class MetaAgent extends Agent {
 			e.printStackTrace();
 		}
 
-		//System.out.println(this.myName() + ": Agent not found:" + type);
+		//Logger.logDebug(this.myName() + ": Agent not found:" + type);
 		return null;
 	}
 
@@ -124,6 +126,7 @@ public abstract class MetaAgent extends Agent {
 		msg.setLanguage(this.codec.getName());
 		msg.setOntology(this.ontology.getName());
 		msg.setProtocol(protocol);
+		msg.setReplyWith(ConversationID.newCID());
 
 		// As it is an action and the encoding language the SL,
 		// it must be wrapped into an Action
@@ -138,7 +141,7 @@ public abstract class MetaAgent extends Agent {
 			oe.printStackTrace();
 		}
 
-		System.out.println(myName() + ": REQUESTS " + content.getClass().getSimpleName());
+		log.logSendRequest(msg);
 	}
 	
 
@@ -148,6 +151,7 @@ public abstract class MetaAgent extends Agent {
 		msg.setLanguage(this.codec.getName());
 		msg.setOntology(this.ontology.getName());
 		msg.setProtocol(protocol);
+		msg.setReplyWith(ConversationID.newCID());
 
 		// As it is an action and the encoding language the SL,
 		// it must be wrapped into an Action
@@ -161,8 +165,7 @@ public abstract class MetaAgent extends Agent {
 		} catch (OntologyException oe) {
 			oe.printStackTrace();
 		}
-
-		System.out.println(myName() + ": REQUESTS " + content.getClass().getSimpleName());
+		log.logSendRequest(msg);
 	}
 	
 	public void sendRequestEmpty(AID receiver, String protocol, int performative) {
@@ -171,8 +174,10 @@ public abstract class MetaAgent extends Agent {
 		msg.setLanguage(this.codec.getName());
 		msg.setOntology(this.ontology.getName());
 		msg.setProtocol(protocol);
+		msg.setReplyWith(ConversationID.newCID());
+		
 		this.send(msg);
-		System.out.println(myName() + ": REQUESTS protocol: " + protocol);
+		log.logSendRequest(msg);
 	}
 	
 	public void registerServices(String...services) {
@@ -187,7 +192,7 @@ public abstract class MetaAgent extends Agent {
 		try {	
 			// Registers its description in the DF
 			DFService.register(this, dfd);
-			System.out.println(myName() + ": registered in the DF");
+			Logger.logDebug(myName() + ": registered in the DF");
 			dfd = null;
 		} catch (FIPAException e) {
 			// TODO handle
@@ -201,13 +206,12 @@ public abstract class MetaAgent extends Agent {
 			return;
 		}
 
-		System.out.println(this.myName()+": subscription to day event sent!");
-
 		ACLMessage msg = new ACLMessage(ACLMessage.SUBSCRIBE);
 		msg.addReceiver(agSimulator);
 		msg.setProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL);
 		msg.setLanguage(this.codec.getName());
 		msg.setOntology(this.ontology.getName());
+		msg.setReplyWith(ConversationID.newCID());
 
 		SubscribeToDayEvent subscribeToDayEvent = new SubscribeToDayEvent();
 		Action action = new Action(agSimulator, subscribeToDayEvent);
@@ -220,6 +224,7 @@ public abstract class MetaAgent extends Agent {
 		}
 
 		addBehaviour(new DayEventSubscriptor(this, msg));
+		log.logSendRequest(msg);
 	}
 
 	private void addSubscriptionToEndSimulation(AID agSimulator) {
@@ -228,13 +233,12 @@ public abstract class MetaAgent extends Agent {
 			return;
 		}
 
-		System.out.println(this.myName()+": subscription to [end simulation] sent!");
-
 		ACLMessage msg = new ACLMessage(ACLMessage.SUBSCRIBE);
 		msg.addReceiver(agSimulator);
 		msg.setProtocol(Constants.END_SIMULATION_PROTOCOL);
 		msg.setLanguage(this.codec.getName());
 		msg.setOntology(this.ontology.getName());
+		msg.setReplyWith(ConversationID.newCID());
 
 		EndSimulation actionEndSim = new EndSimulation(); 
 		Action action = new Action(agSimulator, actionEndSim);
@@ -246,7 +250,8 @@ public abstract class MetaAgent extends Agent {
 			e.printStackTrace();
 		}
 
-		addBehaviour(new EndSimulationSubscriptor(this, msg)); 		
+		addBehaviour(new EndSimulationSubscriptor(this, msg));
+		log.logSendRequest(msg);
 	}
 
 	
@@ -259,13 +264,13 @@ public abstract class MetaAgent extends Agent {
 		}
 
 		protected void handleInform(ACLMessage inform) {
-			logInformMessage(inform.getProtocol(), inform);
+			log.logInformMessage(inform);
 			day++;
 			doOnNewDay();
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
-			logRefuseMessage(refuse.getProtocol(), refuse);
+			log.logRefuseMessage(refuse);
 		}
 
 		protected void handleFailure(ACLMessage failure) {
@@ -273,12 +278,12 @@ public abstract class MetaAgent extends Agent {
 			if (failure.getSender().equals(myAgent.getAMS())) {
 				// FAILURE notification from the JADE runtime: 
 				// the receiver does not exist
-				System.out.println("Responder does not exist");
+				Logger.logDebug("Responder does not exist");
 			} else {
-				System.out.println("failed to perform the requested action");
+				Logger.logDebug("failed to perform the requested action");
 			}
 			*/
-			logFailureMessage(failure.getProtocol(), failure);
+			log.logFailureMessage(failure);
 		}
 	}
 
@@ -291,22 +296,22 @@ public abstract class MetaAgent extends Agent {
 		}
 
 		protected void handleInform(ACLMessage inform) {
-			logInformMessage(inform.getProtocol(), inform);
+			log.logInformMessage(inform);
 			boolean die = doBeforeDie();
 			if (die) {
 				myAgent.doDelete();
-				System.out.println(myName()+": DIED");
+				Logger.logDebug(myName()+": DIED");
 			}else {
-				System.out.println(myName()+": RESISTED TO DIE");
+				Logger.logDebug(myName()+": RESISTED TO DIE");
 			}
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
-			logRefuseMessage(refuse.getProtocol(), refuse);
+			log.logRefuseMessage(refuse);
 		}
 
 		protected void handleFailure(ACLMessage failure) {
-			logFailureMessage(failure.getProtocol(), failure);
+			log.logFailureMessage(failure);
 		}
 	}
 	
@@ -325,7 +330,7 @@ public abstract class MetaAgent extends Agent {
 				ACLMessage msg = receive(agreeTemplate);
 	
 				if (msg != null) {
-					logAgreeMessage(msg.getProtocol(), msg);
+					log.logAgreeMessage( msg);
 					receivedAcceptance(msg);
 					
 				} else {
@@ -351,15 +356,8 @@ public abstract class MetaAgent extends Agent {
 			ACLMessage msg = receive(informTemplate);
 	
 			if (msg != null) {
-				logInformMessage(msg.getProtocol(), msg);
-				//TODO NOT NECESSARY ANYMORE: The message is now filtered. But this must be tested better.
-//				if (msg.getProtocol().equals(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)) {
-//					day++; 
-//					doOnNewDay();
-//				}
-				
+				log.logInformMessage( msg);				
 				receivedInform(msg);
-	
 			} else {
 				// If no message arrives
 				block();
@@ -383,7 +381,7 @@ public abstract class MetaAgent extends Agent {
 			ACLMessage msg = receive(refuseTemplate);
 			
 			if (msg != null) {
-				logRefuseMessage(msg.getProtocol(), msg);
+				log.logRefuseMessage(msg);
 				receivedReject(msg);
 			} else {
 				// If no message arrives
@@ -408,7 +406,7 @@ public abstract class MetaAgent extends Agent {
 			ACLMessage msg = receive(notUnderstoodTemplate);
 			
 			if (msg != null) {
-				logNotUnderstoodMessage(msg.getProtocol(), msg);
+				log.logNotUnderstoodMessage(msg);
 				receivedNotUnderstood(msg);
 			} else {
 				// If no message arrives
@@ -433,7 +431,7 @@ public abstract class MetaAgent extends Agent {
 			ACLMessage msg = receive(failureTemplate);
 			
 			if (msg != null) {
-				logFailureMessage(msg.getProtocol(), msg);
+				log.logFailureMessage(msg);
 				receivedFailure(msg);
 			} else {
 				// If no message arrives
@@ -478,29 +476,9 @@ public abstract class MetaAgent extends Agent {
 		return true;
 	}
 
-	//TODO define format for logs
-	public void logInformMessage(String protocol, ACLMessage message) {
-		System.out.println(this.myName()+": Received <Inform> for Protocol: "+protocol); 		
-	}
-
-	public void logAgreeMessage(String protocol, ACLMessage message) {
-		System.out.println(this.myName()+": Received <Agree> for Protocol: "+protocol);		
-	}
-
-	public void logRefuseMessage(String protocol, ACLMessage message) {
-		String cause = message.getContent()==null? "unknown": message.getContent();
-		System.out.println(this.myName()+": Received <Refuse> for Protocol: "+protocol + " - Cause: "+cause);				
-	}
-
-	public void logNotUnderstoodMessage(String protocol, ACLMessage message) {
-		String cause = message.getContent()==null? "unknown": message.getContent();
-		System.out.println(this.myName()+": Received <NotUnderstood> for Protocol: "+protocol + " - Cause: "+cause);
-	}
-	
-	public void logFailureMessage(String protocol, ACLMessage failure) {
-		String cause = failure.getContent()==null? "unknown": failure.getContent();
-		System.out.println(this.myName()+": Received <Failure> for Protocol: "+protocol + " - Cause: "+cause);
-	}
+	//-----------------------------------------------
+	// Message Reception Handling by Type
+	//-----------------------------------------------
 
 	public abstract void receivedAcceptance(ACLMessage message);
 

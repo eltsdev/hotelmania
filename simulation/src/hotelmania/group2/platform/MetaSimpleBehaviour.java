@@ -7,7 +7,6 @@ public class MetaSimpleBehaviour extends SimpleBehaviour {
 
 	private static final long serialVersionUID = 8351134354988629861L;
 	private boolean done;
-	protected String log = "";
 
 	public MetaSimpleBehaviour(Agent a) {
 		super(a);

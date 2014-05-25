@@ -1,15 +1,15 @@
 package hotelmania.group2.platform;
 
-import java.util.Random;
-
 import hotelmania.group2.dao.Client;
 import hotelmania.group2.dao.Stay;
+
+import java.util.Random;
 
 public class ClientGenerator {
 
 	private static Random randomNumber = new Random();
 
-	public static Client randomClient() {
+	public static Client randomClient()  {
 		Client client = new Client();
 		Stay stay = randomStay();
 		client.setStay(stay);
@@ -31,11 +31,15 @@ public class ClientGenerator {
 	public static double randomBetween(double lower, double upper) {
 		return randomNumber.nextDouble()*(upper-lower)+lower;
 	}
-	
+
+	/**
+	 * PRE: start+1 <= SIMULATION_DAYS
+	 * @return
+	 */
 	public static Stay randomStay() {
 		int start = randomBetween(1, Constants.SIMULATION_DAYS);
 		int end = randomBetween(start+1, Constants.SIMULATION_DAYS);
-		return new Stay(start, end);
+		return new Stay(start, end);			
 	}
 
 	/**

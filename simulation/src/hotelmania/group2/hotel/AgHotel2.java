@@ -4,6 +4,7 @@ import hotelmania.group2.dao.BookingDAO;
 import hotelmania.group2.dao.Price;
 import hotelmania.group2.dao.Stay;
 import hotelmania.group2.platform.Constants;
+import hotelmania.group2.platform.Logger;
 import hotelmania.group2.platform.MetaAgent;
 import hotelmania.group2.platform.MetaCyclicBehaviour;
 import hotelmania.group2.platform.MetaSimpleBehaviour;
@@ -144,6 +145,8 @@ public class AgHotel2 extends MetaAgent {
 				block();
 				return;
 			}
+			
+			log.logReceivedMsg(msg);
 
 			/*
 			 * The ContentManager transforms the message content (string) in
@@ -160,10 +163,10 @@ public class AgHotel2 extends MetaAgent {
 					if (conc instanceof BookRoom) {
 						// execute request
 						answerBookingRequest(msg,(BookRoom) conc);
-											
-						System.out.println(myName()	+ ": answer sent -> " + log);
 					}
 				}
+				
+				
 
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
@@ -178,25 +181,20 @@ public class AgHotel2 extends MetaAgent {
 		 * @return
 		 */
 		private void answerBookingRequest(ACLMessage msg, BookRoom bookData) {
-			System.out.println(myName() + ": received "	+ msg.getProtocol() +
-					" Request from " + msg.getSender().getLocalName());
 			// send reply
 			ACLMessage reply = msg.createReply();
 		
 			if(bookData!=null){
 				if( bookRoom(bookData)){
 					reply.setPerformative(ACLMessage.AGREE);
-					this.log = Constants.AGREE;
 				} else {
 					reply.setPerformative(ACLMessage.REFUSE);
-					this.log = Constants.REFUSE;
 				}
 			} else {
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-				this.log = Constants.NOT_UNDERSTOOD;
 			}
 			myAgent.send(reply);
-				
+			log.logSendReply(reply);
 		}
 
 		private boolean bookRoom(BookRoom book) {
@@ -237,16 +235,17 @@ public class AgHotel2 extends MetaAgent {
 				block();
 				return;
 			}
+			
+			log.logReceivedMsg(msg);
+			
 			Predicate conc = this.getPredicateFromMessage(msg);
-			System.out.println(conc.getClass().getName());
 			// If the action is Registration Request...
 			if (conc instanceof hotelmania.ontology.StayQueryRef) {
 				// execute request
 				ACLMessage reply = answerRoomPriceOffer(msg,(hotelmania.ontology.StayQueryRef) conc);
 				// send reply
 				myAgent.send(reply);
-
-				System.out.println(myName() + ": answer sent -> " + this.log + " to " + msg.getSender().getLocalName());
+				log.logSendReply(reply);
 			}
 			
 		}
@@ -257,41 +256,36 @@ public class AgHotel2 extends MetaAgent {
 		 * @return
 		 */
 		private ACLMessage answerRoomPriceOffer(ACLMessage msg,	hotelmania.ontology.StayQueryRef conc) {
-			System.out.println(myName() + ": received "	+ msg.getProtocol() + " Request from " + msg.getSender().getLocalName());
 			int totalDays;
 			ACLMessage reply = msg.createReply();
 		
 			//missing parameters?
 			if (conc == null) {
-				this.log = Constants.NOT_UNDERSTOOD;
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 				reply.setContent("There are missing parameters: BookinhgOffer protocol or Stay predicate is null");
-				return reply;
+			}else {
+				hotelmania.ontology.Stay stay = conc.getStay();
+				//Total numbers of day to stay
+				totalDays = stay.getCheckOut()-stay.getCheckIn();
 
-			}
-			hotelmania.ontology.Stay stay = conc.getStay();
-			//Total numbers of day to stay
-			totalDays = stay.getCheckOut()-stay.getCheckIn();
+				if (!bookDAO.isThereRoomAvailableAtDays(stay.getCheckIn(),stay.getCheckOut())) {
+					//not rooms
+					reply.setPerformative(ACLMessage.REFUSE);
+					reply.setContent("No rooms available");
 
-			if (!bookDAO.isThereRoomAvailableAtDays(stay.getCheckIn(),stay.getCheckOut())) {
-				//not rooms
-				this.log = Constants.REFUSE;
-				reply.setPerformative(ACLMessage.REFUSE);
-				reply.setContent("No rooms available");
-
-			} else {
-				//request is valid
-				float price = 	calculatePrice(totalDays);
-				BookingOffer offer_inform = new BookingOffer();
-				hotelmania.ontology.Price priceOffer = new hotelmania.ontology.Price();
-				priceOffer.setAmount(price);
-				offer_inform.setRoomPrice(priceOffer);
-				try {
-					this.log = Constants.INFORM;
-					reply.setPerformative(ACLMessage.INFORM);
-					myAgent.getContentManager().fillContent(reply, offer_inform);
-				} catch (CodecException | OntologyException e) {
-					e.printStackTrace();
+				} else {
+					//request is valid
+					float price = 	calculatePrice(totalDays);
+					BookingOffer offer_inform = new BookingOffer();
+					hotelmania.ontology.Price priceOffer = new hotelmania.ontology.Price();
+					priceOffer.setAmount(price);
+					offer_inform.setRoomPrice(priceOffer);
+					try {
+						reply.setPerformative(ACLMessage.INFORM);
+						myAgent.getContentManager().fillContent(reply, offer_inform);
+					} catch (CodecException | OntologyException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 			return reply;
@@ -372,7 +366,6 @@ public class AgHotel2 extends MetaAgent {
 			AccountStatusQueryRef request = new AccountStatusQueryRef();
 			request.setId_account(id_account);// TODO set real account id
 
-			System.out.println("Requesting status of Account id:"+request.getId_account());
 			sendRequest(agBank, request, Constants.CONSULTACCOUNTSTATUS_PROTOCOL, ACLMessage.QUERY_REF);
 
 			this.setDone(true);
@@ -498,6 +491,9 @@ public class AgHotel2 extends MetaAgent {
 				block();
 				return;
 			}
+			
+			log.logReceivedMsg(msg);
+			
 			Concept conc = this.getConceptFromMessage(msg);
 			// If the action is Registration Request...
 			if (conc instanceof NumberOfClientsQueryRef) {
@@ -505,9 +501,7 @@ public class AgHotel2 extends MetaAgent {
 				ACLMessage reply = answerGetNumberOfClients(msg,(NumberOfClientsQueryRef) conc);
 				// send reply
 				myAgent.send(reply);
-
-				System.out.println(myName() + ": answer sent -> "
-						+ this.log + " to " + msg.getSender().getLocalName());
+				log.logSendReply(reply);
 			}
 		}
 
@@ -520,9 +514,6 @@ public class AgHotel2 extends MetaAgent {
 		 * @return
 		 */
 		private ACLMessage answerGetNumberOfClients(ACLMessage msg,	NumberOfClientsQueryRef numberOfClientsQueryRef) {
-
-			System.out.println(myName() + ": received "	+ msg.getProtocol() + " Request from " + msg.getSender().getLocalName());
-
 			ACLMessage reply = msg.createReply();
 
 			boolean failure = false;
@@ -535,13 +526,11 @@ public class AgHotel2 extends MetaAgent {
 			
 			//missing parameters?
 			if (numberOfClientsQueryRef == null) {
-				this.log = Constants.NOT_UNDERSTOOD;
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 				reply.setContent("There are missing parameters: NumberOfClientsQueryRef action or hotel name");
 
 			} else if (failure || !(numberOfClientsQueryRef.getDay() >= Constants.FIRST_DAY && numberOfClientsQueryRef.getDay() <= theCurrentDay )) {
 				//invalid day in request?
-				this.log = Constants.REFUSE;
 				reply.setPerformative(ACLMessage.REFUSE);
 				reply.setContent("Day is in the future or before day 1.");
 
@@ -549,13 +538,14 @@ public class AgHotel2 extends MetaAgent {
 				//request is valid
 				hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getDay());
 				try {
-					this.log = Constants.INFORM;
 					reply.setPerformative(ACLMessage.INFORM);
 					myAgent.getContentManager().fillContent(reply, numberOfClients);
 				} catch (CodecException | OntologyException e) {
 					e.printStackTrace();
 				}
 			}
+			
+			log.logSendReply(reply);
 			return reply;
 		}
 
@@ -613,8 +603,6 @@ public class AgHotel2 extends MetaAgent {
 			try {
 				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
 				this.id_account = accountStatus.getAccount().getId_account();
-				System.out.println(myName() + ": Account Id:" + accountStatus.getAccount().getId_account());
-				System.out.println(myName() + ": Account Balance:" + accountStatus.getAccount().getBalance());
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -623,8 +611,7 @@ public class AgHotel2 extends MetaAgent {
 		}else if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_ACTION)) {
 			try {
 				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
-				
-				System.out.println(myName() + ": Account Balance:" + accountStatus.getAccount().getBalance());
+				Logger.logDebug("Account Balance:" + accountStatus.getAccount().getBalance());
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

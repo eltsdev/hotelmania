@@ -78,6 +78,8 @@ public class AgAgency extends MetaAgent
 				block();
 				return;
 			}
+			
+			log.logReceivedMsg(msg);
 	
 			// The ContentManager transforms the message content (string) in java objects
 			try {
@@ -95,8 +97,7 @@ public class AgAgency extends MetaAgent
 						//execute request
 						ACLMessage reply = answerContractRequest(msg, (SignContract) conc);
 						myAgent.send(reply);
-						
-						System.out.println(myName() + ": answer sent -> " + log );
+						log.logSendReply(reply);
 					}
 				}
 				
@@ -110,21 +111,16 @@ public class AgAgency extends MetaAgent
 
 		private ACLMessage answerContractRequest(ACLMessage msg, SignContract action)
 		{
-			System.out.println(myName()+": received "+action.getClass().getSimpleName()+" from "+msg.getSender().getLocalName());
-			
 			ACLMessage reply = msg.createReply();
 					
 			if (action != null && action.getHotel() != null ) {
 				if(signContractWithHotel(action))
 				{
-					this.log = Constants.AGREE;
 					reply.setPerformative(ACLMessage.AGREE);
 				} else {
-					this.log = Constants.REFUSE;
 					reply.setPerformative(ACLMessage.REFUSE);
 				}
 			} else {
-				this.log = Constants.NOT_UNDERSTOOD;
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 			}
 			return reply;

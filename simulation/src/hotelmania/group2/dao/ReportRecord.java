@@ -26,6 +26,6 @@ public class ReportRecord {
 
 	@Override
 	public String toString() {
-		return hotel+"\t\t"+rating+"\t\t$ "+balance;
+		return hotel+"\t\t\t"+rating+"\t\t\t$ "+balance;
 	}
 }

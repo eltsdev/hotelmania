@@ -14,8 +14,6 @@ public class MetaCyclicBehaviour extends CyclicBehaviour {
 
 	private static final long serialVersionUID = 1L;
 	
-	protected String log = "";
-
 	public MetaCyclicBehaviour(Agent a) {
 		super(a);
 	}
@@ -32,7 +30,8 @@ public class MetaCyclicBehaviour extends CyclicBehaviour {
 				Concept conc = agAction.getAction();
 				return conc;
 			}
-			System.out.println(myAgent.getLocalName() +" : getConceptFromMessage = null : No content extracted because it is not an action");
+			Logger.logError("[getConceptFromMessage] null : No content extracted because it is not an action");
+			
 		} catch (CodecException | OntologyException e) {
 			e.printStackTrace();
 		}
@@ -47,7 +46,7 @@ public class MetaCyclicBehaviour extends CyclicBehaviour {
 			if (content instanceof Predicate) {
 				return (Predicate)content;
 			}
-			System.out.println(myAgent.getLocalName() +" : getConceptFromMessage = null : No content extracted because it is not an action");
+			Logger.logError("[getPredicateFromMessage] null : No content extracted because it is not an action");
 		} catch (CodecException | OntologyException e) {
 			e.printStackTrace();
 		}

@@ -138,22 +138,22 @@ public class AgReporter extends MetaAgent
 			if (content != null) {
 				if (content instanceof ContentElementList) {
 					ContentElementList list = (ContentElementList) content;
-					System.out.println(myName() + ": Number of hotel accounts: " + list.size());
+					Logger.logDebug(myName() + ": Number of hotel accounts: " + list.size());
 					this.importAccountBalanceList(list);
 					
 				} else if (content instanceof AccountStatus) {
 					AccountStatus financeStatus = (AccountStatus) content;
 					addBalanceToReport(financeStatus.getAccount().getHotel().getHotel_name(), financeStatus.getAccount().getBalance());
-					System.out.println(myName() + ": Number of hotels accounts: 1 = " + financeStatus.getAccount().getHotel().getHotel_name());
+					Logger.logDebug(myName() + ": Number of hotels accounts: 1 = " + financeStatus.getAccount().getHotel().getHotel_name());
 				}
 				
 			} else {
-				System.out.println(myName() + ": Null number of hotels acounts");
+				Logger.logDebug(myName() + ": Null number of hotels acounts");
 			}
 		} catch (CodecException | OntologyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.out.println("Message: " + message.getContent());
+			Logger.logDebug("Message: " + message.getContent());
 		}
 	}
 
@@ -173,20 +173,20 @@ public class AgReporter extends MetaAgent
 			if (content != null) {
 				if (content instanceof ContentElementList) {
 					ContentElementList list = (ContentElementList) content;
-					System.out.println(myName() + ": Number of hotels ratings: " + list.size());
+					Logger.logDebug(myName() + ": Number of hotels ratings: " + list.size());
 					this.importRatingsList(list);
 				} else if (content instanceof HotelInformation) {
 					HotelInformation hotel = (HotelInformation) content;
 					addRatingToReport(hotel.getHotel().getHotel_name(), hotel.getRating());
-					System.out.println(myName() + ": Number of hotels ratings: 1 = " + hotel.getHotel().getHotel_name());
+					Logger.logDebug(myName() + ": Number of hotels ratings: 1 = " + hotel.getHotel().getHotel_name());
 				}
 			} else {
-				System.out.println(myName() + ": Null number of hotels ratings");
+				Logger.logDebug(myName() + ": Null number of hotels ratings");
 			}
 		} catch (CodecException | OntologyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.out.println("Message: " + message.getContent());
+			Logger.logDebug("Message: " + message.getContent());
 		}
 	}
 
@@ -222,11 +222,9 @@ public class AgReporter extends MetaAgent
 
 	public String generateSimulationReport() {
 		StringBuilder r = new StringBuilder();
-		r.append("==================================================================\n");
-		r.append("SIMULATION RESULTS\n");
-		r.append("==================================================================\n");
-		r.append("Hotel\t\tRating\t\tBalance");
-		r.append("__________________________________________________________________\n");
+		r.append("SIMULATION RESULTS\n\n"+
+				 "Hotel\t\t\tRating\t\t\tBalance\n"+
+				 "------\t\t\t------\t\t\t--------\n");
 		for (ReportRecord record : this.report.values()) {
 			r.append(record.toString());
 			r.append("\n");
@@ -240,9 +238,9 @@ public class AgReporter extends MetaAgent
 			writer = new PrintWriter(fileName, "UTF-8");
 			writer.println(data);
 			writer.close();	
-			System.out.println("SIMULATION REPORT GENERATED: "+fileName);
+			Logger.logDebug("SIMULATION REPORT GENERATED: "+fileName);
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
-			System.out.println("SIMULATION REPORT FAILED TO WRITE IN: "+fileName);
+			Logger.logDebug("SIMULATION REPORT FAILED TO WRITE IN: "+fileName);
 
 			// TODO Auto-generated catch block
 			e.printStackTrace();

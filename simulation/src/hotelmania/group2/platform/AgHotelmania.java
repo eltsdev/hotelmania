@@ -79,6 +79,8 @@ public class AgHotelmania extends MetaAgent
 				block();
 				return;
 			}
+			
+			log.logReceivedMsg(msg);
 
 			/*
 			 * The ContentManager transforms the message content (string) in
@@ -99,9 +101,7 @@ public class AgHotelmania extends MetaAgent
 						ACLMessage reply = answerRegistrationRequest(msg, (RegistrationRequest) conc);
 
 						myAgent.send(reply);
-
-						System.out.println(myName()
-								+ ": answer sent -> " + this.log);
+						log.logSendReply(reply);
 					}
 				}
 
@@ -120,8 +120,6 @@ public class AgHotelmania extends MetaAgent
 		 * @return Answer type
 		 */
 		private ACLMessage answerRegistrationRequest(ACLMessage msg, RegistrationRequest registrationRequestData) {
-			System.out.println(myName() + ": received Registration Request from " + msg.getSender().getLocalName());
-			
 			ACLMessage reply = msg.createReply();
 			
 			if (registrationRequestData != null
@@ -130,15 +128,12 @@ public class AgHotelmania extends MetaAgent
 				boolean registrationSuccessful = registerNewHotel(registrationRequestData.getHotel(), msg.getSender());
 				
 				if (registrationSuccessful) {
-					this.log = Constants.AGREE;
 					reply.setPerformative(ACLMessage.AGREE);
 				} else {
-					this.log = Constants.REFUSE;
 					reply.setPerformative(ACLMessage.REFUSE);
 					reply.setContent("Registration unsuccesful. The hotel name perhaps already existed in hotelmania.");
 				}
 			} else {
-				this.log = Constants.NOT_UNDERSTOOD;
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 				reply.setContent("Registration request is null or the hotel property is null.");
 			}
@@ -170,9 +165,9 @@ public class AgHotelmania extends MetaAgent
 			if (msg == null) {
 				block();
 				return;
-			} 
+			}
 			
-			System.out.println(myName() + ": received HotelsInfo Request from " + msg.getSender().getLocalName());
+			log.logReceivedMsg(msg);
 			
 			// execute request
 			ContentElementList hotels = getAllHotels();
@@ -185,7 +180,6 @@ public class AgHotelmania extends MetaAgent
 			ACLMessage reply = msg.createReply();
 			
 			if (hotels != null && !hotels.isEmpty()) {
-				this.log = Constants.INFORM;
 				reply.setPerformative(ACLMessage.INFORM);
 				// The ContentManager transforms the java objects into strings
 				try {
@@ -196,15 +190,14 @@ public class AgHotelmania extends MetaAgent
 				}				
 				
 			} else {
-				this.log = Constants.REFUSE;
 				reply.setPerformative(ACLMessage.REFUSE);
 				reply.setContent("No hotels registered yet.");
 			}
 			//..there is no option of NOT UNDERSTOOD
 			
 			//Send
-			System.out.println(myName() + ": answer sent -> " + this.log);
 			myAgent.send(reply);
+			log.logSendReply(reply);
 		}
 
 		private ContentElementList getAllHotels() {
@@ -241,6 +234,8 @@ public class AgHotelmania extends MetaAgent
 				return;
 			}
 
+			log.logReceivedMsg(msg);
+			
 			/*
 			 * The ContentManager transforms the message content (string) in a java object
 			 */
@@ -258,9 +253,7 @@ public class AgHotelmania extends MetaAgent
 						ACLMessage reply = rateHotel(msg, (RateHotel) conc);
 						// send reply
 						myAgent.send(reply);
-
-						System.out.println(myName()
-								+ ": answer sent -> " + this.log);
+						log.logSendReply(reply);
 					}
 				}
 
@@ -272,24 +265,16 @@ public class AgHotelmania extends MetaAgent
 
 
 		private ACLMessage rateHotel(ACLMessage msg, RateHotel ratingData) {
-		
-			System.out.println(myName()
-					+ ": received Rating Request from "
-					+ msg.getSender().getLocalName());
-
 			ACLMessage reply = msg.createReply();
 
 			if (ratingData != null && ratingData.getHotel() != null) {
 				if (registerNewRating(ratingData)) {
-					this.log = Constants.AGREE;
 					reply.setPerformative(ACLMessage.AGREE);
 				} else {
-					this.log = Constants.REFUSE;
 					reply.setPerformative(ACLMessage.REFUSE);
 					//TODO reply.setContent("");
 				}
 			} else {
-				this.log = Constants.NOT_UNDERSTOOD;
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 				//TODO 	reply.setContent("");
 			}

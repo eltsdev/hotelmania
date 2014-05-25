@@ -47,8 +47,7 @@ public class AgClient extends MetaAgent {
 		if (args != null && args.length == 1 && args[0] instanceof Client) {
 			this.client = (Client) args[0];
 		} else {
-			// throw new Exception("Invalid parameters to create this agent");
-			System.err.println(myName()+": Invalid parameters to create this agent client");
+			Logger.logError(myName()+": Invalid parameters to create this agent client");
 		}
 		// Behaviors
 
@@ -171,7 +170,7 @@ public class AgClient extends MetaAgent {
 //			if (lowestPriceBooking != null) {
 //				addBehaviour(new RequestBookingInHotelBehavior(myAgent, lowestPriceBooking));
 //			} else {
-//				System.out.println(getLocalName()+ ": no minimum hotel was found: " + bookingOffers.size());
+//				Logger.logDebug(getLocalName()+ ": no minimum hotel was found: " + bookingOffers.size());
 //				
 //			}
 
@@ -236,10 +235,10 @@ public class AgClient extends MetaAgent {
 		protected void handleElapsedTimeout() {
 			BookingOffer lowestPriceBooking=computeBestRoomPrice(bookingOffers);
 			if (lowestPriceBooking != null) {
-				System.out.println(getLocalName() + ": Has chosen lowestPriceBooking:" + lowestPriceBooking.getHotelInformation().getHotel().getName() + " Price: " + lowestPriceBooking.getPrice());
+				Logger.logDebug(getLocalName() + ": Has chosen lowestPriceBooking:" + lowestPriceBooking.getHotelInformation().getHotel().getName() + " Price: " + lowestPriceBooking.getPrice());
 				addBehaviour(new RequestBookingInHotelBehavior(myAgent, lowestPriceBooking));
 			} else {
-				System.out.println(getLocalName()+ ": no minimum hotel was found: " + bookingOffers.size());
+				Logger.logDebug(getLocalName()+ ": no minimum hotel was found: " + bookingOffers.size());
 			}
 		}
 		
@@ -433,7 +432,7 @@ public class AgClient extends MetaAgent {
 	public void receivedAcceptance(ACLMessage message) {
 		// TODO switch by message.getProtocol()
 		if (message.getProtocol().equals(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)) {
-			System.out.println();
+
 		}
 	}
 
@@ -493,17 +492,17 @@ public class AgClient extends MetaAgent {
 							bookingOffer.setPrice(price);
 						}
 					}
-					System.out.println(myName() + ": Price offeres: 1 = " + price);
+					Logger.logDebug(myName() + ": Price offeres: 1 = " + price);
 
 				}
 			} else {
-				System.out.println(myName() + ": Content was null. Trying to receive room price from Hotel: " + message.getSender().getLocalName());
+				Logger.logDebug(myName() + ": Content was null. Trying to receive room price from Hotel: " + message.getSender().getLocalName());
 			}
 
 		} catch (CodecException | OntologyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.out.println(myName() + ": Message: " + message.getContent());
+			Logger.logDebug(myName() + ": Message: " + message.getContent());
 		}
 	}
 
@@ -514,14 +513,14 @@ public class AgClient extends MetaAgent {
 		try {
 			NumberOfClients content = (NumberOfClients) getContentManager().extractContent(message);
 			if (content != null) {
-				System.out.println(myName() + ": Number of clients: " + content.getNum_clients());
+				Logger.logDebug(myName() + ": Number of clients: " + content.getNum_clients());
 			} else {
-				System.out.println(myName() + ": Number of clients: Not found (null)");
+				Logger.logDebug(myName() + ": Number of clients: Not found (null)");
 			}
 		} catch (CodecException | OntologyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.out.println(myName() + ": Message: " + message.getContent());
+			Logger.logDebug(myName() + ": Message: " + message.getContent());
 		}
 	}
 
@@ -536,23 +535,23 @@ public class AgClient extends MetaAgent {
 				// TODO complete handling
 				if (content instanceof ContentElementList) {
 					ContentElementList list = (ContentElementList) content;
-					System.out.println(myName() + ": Number of hotels: " + list.size());
+					Logger.logDebug(myName() + ": Number of hotels: " + list.size());
 					this.convertContenElementListToHotelInformationList(list);
 				} else if (content instanceof HotelInformation) {
 					HotelInformation hotelInformation = (HotelInformation) content;
 					BookingOffer bookingOffer = new BookingOffer(new hotelmania.group2.dao.HotelInformation(hotelInformation));
 					this.bookingOffers.add(bookingOffer);
-					System.out.println(myName() + ": Number of hotels: 1 = " + hotelInformation.getHotel().getHotel_name());
+					Logger.logDebug(myName() + ": Number of hotels: 1 = " + hotelInformation.getHotel().getHotel_name());
 				}
 				
 				addBehaviour(new ConsultRoomPriceBehavior(this));
 			} else {
-				System.out.println(myName() + ": Null number of hotels");
+				Logger.logDebug(myName() + ": Null number of hotels");
 			}
 		} catch (CodecException | OntologyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.out.println("Message: " + message.getContent());
+			Logger.logDebug("Message: " + message.getContent());
 		}
 	}
 

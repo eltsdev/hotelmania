@@ -61,4 +61,6 @@ public class Constants {
 	public static double CLIENTS_BUDGET;
 	public static double CLIENTS_BUDGET_VARIANCE;
 	public static String REPORT_FILE;
+	public static boolean LOG_DEBUG;
+	public static final String LOG_SEPARATOR = "\t";
 }

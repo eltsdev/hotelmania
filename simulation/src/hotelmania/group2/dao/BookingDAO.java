@@ -1,6 +1,7 @@
 package hotelmania.group2.dao;
 
 import hotelmania.group2.platform.Constants;
+import hotelmania.group2.platform.Logger;
 
 import java.util.ArrayList;
 
@@ -53,13 +54,13 @@ public class BookingDAO {
 			return true;
 		} else {
 			if (checkin >= checkout) {
-				System.out.println("[ERROR] BookingDAO.isThereRoomAvailableAtDays checkin should be lower than checkout: checkin->" + checkin + " checkout->" + checkout);
+				Logger.logError("BookingDAO.isThereRoomAvailableAtDays checkin should be lower than checkout: checkin->" + checkin + " checkout->" + checkout);
 			}
 			if (checkin < 1) {
-				System.out.println("[ERROR] BookingDAO.isThereRoomAvailableAtDays checkin should be grater than 0: checkin->" + checkin + " checkout->" + checkout);
+				Logger.logError("BookingDAO.isThereRoomAvailableAtDays checkin should be grater than 0: checkin->" + checkin + " checkout->" + checkout);
 			}
 			if (checkout > Constants.SIMULATION_DAYS) {
-				System.out.println("[ERROR] BookingDAO.isThereRoomAvailableAtDays checkout should not be grater than simulation days: checkin->" + checkin + " checkout->" + checkout + " SimulationDays->" + Constants.SIMULATION_DAYS);
+				Logger.logError("BookingDAO.isThereRoomAvailableAtDays checkout should not be grater than simulation days: checkin->" + checkin + " checkout->" + checkout + " SimulationDays->" + Constants.SIMULATION_DAYS);
 			}
 			return false;
 		}

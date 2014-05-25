@@ -77,18 +77,18 @@ public class AgPlatform2 extends MetaAgent
 		private void sendEndSimulationEventToSubscriptors() {
 			NotificationEndSimulation event = new NotificationEndSimulation(); 
 			
-			System.out.println("*************************************************************");
-			System.out.println("Simulation End");
-			System.out.println("*************************************************************");
+			Logger.logDebug("*************************************************************");
+			Logger.logDebug("Simulation End");
+			Logger.logDebug("*************************************************************");
 			
-			System.out.println(myName() + ": Sending end simulation order to  # subscribers: "+ endSimulationResponder.getSubscriptions().size());
+			Logger.logDebug(myName() + ": Sending end simulation order to  # subscribers: "+ endSimulationResponder.getSubscriptions().size());
 			
 			for(Object subscriptionObj : endSimulationResponder.getSubscriptions())
 			{
 				if (subscriptionObj instanceof Subscription) {
 					Subscription subscription = (Subscription) subscriptionObj;
 					notify(subscription, event);
-					System.out.println(myName()+": sending end simulation event to: "+subscription.getMessage().getSender().getLocalName());
+					Logger.logDebug(myName()+": sending end simulation event to: "+subscription.getMessage().getSender().getLocalName());
 				}
 			}
 		}
@@ -114,31 +114,31 @@ public class AgPlatform2 extends MetaAgent
 			dayEvent.setDay(day);
 			notificationDayEvent.setDayEvent(dayEvent);
 			
-			System.out.println("*************************************************************");
-			System.out.println("Day = "+day);
-			System.out.println("*************************************************************");
+			Logger.logDebug("*************************************************************");
+			Logger.logDebug("Day = "+day);
+			Logger.logDebug("*************************************************************");
 			
 			
-			System.out.println(myName() + ": Sending day notification to  # subscribers: "+ dayEventResponder.getSubscriptions().size());
+			Logger.logDebug(myName() + ": Sending day notification to  # subscribers: "+ dayEventResponder.getSubscriptions().size());
 			
 			for(Object subscriptionObj : dayEventResponder.getSubscriptions())
 			{
 				if (subscriptionObj instanceof Subscription) {
 					Subscription subscription = (Subscription) subscriptionObj;
 					notify(subscription, notificationDayEvent);
-					System.out.println(myName()+": sending day event to: "+subscription.getMessage().getSender().getLocalName());
 				}
 			}
 		}
 
-		private void notify(SubscriptionResponder.Subscription sub, Predicate data) {
+		private void notify(SubscriptionResponder.Subscription subscription, Predicate data) {
 			try {
-				ACLMessage notification = sub.getMessage().createReply();
+				ACLMessage notification = subscription.getMessage().createReply();
 				notification.addUserDefinedParameter(ACLMessage.IGNORE_FAILURE, "true");
 				notification.setPerformative(ACLMessage.INFORM);
 
 				getContentManager().fillContent(notification, data);
-				sub.notify(notification);
+				subscription.notify(notification);
+				log.logSendRequest(notification);
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -168,12 +168,18 @@ public class AgPlatform2 extends MetaAgent
 			Constants.CLIENTS_BUDGET_VARIANCE=Integer.parseInt(defaultProps.getProperty("clients.budget_variance","20"));
 			//TODO load other parameters...
 			Constants.REPORT_FILE=defaultProps.getProperty("","results.txt");
+			Constants.LOG_DEBUG=Boolean.parseBoolean(defaultProps.getProperty("log.debug","true"));
 			in.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		
+		if (Constants.SIMULATION_DAYS <= 1) {
+			//throw new Exception("ERROR: The number of days in the settings does not allow the generation of valid booking dates for clients. Please fix it: "+Constants.SIMULATION_DAYS);
+			Logger.logError("The number of days in the settings does not allow the generation of valid booking dates for clients. Please fix it to at least 2 days."+Constants.SIMULATION_DAYS);
 		}
 	}
 
@@ -285,7 +291,8 @@ public class AgPlatform2 extends MetaAgent
 
 		 protected ACLMessage handleSubscription(ACLMessage proposal) throws NotUnderstoodException ,RefuseException 
 		 {
-			 System.out.println(myName()+": ["+this.protocol+"]  subscription received from "+proposal.getSender().getLocalName());
+			 log.logReceivedMsg(proposal);
+			 ACLMessage reply = proposal.createReply();
 
 			 if (checkAction(proposal)) {
 
@@ -296,25 +303,19 @@ public class AgPlatform2 extends MetaAgent
 				 subscription = this.createSubscription(proposal);
 				 try {
 					 this.mySubscriptionManager.register(subscription);
+					 reply.setPerformative(ACLMessage.AGREE);
 				 } catch (Exception e) {
+					 reply.setPerformative(ACLMessage.FAILURE);
 					 e.printStackTrace();
-					 System.out.println(myName()+": ["+this.protocol+"]  error subscribing " + proposal.getSender().getLocalName() );
 				 }
-				 ACLMessage agree = proposal.createReply();
-				 agree.setPerformative(ACLMessage.AGREE);
-				 System.out.println(myName()+": ["+this.protocol+"]  subscription agree for " + proposal.getSender().getLocalName() );
-				 return agree;
 
 			 } else {
 				 // We refuse to perform the action
-				 //System.out.println("Agent "+myName()+": Refuse");
-				 //throw new RefuseException("check-failed");
-				 ACLMessage refuse = proposal.createReply();
-				 refuse.setPerformative(ACLMessage.REFUSE);
-				 System.out.println(myName()+": ["+this.protocol+"] refuse subscription from " + proposal.getSender().getLocalName() );
-				 return refuse;
+				 reply.setPerformative(ACLMessage.REFUSE);
 			 }
-
+			 
+			 log.logSendReply(reply);
+			 return reply;
 		 }
 
 		 private boolean checkAction(ACLMessage request) {
@@ -327,19 +328,21 @@ public class AgPlatform2 extends MetaAgent
 		 }
 
 		 // If the CANCEL message has a meaningful content, use it. 
-		 // Otherwise deregister the Subscription with the same convID (default)
+		 // Otherwise unregister the Subscription with the same convID (default)
 		 protected ACLMessage handleCancel(ACLMessage cancel) throws FailureException {
+			 log.logReceivedMsg(cancel);
+			 
 			 try {
-				 System.out.printf(myName()+": ["+this.protocol+"] %s: CANCEL subscription received from " +  cancel.getSender().getLocalName());
-				 //El SubscriptionManager elimina del registro la suscripcion
+				 //SubscriptionManager deletes subscription record
 				 this.mySubscriptionManager.deregister(this.subscription); //TODO check if: this.mySubscriptionManager.deregister(createSubscription(cancel));
 				 
 			 } catch (Exception e) {
-				 System.out.printf(myName()+": ["+this.protocol+"] %s: error removing subscription from " +  cancel.getSender().getLocalName());
+				 Logger.logError(myName()+": ["+this.protocol+"] %s: error removing subscription from " +  cancel.getSender().getLocalName());
 			 }
 
 			 ACLMessage response = cancel.createReply();
 			 response.setPerformative(ACLMessage.INFORM);
+			 log.logSendReply(response);
 			 return response;
 		 }
 
@@ -352,7 +355,6 @@ public class AgPlatform2 extends MetaAgent
 		AgentController ac = null;
 		
 		for (int i = 0; i < Constants.CLIENTS_PER_DAY; i++) {
-
 			try {
 				Client client = ClientGenerator.randomClient();
 
@@ -363,6 +365,7 @@ public class AgPlatform2 extends MetaAgent
 			} catch (StaleProxyException e) {
 				e.printStackTrace();
 			}
+
 		}
 	}
 
