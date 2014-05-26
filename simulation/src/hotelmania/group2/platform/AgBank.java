@@ -157,14 +157,12 @@ public class AgBank extends MetaAgent {
 		private void validateAndSendAgree(ACLMessage msg, CreateAccountRequest accountData) {
 			ACLMessage reply = msg.createReply();
 			
-			if (accountData != null && accountData.getHotel() != null) {
-				reply.setPerformative(ACLMessage.AGREE);
-			} else {
+			if (!(accountData != null && accountData.getHotel() != null)) {
+				//Integration requires this should not be sent: reply.setPerformative(ACLMessage.AGREE);
 				reply.setPerformative(ACLMessage.REFUSE);
+				myAgent.send(reply);
+				log.logSendReply(reply);
 			}
-
-			myAgent.send(reply);
-			log.logSendReply(reply);
 		}
 
 		/**

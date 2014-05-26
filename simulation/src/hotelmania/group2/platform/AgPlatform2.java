@@ -350,15 +350,19 @@ public class AgPlatform2 extends MetaAgent
 
 	 }
 
+	/**
+	 * Generate Clients Behavior
+	 * @param day
+	 */
 	private void generateClientsBehavior(int day) 
 	{
-		//Generate Clients Behavior
 		ContainerController cc = getContainerController();
 		AgentController ac = null;
 		
-		for (int i = 0; i < Constants.CLIENTS_PER_DAY; i++) {
+		// Generate clients except last day
+		for (int i = 0; i < Constants.CLIENTS_PER_DAY - 1 ; i++) {
 			try {
-				Client client = ClientGenerator.randomClient();
+				Client client = ClientGenerator.randomClient(day);
 
 				String clientName = "Client_born_"+day+"_#_"+i;
 				ac = cc.createNewAgent(clientName, AgClient.class.getName(), new Object[]{client});

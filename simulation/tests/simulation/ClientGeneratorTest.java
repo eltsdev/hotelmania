@@ -25,8 +25,9 @@ public class ClientGeneratorTest {
 
 	@Test
 	public void testRandomClient() {
+		int day = 5;
 		for (int i = 0; i < 100; i++) {
-			Client c = ClientGenerator.randomClient();
+			Client c = ClientGenerator.randomClient(day);
 			double oneDayBudget = c.getBudget()/c.getStay().getDays();
 			Assert.assertEquals(oneDayBudget , Constants.CLIENTS_BUDGET, Constants.CLIENTS_BUDGET_VARIANCE) ;
 		}
@@ -57,7 +58,7 @@ public class ClientGeneratorTest {
 	@Test
 	public void testRandomStay() {
 		for (int i = 0; i < 100 ; i++) {
-			Stay stay = ClientGenerator.randomStay();
+			Stay stay = ClientGenerator.randomStay(5);
 			Assert.assertTrue(stay.getDays() <= Constants.SIMULATION_DAYS);
 			Assert.assertTrue(stay.getCheckIn() <= Constants.SIMULATION_DAYS);
 			Assert.assertTrue(stay.getCheckOut() <= Constants.SIMULATION_DAYS);

@@ -9,9 +9,9 @@ public class ClientGenerator {
 
 	private static Random randomNumber = new Random();
 
-	public static Client randomClient()  {
+	public static Client randomClient(int today)  {
 		Client client = new Client();
-		Stay stay = randomStay();
+		Stay stay = randomStay(today);
 		client.setStay(stay);
 		client.setBudget(randomBudget()*stay.getDays());
 		return client;
@@ -36,8 +36,8 @@ public class ClientGenerator {
 	 * PRE: start+1 <= SIMULATION_DAYS
 	 * @return
 	 */
-	public static Stay randomStay() {
-		int start = randomBetween(1, Constants.SIMULATION_DAYS);
+	public static Stay randomStay(int today) {
+		int start = randomBetween(today, Constants.SIMULATION_DAYS);
 		int end = randomBetween(start+1, Constants.SIMULATION_DAYS);
 		return new Stay(start, end);			
 	}
