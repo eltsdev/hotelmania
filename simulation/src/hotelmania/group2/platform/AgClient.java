@@ -35,6 +35,8 @@ public class AgClient extends MetaAgent {
 
 	private Client client;
 
+	private boolean started = false;
+
 	// -------------------------------------------------
 	// Setup
 	// -------------------------------------------------
@@ -53,6 +55,7 @@ public class AgClient extends MetaAgent {
 
 		// Behaviors are added later...
 	}
+	
 
 	/**
 	 * This means: I AM interested on this event.
@@ -66,7 +69,8 @@ public class AgClient extends MetaAgent {
 	protected void doOnNewDay() {
 		super.doOnNewDay();
 		try {
-			if (this.getDay() == Constants.SIMULATION_TIME_TO_START) {
+			if (this.getDay() >= Constants.SIMULATION_TIME_TO_START && !started ) {
+				started = true;
 				addBehaviour(new ConsultHotelInfoBehavior(this));
 			}
 			
