@@ -1,5 +1,10 @@
 package hotelmania.group2.hotel;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
 import hotelmania.group2.dao.BookingDAO;
 import hotelmania.group2.dao.Price;
 import hotelmania.group2.dao.Stay;
@@ -47,6 +52,7 @@ public class AgHotel2 extends MetaAgent {
 	@Override
 	protected void setup() {
 		super.setup();
+		loadProperties();
 		this.registerServices(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION, Constants.BOOKROOM_ACTION, Constants.CONSULTROOMPRICES_ACTION);
 		
 		identity.setHotel_name(myName());
@@ -62,6 +68,37 @@ public class AgHotel2 extends MetaAgent {
 
 		
 		// TODO Consult account status
+	}
+	
+	private void loadProperties() {
+		// create and load default properties
+		Properties defaultProps = new Properties();
+		FileInputStream in;
+		try {
+			in = new FileInputStream("resources/settings.properties");
+			defaultProps.load(in);
+			//Official settings
+			Constants.DAY_IN_MILLISECONDS = Integer.parseInt(defaultProps.getProperty("day.length","15"))*1000;
+			Constants.SIMULATION_DAYS = Integer.parseInt(defaultProps.getProperty("simulation.days","10"));
+			Constants.CLIENTS_PER_DAY=Integer.parseInt(defaultProps.getProperty("simulation.clients_per_day","2"));
+			Constants.CLIENTS_BUDGET=Integer.parseInt(defaultProps.getProperty("clients.budget","90"));
+			Constants.CLIENTS_BUDGET_VARIANCE=Integer.parseInt(defaultProps.getProperty("clients.budget_variance","20"));
+			Constants.SIMULATION_TIME_TO_START = Integer.parseInt(defaultProps.getProperty("simulation.time_to_start","1"));
+			//Private settings
+			Constants.REPORT_FILE=defaultProps.getProperty("","results.txt");
+			Constants.LOG_DEBUG=Boolean.parseBoolean(defaultProps.getProperty("log.debug","true"));
+			in.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (Constants.SIMULATION_DAYS <= 1) {
+			//throw new Exception("ERROR: The number of days in the settings does not allow the generation of valid booking dates for clients. Please fix it: "+Constants.SIMULATION_DAYS);
+			Logger.logError("The number of days in the settings does not allow the generation of valid booking dates for clients. Please fix it to at least 2 days."+Constants.SIMULATION_DAYS);
+		}
 	}
 	
 	@Override
