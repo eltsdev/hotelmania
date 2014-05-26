@@ -419,7 +419,7 @@ public class AgClient extends MetaAgent {
 	private final class ConsultHotelNumberOfClientsBehavior extends	MetaSimpleBehaviour {
 
 		private static final long serialVersionUID = 1L;
-		private AID hotel = actual_hotel;
+		private AID hotel = actualHotel;
 
 		private ConsultHotelNumberOfClientsBehavior(Agent a) {
 			super(a);
