@@ -32,11 +32,11 @@ public class Logger{
 	//-----------------------------------------------
 	
 	public void logSendRequest(ACLMessage message) {
-		System.out.println(me.myName()+": Send_Request "+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo()); 		
+		System.out.println("[INFO]" + SEP + me.myName()+ SEP + "Send_Request "+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo()); 		
 	}
 	
 	public void logSendReply(ACLMessage message) {
-		System.out.println(me.myName()+": Send_Response "+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo()); 		
+		System.out.println("[INFO]"+ SEP + me.myName() + SEP +"Send_Response "+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo()); 		
 	}
 
 	//-----------------------------------------------
@@ -47,32 +47,32 @@ public class Logger{
 	//General
 	
 	public void logReceivedMsg(ACLMessage message) {
-		System.out.println(me.myName() + ": Received"+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: " + message.getProtocol() + SEP + "CID: "+message.getInReplyTo() + SEP + "From: " + message.getSender().getLocalName());		
+		System.out.println("[INFO]"+ SEP + me.myName() + SEP  + "Received"+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: " + message.getProtocol() + SEP + "CID: "+message.getInReplyTo() + SEP + "From: " + message.getSender().getLocalName());		
 	}
 	
 	//By Type
 	
 	public void logInformMessage(ACLMessage message) {
-		System.out.println(me.myName()+": Received" + SEP + "INFORM" + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo()); 
+		System.out.println("[INFO]"+ SEP + me.myName() + SEP +"Received" + SEP + "INFORM" + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo()); 
 	}
 
 	public void logAgreeMessage(ACLMessage message) {
-		System.out.println(me.myName()+": Received" + SEP + "AGREE" + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo());
+		System.out.println("[INFO]"+ SEP + me.myName() + SEP +"Received" + SEP + "AGREE" + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo());
 	}
 
 	public void logRefuseMessage(ACLMessage message) {
 		String cause = message.getContent()==null? "unknown": message.getContent();
-		System.out.println(me.myName()+": Received" + SEP + "REFUSE" + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo() + SEP + "Cause: "+cause);	
+		System.out.println("[INFO]"+ SEP + me.myName() + SEP +"Received" + SEP + "REFUSE" + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo() + SEP + "Cause: "+cause);	
 	}
 
 	public void logNotUnderstoodMessage(ACLMessage message) {
 		String cause = message.getContent()==null? "unknown": message.getContent();
-		System.out.println(me.myName()+": Received" + SEP + "NOT_UNDERSTOOD" + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo() + SEP + "Cause: "+cause);
+		System.out.println("[INFO]"+ SEP + me.myName() + SEP +"Received" + SEP + "NOT_UNDERSTOOD" + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo() + SEP + "Cause: "+cause);
 	}
 	
 	public void logFailureMessage(ACLMessage message) {
 		String cause = message.getContent()==null? "unknown": message.getContent();
-		System.out.println(me.myName()+": Received" + SEP + "FAILURE" + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo()+SEP+"Cause: "+cause);
+		System.out.println("[INFO]"+ SEP + me.myName() + SEP +"Received" + SEP + "FAILURE" + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo()+SEP+"Cause: "+cause);
 	}
 
 

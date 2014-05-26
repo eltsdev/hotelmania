@@ -161,12 +161,14 @@ public class AgPlatform2 extends MetaAgent
 		try {
 			in = new FileInputStream("resources/settings.properties");
 			defaultProps.load(in);
+			//Official settings
 			Constants.DAY_IN_MILLISECONDS = Integer.parseInt(defaultProps.getProperty("day.length","15"))*1000;
 			Constants.SIMULATION_DAYS = Integer.parseInt(defaultProps.getProperty("simulation.days","10"));
 			Constants.CLIENTS_PER_DAY=Integer.parseInt(defaultProps.getProperty("simulation.clients_per_day","2"));
 			Constants.CLIENTS_BUDGET=Integer.parseInt(defaultProps.getProperty("clients.budget","90"));
 			Constants.CLIENTS_BUDGET_VARIANCE=Integer.parseInt(defaultProps.getProperty("clients.budget_variance","20"));
-			//TODO load other parameters...
+			Constants.SIMULATION_TIME_TO_START = Integer.parseInt(defaultProps.getProperty("simulation.time_to_start","1"));
+			//Private settings
 			Constants.REPORT_FILE=defaultProps.getProperty("","results.txt");
 			Constants.LOG_DEBUG=Boolean.parseBoolean(defaultProps.getProperty("log.debug","true"));
 			in.close();

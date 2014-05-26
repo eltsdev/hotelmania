@@ -41,26 +41,19 @@ public class Constants {
 	public static final String SUBSCRIBETODAYEVENT_ACTION = SUBSCRIBETODAYEVENT_PROTOCOL;
 	public static final String END_SIMULATION_ACTION = END_SIMULATION_PROTOCOL;
 	
-	// Performatives
-	public static final String AGREE = "AGREE";
-	public static final String REFUSE = "REFUSE";
-	public static final String NOT_UNDERSTOOD = "NOT_UNDERSTOOD";
-	public static final String INFORM = "INFORM";
-	public static final String FAILURE = "FAILURE";
-	
-	
 	// Simulation parameters
-	public static final String HOTEL_NAME = "Hotel2";
 	public static final int FIRST_DAY = 1;
-	
-	// Simulation parameters
 	public static final int ROOMS_PER_HOTEL = 6;
 	public static int DAY_IN_MILLISECONDS;
 	public static int SIMULATION_DAYS;
 	public static int CLIENTS_PER_DAY;
 	public static double CLIENTS_BUDGET;
 	public static double CLIENTS_BUDGET_VARIANCE;
+	public static int SIMULATION_TIME_TO_START;
+	
+	// Private settings
+	public static final String HOTEL_NAME = "Hotel2";
+	public static final String LOG_SEPARATOR = "\t";
 	public static String REPORT_FILE;
 	public static boolean LOG_DEBUG;
-	public static final String LOG_SEPARATOR = "\t";
 }

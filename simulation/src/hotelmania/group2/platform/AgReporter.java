@@ -223,8 +223,8 @@ public class AgReporter extends MetaAgent
 	public String generateSimulationReport() {
 		StringBuilder r = new StringBuilder();
 		r.append("SIMULATION RESULTS\n\n"+
-				 "Hotel\t\t\tRating\t\t\tBalance\n"+
-				 "------\t\t\t------\t\t\t--------\n");
+				 "Hotel\t\t\tRating\t\tBalance\n"+
+				 "------\t\t\t------\t\t--------\n");
 		for (ReportRecord record : this.report.values()) {
 			r.append(record.toString());
 			r.append("\n");

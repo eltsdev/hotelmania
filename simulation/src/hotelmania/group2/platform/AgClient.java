@@ -49,10 +49,8 @@ public class AgClient extends MetaAgent {
 		} else {
 			Logger.logError(myName()+": Invalid parameters to create this agent client");
 		}
-		// Behaviors
 
-		addBehaviour(new ConsultHotelInfoBehavior(this));
-		// TODO refuse offer
+		// Behaviors are added later...
 	}
 
 	/**
@@ -62,10 +60,24 @@ public class AgClient extends MetaAgent {
 	protected boolean setRegisterForDayEvents() {
 		return true;
 	}
+	
+	@Override
+	protected void doOnNewDay() {
+		super.doOnNewDay();
+		try {
+			if (this.getDay() == Constants.SIMULATION_TIME_TO_START) {
+				addBehaviour(new ConsultHotelInfoBehavior(this));
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	// --------------------------------------------------------
 	// Behaviors
 	// --------------------------------------------------------
+
 	private final class RequestBookingInHotelBehavior extends MetaSimpleBehaviour {
 
 		private static final long serialVersionUID = -1417563883440156372L;
@@ -142,8 +154,8 @@ public class AgClient extends MetaAgent {
 		@Override
 		public void action() {
 			long time = (long) (Constants.DAY_IN_MILLISECONDS * 0.25);
-			addBehaviour(new sendPredicatesToHotelsBehaviour(myAgent, time));
-			addBehaviour(new chooseCheapestHotelBehaviour(myAgent, time*2));
+			addBehaviour(new SendPredicatesToHotelsBehaviour(myAgent, time));
+			addBehaviour(new ChooseCheapestHotelBehaviour(myAgent, time*2));
 //			Hotel hotel;
 //			int checkin = client.getStay().getCheckIn();
 //			int checkout = client.getStay().getCheckOut();
@@ -193,10 +205,10 @@ public class AgClient extends MetaAgent {
 //		}
 	}
 	
-	private final class sendPredicatesToHotelsBehaviour extends WakerBehaviour {
+	private final class SendPredicatesToHotelsBehaviour extends WakerBehaviour {
 		private static final long serialVersionUID = 1L;
 
-		public sendPredicatesToHotelsBehaviour(Agent a, long timeout) {
+		public SendPredicatesToHotelsBehaviour(Agent a, long timeout) {
 			super(a, timeout);
 		}
 		
@@ -224,10 +236,10 @@ public class AgClient extends MetaAgent {
 		
 	}
 	
-	private final class chooseCheapestHotelBehaviour extends WakerBehaviour {
+	private final class ChooseCheapestHotelBehaviour extends WakerBehaviour {
 		private static final long serialVersionUID = 1L;
 
-		public chooseCheapestHotelBehaviour(Agent a, long timeout) {
+		public ChooseCheapestHotelBehaviour(Agent a, long timeout) {
 			super(a, timeout);
 		}
 		
@@ -352,25 +364,25 @@ public class AgClient extends MetaAgent {
 		/**
   		 * @param agHotelMania
   		 */
-  		private void rateHotel(AID hotelMania) {
-  			RateHotel action_rating = new RateHotel();
-  
-  			// Hotel
- 		// Hotel hotel = new Hotel();
- 		// hotel.setHotel_name(actualHotel);
- 		// hotel.setHotelAgent(agHotel);
- 
- 		// TODO This part must be dynamic
- 		Rating rating = new Rating();
- 		rating.setChef_rating(10);
- 		rating.setPrice_rating(10);
- 		rating.setRoom_staff_rating(10);
- 		 action_rating.setHotel(this.hotel);
- 		 action_rating.setRatings(rating);
- 
- 		sendRequest(hotelMania, action_rating,
- 				Constants.RATEHOTEL_PROTOCOL, ACLMessage.REQUEST);
-  		}
+		private void rateHotel(AID hotelMania) {
+			RateHotel action_rating = new RateHotel();
+
+			// Hotel
+			// Hotel hotel = new Hotel();
+			// hotel.setHotel_name(actualHotel);
+			// hotel.setHotelAgent(agHotel);
+
+			// TODO This part must be dynamic
+			Rating rating = new Rating();
+			rating.setChef_rating(10);
+			rating.setPrice_rating(10);
+			rating.setRoom_staff_rating(10);
+			action_rating.setHotel(this.hotel);
+			action_rating.setRatings(rating);
+
+			sendRequest(hotelMania, action_rating,
+					Constants.RATEHOTEL_PROTOCOL, ACLMessage.REQUEST);
+		}
 	}
 
 	private final class ConsultHotelInfoBehavior extends MetaSimpleBehaviour {
@@ -455,12 +467,11 @@ public class AgClient extends MetaAgent {
 
 		}
 	}
+	
+	//-----------------------------
+	// Handling of INFORM messages
+	//-----------------------------
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see hotelmania.group2.platform.MetaAgent#receiveInform()
-	 */
 	@Override
 	public void receivedInform(ACLMessage message) {
 		if (message.getProtocol().equals(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)) {
@@ -472,11 +483,7 @@ public class AgClient extends MetaAgent {
 		}
 	}
 
-	/**
-	 * @param message
-	 */
 	private void handleConsultHotelsPriceInform(ACLMessage message) {
-
 		ContentElement content;
 		try {
 			content = getContentManager().extractContent(message);
@@ -492,7 +499,7 @@ public class AgClient extends MetaAgent {
 							bookingOffer.setPrice(price);
 						}
 					}
-					Logger.logDebug(myName() + ": Price offeres: 1 = " + price);
+					Logger.logDebug(myName() + ": Price offers: 1 = " + price);
 
 				}
 			} else {
@@ -506,9 +513,6 @@ public class AgClient extends MetaAgent {
 		}
 	}
 
-	/**
-	 * @param message
-	 */
 	private void handleConsultNumberOfClientsInform(ACLMessage message) {
 		try {
 			NumberOfClients content = (NumberOfClients) getContentManager().extractContent(message);
@@ -524,9 +528,6 @@ public class AgClient extends MetaAgent {
 		}
 	}
 
-	/**
-	 * @param message
-	 */
 	private void handleConsultHotelsInfoInform(ACLMessage message) {
 		try {
 			ContentElement content = getContentManager()
@@ -555,9 +556,6 @@ public class AgClient extends MetaAgent {
 		}
 	}
 
-	/**
-	 * @param content
-	 */
 	private void convertContenElementListToHotelInformationList(
 			ContentElementList list) {
 		// Hotel
