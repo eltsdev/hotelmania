@@ -34,7 +34,7 @@ public class AgHotelmania extends MetaAgent
 		//add the behaviours
 		addBehaviour(new ReceiveRegisterRequestBehavior(this));
 		addBehaviour(new ProvideHotelInfoBehavior(this));
-		//TODO addBehaviour(new ReceiveHotelRatingBehavior(this));
+		addBehaviour(new UpdateHotelRatingBehavior(this));
 	}
 	
 	/**

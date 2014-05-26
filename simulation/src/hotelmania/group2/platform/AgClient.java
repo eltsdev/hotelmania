@@ -29,8 +29,9 @@ public class AgClient extends MetaAgent {
 	private static final long serialVersionUID = 6748170421157254696L;
 
 	// private boolean bookingDone;
-	private AID actual_hotel;
+	private AID actualHotel;
 	private ArrayList<BookingOffer> bookingOffers = new ArrayList<BookingOffer>();
+	private BookingOffer actualBooking;
 
 	private Client client;
 
@@ -82,7 +83,6 @@ public class AgClient extends MetaAgent {
 
 		private static final long serialVersionUID = -1417563883440156372L;
 
-		private BookingOffer actual_booking;
 
 		private RequestBookingInHotelBehavior(Agent a) {
 			super(a);
@@ -90,18 +90,19 @@ public class AgClient extends MetaAgent {
 
 		public RequestBookingInHotelBehavior(Agent a, BookingOffer booking) {
 			super(a);
-			this.actual_booking = booking;
+			actualBooking = booking;
 		}
 
 		public void action() {
-			AID agHotel = this.actual_booking.getHotelInformation().getHotel().getAgent();
+			AID agHotel = actualBooking.getHotelInformation().getHotel().getAgent();
 			if (agHotel != null) {
-				bookRoom(this.actual_booking);
+				bookRoom(actualBooking);
 				
-				Hotel hotel= actual_booking.getHotelInformation().getHotel().getConcept();
+				Hotel hotel= actualBooking.getHotelInformation().getHotel().getConcept();
 //				bookingDeadline();
 				this.setDone(true);
-//				addBehaviour(new RateHotelBehavior(myAgent, hotel));
+				addBehaviour(new RateHotelBehavior(myAgent, hotel));
+//				addBehaviour(new ConsultHotelNumberOfClientsBehavior(myAgent));
 
 			}
 
@@ -130,8 +131,7 @@ public class AgClient extends MetaAgent {
 		action_booking.setPrice(price);
 		action_booking.setStay(stay);
 
-		sendRequest(agHotel, action_booking, Constants.BOOKROOM_PROTOCOL,
-				ACLMessage.REQUEST);
+		sendRequest(agHotel, action_booking, Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
 	}
 
 	private final class ConsultRoomPriceBehavior extends MetaSimpleBehaviour {
@@ -273,7 +273,7 @@ public class AgClient extends MetaAgent {
 	private final class MakeDepositBehavior extends MetaSimpleBehaviour {
 
 		private static final long serialVersionUID = -6125742370278108815L;
-		private BookingOffer actual_booking;
+		private BookingOffer actualBooking;
 		private AID agBank = null;
 
 		/**
@@ -281,7 +281,7 @@ public class AgClient extends MetaAgent {
 		 */
 		public MakeDepositBehavior(Agent a, BookingOffer bookingOffer) {
 			super(a);
-			this.actual_booking = bookingOffer;
+			this.actualBooking = bookingOffer;
 		}
 
 		/*
@@ -309,13 +309,12 @@ public class AgClient extends MetaAgent {
 
 		private void makeDeposit(AID bank) {
 			// Hotel
-			Hotel hotel = actual_booking.getHotelInformation().getHotel()
-					.getConcept();
+			Hotel hotel = actualBooking.getHotelInformation().getHotel().getConcept();
 
 			// TODO This part must be dynamic
 			MakeDeposit action_deposit = new MakeDeposit();
 			action_deposit.setHotel(hotel);
-			action_deposit.setMoney(actual_booking.getPrice());
+			action_deposit.setMoney(actualBooking.getPrice());
 
 			sendRequest(bank, action_deposit, Constants.MAKEDEPOSIT_PROTOCOL, ACLMessage.REQUEST);
 		}
@@ -356,8 +355,11 @@ public class AgClient extends MetaAgent {
 			} else {
 				rateHotel(agHotelMania);
 				this.setDone(true);
+				if(actualBooking!=null){
+					addBehaviour(new MakeDepositBehavior(myAgent, actualBooking));
 			}
 
+		}
 		}
 
 
@@ -365,7 +367,11 @@ public class AgClient extends MetaAgent {
   		 * @param agHotelMania
   		 */
 		private void rateHotel(AID hotelMania) {
+  			//Local attributes
 			RateHotel action_rating = new RateHotel();
+  			double cleanliness;
+  			double kitchen;
+  			double staff;
 
 			// Hotel
 			// Hotel hotel = new Hotel();
@@ -374,14 +380,14 @@ public class AgClient extends MetaAgent {
 
 			// TODO This part must be dynamic
 			Rating rating = new Rating();
+ 		//Calculate ratings
 			rating.setChef_rating(10);
 			rating.setPrice_rating(10);
 			rating.setRoom_staff_rating(10);
 			action_rating.setHotel(this.hotel);
 			action_rating.setRatings(rating);
 
-			sendRequest(hotelMania, action_rating,
-					Constants.RATEHOTEL_PROTOCOL, ACLMessage.REQUEST);
+ 		sendRequest(hotelMania, action_rating, Constants.RATEHOTEL_PROTOCOL, ACLMessage.REQUEST);
 		}
 	}
 
@@ -413,7 +419,7 @@ public class AgClient extends MetaAgent {
 	private final class ConsultHotelNumberOfClientsBehavior extends	MetaSimpleBehaviour {
 
 		private static final long serialVersionUID = 1L;
-		private AID hotel = actual_hotel;
+		private AID hotel = actualHotel;
 
 		private ConsultHotelNumberOfClientsBehavior(Agent a) {
 			super(a);
@@ -438,6 +444,31 @@ public class AgClient extends MetaAgent {
 					Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
+	}
+
+	private final class ConsultHotelStaffBehavior extends	MetaSimpleBehaviour {
+
+		/**
+		 * @param a
+		 */
+		public ConsultHotelStaffBehavior(Agent a) {
+			super(a);
+			// TODO This behaivor
+		}
+		/* (non-Javadoc)
+		 * @see jade.core.behaviours.Behaviour#block()
+		 */
+		@Override
+		public void block() {
+			// TODO Auto-generated method stub
+			super.block();
+		}
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -3797457040241510056L;
+	
 	}
 
 	@Override
@@ -556,8 +587,7 @@ public class AgClient extends MetaAgent {
 		}
 	}
 
-	private void convertContenElementListToHotelInformationList(
-			ContentElementList list) {
+	private void convertContenElementListToHotelInformationList(ContentElementList list) {
 		// Hotel
 		for (int i = 0; i < list.size(); i++) {
 			if (list.get(i) instanceof HotelInformation) {
