@@ -98,6 +98,16 @@ public class AgAgency extends MetaAgent
 						ACLMessage reply = answerContractRequest(msg, (SignContract) conc);
 						myAgent.send(reply);
 						log.logSendReply(reply);
+
+						if (reply.getPerformative()==ACLMessage.AGREE) {
+							reply.setPerformative(ACLMessage.INFORM);
+							myAgent.send(reply);
+							log.logSendReply(reply);
+						}else if (reply.getPerformative()==ACLMessage.REFUSE) {
+							reply.setPerformative(ACLMessage.FAILURE);
+							myAgent.send(reply);
+							log.logSendReply(reply);
+						}
 					}
 				}
 				

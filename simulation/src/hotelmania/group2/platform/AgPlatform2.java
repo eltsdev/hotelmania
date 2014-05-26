@@ -105,7 +105,9 @@ public class AgPlatform2 extends MetaAgent
 
 			sendDayNotificationToSubscriptors(day);
 
-			generateClientsBehavior(day);
+			if (day < Constants.SIMULATION_DAYS) {
+				generateClientsBehavior(day);
+			}
 		}
 
 		private void sendDayNotificationToSubscriptors(int day) {
@@ -360,7 +362,7 @@ public class AgPlatform2 extends MetaAgent
 		AgentController ac = null;
 		
 		// Generate clients except last day
-		for (int i = 0; i < Constants.CLIENTS_PER_DAY - 1 ; i++) {
+		for (int i = 0; i < Constants.CLIENTS_PER_DAY ; i++) {
 			try {
 				Client client = ClientGenerator.randomClient(day);
 
