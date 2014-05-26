@@ -48,7 +48,8 @@ public class AgBank extends MetaAgent {
 
 		registerServices(Constants.CREATEACCOUNT_ACTION,
 				Constants.CONSULTACCOUNTSTATUS_ACTION,
-				Constants.CONSULTFINANCEREPORT_ACTION);
+				Constants.CONSULTFINANCEREPORT_ACTION, 
+				Constants.MAKEDEPOSIT_ACTION);
 
 	}
 
@@ -396,8 +397,7 @@ public class AgBank extends MetaAgent {
 		}
 
 		private boolean registerNewDeposit(MakeDeposit deposit) {
-			return accountDAO.registerNewDeposit(deposit.getHotel()
-					.getHotel_name(), deposit.getMoney());
+			return accountDAO.registerNewDeposit(deposit.getHotel().getHotel_name(), deposit.getMoney());
 		}
 
 	}
@@ -414,12 +414,10 @@ public class AgBank extends MetaAgent {
 			/*
 			 * Look for messages
 			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.and(
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 							MessageTemplate.MatchLanguage(codec.getName()),
 							MessageTemplate.MatchOntology(ontology.getName())),
-							MessageTemplate
-							.MatchProtocol(Constants.CONSULTFINANCEREPORT_ACTION)),
+							MessageTemplate.MatchProtocol(Constants.CONSULTFINANCEREPORT_ACTION)),
 							MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
 
 			/*
@@ -503,10 +501,8 @@ public class AgBank extends MetaAgent {
 	public void receivedReject(ACLMessage message) {
 		// TODO Auto-generated method stub
 		if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
-		} else if (message.getProtocol().equals(
-				Constants.CONSULTACCOUNTSTATUS_PROTOCOL)) {
-		} else if (message.getProtocol().equals(
-				Constants.CHARGEACCOUNT_PROTOCOL)) {
+		} else if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)) {
+		} else if (message.getProtocol().equals(Constants.CHARGEACCOUNT_PROTOCOL)) {
 		} else if (message.getProtocol().equals(Constants.MAKEDEPOSIT_PROTOCOL)) {
 		}
 	}
@@ -516,11 +512,9 @@ public class AgBank extends MetaAgent {
 		// TODO Auto-generated method stub
 		if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
 			
-		} else if (message.getProtocol().equals(
-				Constants.CONSULTACCOUNTSTATUS_PROTOCOL)) {
+		} else if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)) {
 			
-		} else if (message.getProtocol().equals(
-				Constants.CHARGEACCOUNT_PROTOCOL)) {
+		} else if (message.getProtocol().equals(Constants.CHARGEACCOUNT_PROTOCOL)) {
 			
 		} else if (message.getProtocol().equals(Constants.MAKEDEPOSIT_PROTOCOL)) {
 			
