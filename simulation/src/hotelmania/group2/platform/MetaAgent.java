@@ -87,11 +87,8 @@ public abstract class MetaAgent extends Agent {
 	protected void doOnNewDay() {
 	}
 	
-	public int getDay() throws Exception {
-		if (day < Constants.FIRST_DAY || !setRegisterForDayEvents()) {
-			throw new Exception("Error: The agent tried to query the day without previous subscription to updates.");
-		}
-		return this.day;
+	public int getDay() {
+		return Constants.DAY;
 	}
 
 	public AID locateAgent(String type, Agent myAgent) {
@@ -265,7 +262,6 @@ public abstract class MetaAgent extends Agent {
 
 		protected void handleInform(ACLMessage inform) {
 			log.logInformMessage(inform);
-			day++;
 			doOnNewDay();
 		}
 

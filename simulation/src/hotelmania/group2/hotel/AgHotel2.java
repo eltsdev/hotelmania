@@ -48,6 +48,7 @@ public class AgHotel2 extends MetaAgent {
 	private Integer id_account;
 	boolean registered;
 	private final Hotel identity = new Hotel();
+	private int day = 0;
 
 	@Override
 	protected void setup() {
@@ -116,6 +117,7 @@ public class AgHotel2 extends MetaAgent {
 
 	@Override
 	protected void doOnNewDay() {
+		day ++;
 		hireDailyStaffBehaviorAction();
 	}
 
@@ -531,11 +533,11 @@ public class AgHotel2 extends MetaAgent {
 			
 			log.logReceivedMsg(msg);
 			
-			Concept conc = this.getConceptFromMessage(msg);
+			Predicate predicate = this.getPredicateFromMessage(msg);
 			// If the action is Registration Request...
-			if (conc instanceof NumberOfClientsQueryRef) {
+			if (predicate instanceof NumberOfClientsQueryRef) {
 				// execute request
-				ACLMessage reply = answerGetNumberOfClients(msg,(NumberOfClientsQueryRef) conc);
+				ACLMessage reply = answerGetNumberOfClients(msg,(NumberOfClientsQueryRef) predicate);
 				// send reply
 				myAgent.send(reply);
 				log.logSendReply(reply);
@@ -654,6 +656,12 @@ public class AgHotel2 extends MetaAgent {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	@Override
+	public int getDay() {
+		System.err.println("HOTEL: DAY IS = "+day);
+		return day;
 	}
 	
 }

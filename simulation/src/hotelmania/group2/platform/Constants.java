@@ -2,6 +2,7 @@ package hotelmania.group2.platform;
 
 
 public class Constants {
+	public static int DAY;
 	
 	// Protocols
 	public static final String BOOKROOM_PROTOCOL = "BookARoom";

@@ -106,7 +106,6 @@ public class AgClient extends MetaAgent {
 //				bookingDeadline();
 				this.setDone(true);
 				addBehaviour(new RateHotelBehavior(myAgent, hotel));
-//				addBehaviour(new ConsultHotelNumberOfClientsBehavior(myAgent));
 
 			}
 
@@ -379,13 +378,16 @@ public class AgClient extends MetaAgent {
 			if (agHotelMania == null) {
 				agHotelMania = locateAgent(Constants.RATEHOTEL_ACTION, myAgent);
 			} else {
-				rateHotel(agHotelMania);
-				this.setDone(true);
 				if(actualBooking!=null){
+					//TODO TEST BECAUSE IT CAN FAIL
 					addBehaviour(new MakeDepositBehavior(myAgent, actualBooking));
-			}
+					addBehaviour(new ConsultHotelNumberOfClientsBehavior(myAgent));
+					
+					rateHotel(agHotelMania);
+					this.setDone(true);
+				}
 
-		}
+			}
 		}
 
 
