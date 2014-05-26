@@ -135,7 +135,16 @@ public class AgClient extends MetaAgent {
 		action_booking.setPrice(price);
 		action_booking.setStay(stay);
 		
-		Logger.logDebug(myName()+": Sending request for booking. Checkin and Checkout: "+checkin+"  -  "+checkout);
+		int today;
+		try {
+			today = getDay();
+			Logger.logDebug(myName()+": Sending request for booking. Checkin and Checkout: "+checkin+"  -  "+checkout + " TODAY = "+today );
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		sendRequest(agHotel, action_booking, Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
 	}
 
