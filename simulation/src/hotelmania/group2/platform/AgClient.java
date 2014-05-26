@@ -130,7 +130,8 @@ public class AgClient extends MetaAgent {
 
 		action_booking.setPrice(price);
 		action_booking.setStay(stay);
-
+		
+		Logger.logDebug(myName()+": Sending request for booking. Checkin and Checkout: "+checkin+"  -  "+checkout);
 		sendRequest(agHotel, action_booking, Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
 	}
 
@@ -153,9 +154,20 @@ public class AgClient extends MetaAgent {
 		 */
 		@Override
 		public void action() {
-			long time = (long) (Constants.DAY_IN_MILLISECONDS * 0.25);
-			addBehaviour(new SendPredicatesToHotelsBehaviour(myAgent, time));
-			addBehaviour(new ChooseCheapestHotelBehaviour(myAgent, time*2));
+			try {
+				if (getDay() <= client.getStay().getCheckIn()) {
+					long time = (long) (Constants.DAY_IN_MILLISECONDS * 0.25);
+					addBehaviour(new SendPredicatesToHotelsBehaviour(myAgent, time));
+					addBehaviour(new ChooseCheapestHotelBehaviour(myAgent, time*2));
+				}
+				else {
+					//Die
+					doDelete();
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 //			Hotel hotel;
 //			int checkin = client.getStay().getCheckIn();
 //			int checkout = client.getStay().getCheckOut();
@@ -301,9 +313,10 @@ public class AgClient extends MetaAgent {
 				agBank = locateAgent(Constants.MAKEDEPOSIT_ACTION, myAgent);
 
 			} else {
-
 				makeDeposit(agBank);
 				this.setDone(true);
+				//Die
+				doDelete();
 			}
 		}
 
