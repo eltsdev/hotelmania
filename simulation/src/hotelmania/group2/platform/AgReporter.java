@@ -229,9 +229,14 @@ public class AgReporter extends MetaAgent
 		r.append("Number of clients generated: ");
 		r.append(Constants.CLIENTS_PER_DAY*Constants.SIMULATION_DAYS);
 		r.append("\n");
-		r.append("Participants: "+this.report.size());
+		r.append("Clients budget range: ");
+		r.append(Constants.CLIENTS_BUDGET-Constants.CLIENTS_BUDGET_VARIANCE);
+		r.append(" - ");
+		r.append(Constants.CLIENTS_BUDGET+Constants.CLIENTS_BUDGET_VARIANCE);
+		r.append(" (EUR)\n");
+		r.append("Participants: "+this.report.keySet().size());
 		r.append(Constants.SIMULATION_DAYS);
-		r.append("\n");
+		r.append("\n\n");
 		
 		r.append("Hotel\t\t\tRating\t\tBalance\t\t# Clients\n"+
 				 "------\t\t\t------\t\t--------\t\t----------\n");
