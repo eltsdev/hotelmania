@@ -90,6 +90,7 @@ public abstract class MetaAgent extends Agent {
 	}
 
 	protected void doOnNewDay() {
+		state.check(State.RECEIVED_DAY_NOTIFICATION);
 	}
 	
 	public int getDay() {
@@ -490,6 +491,7 @@ public abstract class MetaAgent extends Agent {
 	 * @return die true if this agent shall die immediately. False if the agent needs to keep alive.
 	 */
 	public boolean doBeforeDie() {
+		state.check(State.RECEIVED_ENDSIMULATION_NOTIFICATION);
 		return true;
 	}
 

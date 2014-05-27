@@ -5,7 +5,7 @@ import java.util.HashMap;
 public class AgentState {
 
 	public enum State {
-		LOADED, ENDSIMULATION_SUBSCRIBED, DAYEVENT_SUBSCRIBED, REGISTERED_HOTELMANIA, ACCOUNT_CREATED
+		LOADED, ENDSIMULATION_SUBSCRIBED, RECEIVED_ENDSIMULATION_NOTIFICATION, DAYEVENT_SUBSCRIBED, RECEIVED_DAY_NOTIFICATION, REGISTERED_HOTELMANIA, ACCOUNT_CREATED
 	}
 
 	private HashMap<State, Boolean> states;
@@ -19,16 +19,23 @@ public class AgentState {
 		this.logEnabled = logEnabled;
 		this.agent = agent;
 		this.states = new HashMap<>();
+		for (State s : State.values()) {
+			this.states.put(s, null);
+		}
 	}
 
 	public void check(State newState) {
 		states.put(newState, true);
-		Logger.logDebug(toString());
+		if (logEnabled) {
+			Logger.logDebug(toString());
+		}
 	}
 
 	public void uncheck(State newState) {
 		states.put(newState, false);
-		Logger.logDebug(toString());
+		if (logEnabled) {
+			Logger.logDebug(toString());
+		}
 	}
 
 	@Override
@@ -36,10 +43,10 @@ public class AgentState {
 		String output = "";
 
 		for (State s : states.keySet()) {
-			output += s.name() + ": " + states.get(s) + "\n";
+			output += s.name() + ":" + states.get(s) + "; ";
 		}
 
-		return getAgent() + " STATUS: \n" + output == "" ? "UNKNOWN" : output;
+		return getAgent() + ":\t [AGENTSTATUS] = " + (output == "" ? "UNKNOWN" : output);
 	}
 
 	public boolean isLogEnabled() {
@@ -57,5 +64,4 @@ public class AgentState {
 	public void setAgent(String agent) {
 		this.agent = agent;
 	}
-
 }

@@ -3,6 +3,7 @@ package hotelmania.group2.hotel;
 import hotelmania.group2.dao.BookingDAO;
 import hotelmania.group2.dao.Price;
 import hotelmania.group2.dao.Stay;
+import hotelmania.group2.platform.AgPlatform2;
 import hotelmania.group2.platform.AgentState.State;
 import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.Logger;
@@ -47,7 +48,6 @@ public class AgHotel2 extends MetaAgent {
 	
 	// Used in Create Account (when receive the Inform) and consultHotelAccountInfo
 	private Integer id_account;
-	boolean registered;
 	private final Hotel identity = new Hotel();
 	/**
 	 * This value is updated by simulator only if the subscription is TRUE
@@ -77,34 +77,7 @@ public class AgHotel2 extends MetaAgent {
 	}
 	
 	private void loadProperties() {
-		// create and load default properties
-		Properties defaultProps = new Properties();
-		FileInputStream in;
-		try {
-			in = new FileInputStream("resources/settings.properties");
-			defaultProps.load(in);
-			//Official settings
-			Constants.DAY_IN_MILLISECONDS = Integer.parseInt(defaultProps.getProperty("day.length","15"))*1000;
-			Constants.SIMULATION_DAYS = Integer.parseInt(defaultProps.getProperty("simulation.days","10"));
-			Constants.CLIENTS_PER_DAY=Integer.parseInt(defaultProps.getProperty("simulation.clients_per_day","2"));
-			Constants.CLIENTS_BUDGET=Integer.parseInt(defaultProps.getProperty("clients.budget","90"));
-			Constants.CLIENTS_BUDGET_VARIANCE=Integer.parseInt(defaultProps.getProperty("clients.budget_variance","20"));
-			Constants.SIMULATION_TIME_TO_START = Integer.parseInt(defaultProps.getProperty("simulation.time_to_start","1"));
-			//Private settings
-			Constants.REPORT_FILE=defaultProps.getProperty("","results.txt");
-			Constants.LOG_DEBUG=Boolean.parseBoolean(defaultProps.getProperty("log.debug","true"));
-			in.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		if (Constants.SIMULATION_DAYS <= 1) {
-			//throw new Exception("ERROR: The number of days in the settings does not allow the generation of valid booking dates for clients. Please fix it: "+Constants.SIMULATION_DAYS);
-			Logger.logError("The number of days in the settings does not allow the generation of valid booking dates for clients. Please fix it to at least 2 days."+Constants.SIMULATION_DAYS);
-		}
+		AgPlatform2.loadProperties();
 	}
 	
 	@Override
@@ -122,6 +95,7 @@ public class AgHotel2 extends MetaAgent {
 
 	@Override
 	protected void doOnNewDay() {
+		super.doOnNewDay();
 		this.day++;
 		Logger.logDebug("HOTEL: DAY IS "+day + " =========================================================================");
 		hireDailyStaffBehaviorAction();

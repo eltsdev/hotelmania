@@ -97,10 +97,7 @@ public class AgPlatform2 extends MetaAgent
 		{
 			//Day number
 			int day = getTickCount();
-			
-			Logger.logDebug("NEW DAY ============================================================================ "+day);
 			Constants.DAY = day;
-
 			if (isSimulationEnd(day)) {
 				stop();
 				return;
@@ -157,9 +154,7 @@ public class AgPlatform2 extends MetaAgent
 		}
 	}
 
-
-
-	private void loadProperties() {
+	public static void loadProperties() {
 		// create and load default properties
 		Properties defaultProps = new Properties();
 		FileInputStream in;
