@@ -57,20 +57,18 @@ public abstract class MetaAgent extends Agent {
 		super.setup();
 		
 		Logger.logDebug(myName() + ": HAS ENTERED");
-		
-		addBehaviour(new ReceiveInformMsgBehavior(this));
-		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
-		addBehaviour(new ReceiveRefuseMsgBehavior(this));
-		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
-		addBehaviour(new ReceiveFailureMsgBehavior(this));
+		state = new AgentState(false, myName());
+		state.check(State.LOADED);
 	
 		getContentManager().registerLanguage(this.codec);
 		getContentManager().registerOntology(this.ontology);
 		
 		addBehaviour(new LocateSimulatorBehavior(this));
-		
-		state = new AgentState(false, myName());
-		state.check(State.LOADED);
+		addBehaviour(new ReceiveInformMsgBehavior(this));
+		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
+		addBehaviour(new ReceiveRefuseMsgBehavior(this));
+		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
+		addBehaviour(new ReceiveFailureMsgBehavior(this));
 	}
 	
 	public String myName()
@@ -268,8 +266,8 @@ public abstract class MetaAgent extends Agent {
 
 		@Override
 		protected void handleAgree(ACLMessage agree) {
+			log.logAgreeMessage(agree);
 			state.check(State.DAYEVENT_SUBSCRIBED);
-			super.handleAgree(agree);
 		}
 		
 		protected void handleInform(ACLMessage inform) {
@@ -308,10 +306,12 @@ public abstract class MetaAgent extends Agent {
 		@Override
 		protected void handleAgree(ACLMessage agree) {
 			state.check(State.ENDSIMULATION_SUBSCRIBED);
+			log.logAgreeMessage(agree);
 			super.handleAgree(agree);
 		}
 		
 		protected void handleInform(ACLMessage inform) {
+			state.check(State.RECEIVED_ENDSIMULATION_NOTIFICATION);
 			log.logInformMessage(inform);
 			boolean die = doBeforeDie();
 			if (die) {
@@ -491,7 +491,6 @@ public abstract class MetaAgent extends Agent {
 	 * @return die true if this agent shall die immediately. False if the agent needs to keep alive.
 	 */
 	public boolean doBeforeDie() {
-		state.check(State.RECEIVED_ENDSIMULATION_NOTIFICATION);
 		return true;
 	}
 
