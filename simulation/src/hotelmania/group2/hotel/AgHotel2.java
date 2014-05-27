@@ -1,13 +1,9 @@
 package hotelmania.group2.hotel;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Properties;
-
 import hotelmania.group2.dao.BookingDAO;
 import hotelmania.group2.dao.Price;
 import hotelmania.group2.dao.Stay;
+import hotelmania.group2.platform.AgentState.State;
 import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.Logger;
 import hotelmania.group2.platform.MetaAgent;
@@ -35,6 +31,11 @@ import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
 public class AgHotel2 extends MetaAgent {
 
 	private static final long serialVersionUID = 2893904717857535232L;
@@ -43,12 +44,16 @@ public class AgHotel2 extends MetaAgent {
 	// -------------------------------------------------
 	// Agent Attributes
 	// -------------------------------------------------
-
+	
 	// Used in Create Account (when receive the Inform) and consultHotelAccountInfo
 	private Integer id_account;
 	boolean registered;
 	private final Hotel identity = new Hotel();
-	private int day = 0;
+	/**
+	 * This value is updated by simulator only if the subscription is TRUE
+	 */
+	private int day = Constants.FIRST_DAY-1;
+
 
 	@Override
 	protected void setup() {
@@ -66,9 +71,9 @@ public class AgHotel2 extends MetaAgent {
 		addBehaviour(new MakeRoomBookingBehavior(this));
 		addBehaviour(new ProvideRoomInfoBehavior(this));
 		// addBehaviour(new ConsultHotelInfoBehavior(this));
-
-		
 		// TODO Consult account status
+		
+		state.setLogEnabled(Constants.LOG_DEBUG);
 	}
 	
 	private void loadProperties() {
@@ -117,7 +122,8 @@ public class AgHotel2 extends MetaAgent {
 
 	@Override
 	protected void doOnNewDay() {
-		day ++;
+		this.day++;
+		Logger.logDebug("HOTEL: DAY IS "+day + " =========================================================================");
 		hireDailyStaffBehaviorAction();
 	}
 
@@ -555,20 +561,12 @@ public class AgHotel2 extends MetaAgent {
 		private ACLMessage answerGetNumberOfClients(ACLMessage msg,	NumberOfClientsQueryRef numberOfClientsQueryRef) {
 			ACLMessage reply = msg.createReply();
 
-			boolean failure = false;
-			int theCurrentDay = Constants.FIRST_DAY;
-			try {
-				theCurrentDay = getDay();
-			} catch (Exception e1) {
-				failure=true;
-			}
-			
 			//missing parameters?
 			if (numberOfClientsQueryRef == null) {
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 				reply.setContent("There are missing parameters: NumberOfClientsQueryRef action or hotel name");
 
-			} else if (failure || !(numberOfClientsQueryRef.getDay() >= Constants.FIRST_DAY && numberOfClientsQueryRef.getDay() <= theCurrentDay )) {
+			} else if (!(numberOfClientsQueryRef.getDay() >= Constants.FIRST_DAY && numberOfClientsQueryRef.getDay() <= getDay() )) {
 				//invalid day in request?
 				reply.setPerformative(ACLMessage.REFUSE);
 				reply.setContent("Day is in the future or before day 1.");
@@ -598,16 +596,21 @@ public class AgHotel2 extends MetaAgent {
 
 	@Override
 	public void receivedAcceptance(ACLMessage message) {
-		// TODO switch by message.getProtocol()
+		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
+			state.check(State.REGISTERED_HOTELMANIA);
+//		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+//			state.check(State.ACCOUNT_CREATED);
+		}
 	}
 
 	@Override
 	public void receivedReject(ACLMessage message) {
 		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
-			// TODO: DEFINE: addBehaviour(new
-			// RegisterInHotelmaniaBehavior(this));
+			state.uncheck(State.REGISTERED_HOTELMANIA);
 		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+			state.uncheck(State.ACCOUNT_CREATED);
 		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+			
 		} else if (message.getProtocol().equals(Constants.BOOKROOM_PROTOCOL)){
 			
 		}
@@ -620,9 +623,9 @@ public class AgHotel2 extends MetaAgent {
 	@Override
 	public void receivedNotUnderstood(ACLMessage message) {
 		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
-
+			state.uncheck(State.REGISTERED_HOTELMANIA);
 		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
-
+			state.uncheck(State.ACCOUNT_CREATED);
 		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
 
 		}else if( message.getProtocol().equals(Constants.BOOKROOM_PROTOCOL)){
@@ -642,6 +645,8 @@ public class AgHotel2 extends MetaAgent {
 			try {
 				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
 				this.id_account = accountStatus.getAccount().getId_account();
+				
+				state.check(State.ACCOUNT_CREATED);
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -660,7 +665,6 @@ public class AgHotel2 extends MetaAgent {
 	
 	@Override
 	public int getDay() {
-		System.err.println("HOTEL: DAY IS = "+day);
 		return day;
 	}
 	

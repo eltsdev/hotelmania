@@ -2,8 +2,6 @@ package hotelmania.group2.platform;
 
 
 public class Constants {
-	public static int DAY;
-	
 	// Protocols
 	public static final String BOOKROOM_PROTOCOL = "BookARoom";
 	public static final String RATEHOTEL_PROTOCOL = "RATEHOTEL";
@@ -57,4 +55,8 @@ public class Constants {
 	public static final String LOG_SEPARATOR = "\t";
 	public static String REPORT_FILE;
 	public static boolean LOG_DEBUG;
+
+	// Current day during simulation
+	public static int DAY = FIRST_DAY-1;
+
 }

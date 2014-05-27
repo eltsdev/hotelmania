@@ -98,7 +98,7 @@ public class AgPlatform2 extends MetaAgent
 			//Day number
 			int day = getTickCount();
 			
-			System.err.println("NEW DAY ============================================================================ "+day);
+			Logger.logDebug("NEW DAY ============================================================================ "+day);
 			Constants.DAY = day;
 
 			if (isSimulationEnd(day)) {

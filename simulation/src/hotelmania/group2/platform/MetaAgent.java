@@ -1,5 +1,6 @@
 package hotelmania.group2.platform;
 
+import hotelmania.group2.platform.AgentState.State;
 import hotelmania.ontology.EndSimulation;
 import hotelmania.ontology.SharedAgentsOntology;
 import hotelmania.ontology.SubscribeToDayEvent;
@@ -33,11 +34,6 @@ public abstract class MetaAgent extends Agent {
 
 	// External communication protocol's ontology
 	protected Ontology ontology = SharedAgentsOntology.getInstance();
-	
-	/**
-	 * This value is updated by simulator only if the subscription is TRUE
-	 */
-	private int day = Constants.FIRST_DAY-1;
 
 	/**
 	 * Message template used for all kind of agents (except for subscriptions)
@@ -50,6 +46,12 @@ public abstract class MetaAgent extends Agent {
 					MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL),
 					MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))));
 
+	
+	/**
+	 * State manager to track state changes 
+	 */
+	protected AgentState state;
+	
 	@Override
 	protected void setup() {
 		super.setup();
@@ -66,6 +68,9 @@ public abstract class MetaAgent extends Agent {
 		getContentManager().registerOntology(this.ontology);
 		
 		addBehaviour(new LocateSimulatorBehavior(this));
+		
+		state = new AgentState(false, myName());
+		state.check(State.LOADED);
 	}
 	
 	public String myName()
@@ -260,6 +265,12 @@ public abstract class MetaAgent extends Agent {
 			super(a, msg);
 		}
 
+		@Override
+		protected void handleAgree(ACLMessage agree) {
+			state.check(State.DAYEVENT_SUBSCRIBED);
+			super.handleAgree(agree);
+		}
+		
 		protected void handleInform(ACLMessage inform) {
 			log.logInformMessage(inform);
 			doOnNewDay();
@@ -267,6 +278,7 @@ public abstract class MetaAgent extends Agent {
 
 		protected void handleRefuse(ACLMessage refuse) {
 			log.logRefuseMessage(refuse);
+			state.uncheck(State.DAYEVENT_SUBSCRIBED);
 		}
 
 		protected void handleFailure(ACLMessage failure) {
@@ -280,6 +292,7 @@ public abstract class MetaAgent extends Agent {
 			}
 			*/
 			log.logFailureMessage(failure);
+			state.uncheck(State.DAYEVENT_SUBSCRIBED);
 		}
 	}
 
@@ -291,6 +304,12 @@ public abstract class MetaAgent extends Agent {
 			super(a, msg);
 		}
 
+		@Override
+		protected void handleAgree(ACLMessage agree) {
+			state.check(State.ENDSIMULATION_SUBSCRIBED);
+			super.handleAgree(agree);
+		}
+		
 		protected void handleInform(ACLMessage inform) {
 			log.logInformMessage(inform);
 			boolean die = doBeforeDie();
@@ -303,10 +322,12 @@ public abstract class MetaAgent extends Agent {
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
+			state.uncheck(State.ENDSIMULATION_SUBSCRIBED);
 			log.logRefuseMessage(refuse);
 		}
 
 		protected void handleFailure(ACLMessage failure) {
+			state.uncheck(State.ENDSIMULATION_SUBSCRIBED);
 			log.logFailureMessage(failure);
 		}
 	}
