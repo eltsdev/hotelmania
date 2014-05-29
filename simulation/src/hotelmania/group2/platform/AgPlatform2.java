@@ -141,7 +141,7 @@ public class AgPlatform2 extends MetaAgent
 				getContentManager().fillContent(notification, data);
 				subscription.notify(notification);
 				log.logSendRequest(notification);
-			}
+				}
 			catch (Exception e) {
 				e.printStackTrace();
 				//FIXME: Check whether a FAILURE message should be sent back.       

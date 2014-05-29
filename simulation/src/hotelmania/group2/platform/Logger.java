@@ -1,6 +1,8 @@
 package hotelmania.group2.platform;
 
+import jade.core.AID;
 import jade.lang.acl.ACLMessage;
+import jade.util.leap.Iterator;
 
 
 /**
@@ -32,7 +34,13 @@ public class Logger{
 	//-----------------------------------------------
 	
 	public void logSendRequest(ACLMessage message) {
-		System.out.println("[INFO]" + SEP + me.myName()+ SEP + "Send_Request "+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo()); 		
+		String receivers = "";
+		Iterator aids = message.getAllReceiver();
+		while (aids.hasNext()) {
+			AID receiver = (AID) aids.next();
+			receivers = receivers + receiver.getLocalName() + " ";
+		}
+		System.out.println("[INFO]" + SEP + me.myName()+ SEP + "Send_Request "+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo() + SEP + "TO:" + receivers); 		
 	}
 	
 	public void logSendReply(ACLMessage message) {
