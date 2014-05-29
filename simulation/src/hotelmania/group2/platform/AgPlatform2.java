@@ -135,11 +135,14 @@ public class AgPlatform2 extends MetaAgent
 		private void notify(SubscriptionResponder.Subscription subscription, Predicate data) {
 			try {
 				ACLMessage notification = subscription.getMessage().createReply();
-				notification.addUserDefinedParameter(ACLMessage.IGNORE_FAILURE, "true");
+				//notification.addUserDefinedParameter(ACLMessage.IGNORE_FAILURE, "true");
 				notification.setPerformative(ACLMessage.INFORM);
 
 				getContentManager().fillContent(notification, data);
 				subscription.notify(notification);
+				System.out.println(myName() + "Send notification of new day event to: " + subscription.getMessage().getSender().getLocalName());
+
+				//System.out.println(notification);
 				log.logSendRequest(notification);
 			}
 			catch (Exception e) {

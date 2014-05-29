@@ -634,7 +634,12 @@ public class AgHotel2 extends MetaAgent {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		} else if (message.getProtocol().equals(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)) {
+			Logger.logDebug("HOTEL: DAY IS "+day + " ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
 		}
+		
+
 	}
 	
 	@Override

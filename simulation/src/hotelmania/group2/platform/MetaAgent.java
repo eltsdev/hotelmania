@@ -239,7 +239,8 @@ public abstract class MetaAgent extends Agent {
 		msg.setProtocol(Constants.END_SIMULATION_PROTOCOL);
 		msg.setLanguage(this.codec.getName());
 		msg.setOntology(this.ontology.getName());
-		msg.setReplyWith(ConversationID.newCID());
+		msg.addUserDefinedParameter(ACLMessage.IGNORE_FAILURE, "true");
+		//msg.setReplyWith(ConversationID.newCID());
 
 		EndSimulation actionEndSim = new EndSimulation(); 
 		Action action = new Action(agSimulator, actionEndSim);
