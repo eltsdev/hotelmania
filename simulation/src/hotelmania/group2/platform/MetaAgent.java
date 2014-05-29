@@ -26,9 +26,9 @@ import jade.proto.SubscriptionInitiator;
 public abstract class MetaAgent extends Agent {
 
 	private static final long serialVersionUID = 3898945377957867754L;
-	
+
 	protected Logger log = new Logger(this);
-	
+
 	// Codec for the SL language used
 	protected Codec codec = new SLCodec();
 
@@ -38,31 +38,27 @@ public abstract class MetaAgent extends Agent {
 	/**
 	 * Message template used for all kind of agents (except for subscriptions)
 	 */
-	public final MessageTemplate BASIC_MESSAGE_TEMPLATE = MessageTemplate.and(MessageTemplate.and(
+	public final MessageTemplate BASIC_MESSAGE_TEMPLATE = MessageTemplate.and(
 			MessageTemplate.MatchLanguage(codec.getName()),
-			MessageTemplate.MatchOntology(ontology.getName())),
-			MessageTemplate.not(
-					MessageTemplate.or(
-					MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL),
-					MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))));
+			MessageTemplate.MatchOntology(ontology.getName()));
 
-	
+
 	/**
 	 * State manager to track state changes 
 	 */
 	protected AgentState state;
-	
+
 	@Override
 	protected void setup() {
 		super.setup();
-		
+
 		Logger.logDebug(myName() + ": HAS ENTERED");
 		state = new AgentState(false, myName());
 		state.check(State.LOADED);
-	
+
 		getContentManager().registerLanguage(this.codec);
 		getContentManager().registerOntology(this.ontology);
-		
+
 		addBehaviour(new LocateSimulatorBehavior(this));
 		addBehaviour(new ReceiveInformMsgBehavior(this));
 		addBehaviour(new ReceiveAcceptanceMsgBehavior(this));
@@ -70,18 +66,18 @@ public abstract class MetaAgent extends Agent {
 		addBehaviour(new ReceiveNotUnderstoodMsgBehavior(this));
 		addBehaviour(new ReceiveFailureMsgBehavior(this));
 	}
-	
+
 	public String myName()
 	{
 		return super.getLocalName();
 	}
- 
+
 	/**
 	 * Override to set the registration to day events.  
 	 * @return
 	 */
 	protected abstract boolean setRegisterForDayEvents();
-	
+
 	protected boolean setRegisterForEndSimulation()
 	{
 		return true;
@@ -90,13 +86,13 @@ public abstract class MetaAgent extends Agent {
 	protected void doOnNewDay() {
 		state.check(State.RECEIVED_DAY_NOTIFICATION);
 	}
-	
+
 	public int getDay() {
 		return Constants.DAY;
 	}
 
 	public AID locateAgent(String type, Agent myAgent) {
-	
+
 		DFAgentDescription directoryFDesc = new DFAgentDescription();
 		ServiceDescription service = new ServiceDescription();
 		service.setType(type);
@@ -144,7 +140,7 @@ public abstract class MetaAgent extends Agent {
 
 		log.logSendRequest(msg);
 	}
-	
+
 
 	public void sendRequestPredicate(AID receiver, Predicate content, String protocol, int performative) {
 		ACLMessage msg = new ACLMessage(performative);
@@ -156,7 +152,7 @@ public abstract class MetaAgent extends Agent {
 
 		// As it is an action and the encoding language the SL,
 		// it must be wrapped into an Action
-		
+
 		try {
 			// The ContentManager transforms the java objects into strings
 			this.getContentManager().fillContent(msg, content);
@@ -168,7 +164,7 @@ public abstract class MetaAgent extends Agent {
 		}
 		log.logSendRequest(msg);
 	}
-	
+
 	public void sendRequestEmpty(AID receiver, String protocol, int performative) {
 		ACLMessage msg = new ACLMessage(performative);
 		msg.addReceiver(receiver);
@@ -176,11 +172,11 @@ public abstract class MetaAgent extends Agent {
 		msg.setOntology(this.ontology.getName());
 		msg.setProtocol(protocol);
 		msg.setReplyWith(ConversationID.newCID());
-		
+
 		this.send(msg);
 		log.logSendRequest(msg);
 	}
-	
+
 	public void registerServices(String...services) {
 		DFAgentDescription dfd = new DFAgentDescription();
 		for (int i = 0; i < services.length; i++) {
@@ -200,7 +196,16 @@ public abstract class MetaAgent extends Agent {
 			e.printStackTrace();
 		}
 	}
-	
+
+	/*private void addSubscriptionToDayEventBehavior(AID agSimulator) {
+
+		if (agSimulator == null) {
+			return;
+		}
+		SubscribeToDayEvent subscribeToDayEvent = new SubscribeToDayEvent();
+		this.sendRequest(agSimulator, subscribeToDayEvent, Constants.SUBSCRIBETODAYEVENT_PROTOCOL, ACLMessage.SUBSCRIBE);
+	}*/
+
 	private void addSubscriptionToDayEventBehavior(AID agSimulator) {
 
 		if (agSimulator == null) {
@@ -255,9 +260,9 @@ public abstract class MetaAgent extends Agent {
 		log.logSendRequest(msg);
 	}
 
-	
+
 	private final class DayEventSubscriptor extends SubscriptionInitiator {
-		
+
 		private static final long serialVersionUID = 1L;
 
 		private DayEventSubscriptor(Agent a, ACLMessage msg) {
@@ -269,10 +274,10 @@ public abstract class MetaAgent extends Agent {
 			log.logAgreeMessage(agree);
 			state.check(State.DAYEVENT_SUBSCRIBED);
 		}
-		
+
 		protected void handleInform(ACLMessage inform) {
 			log.logInformMessage(inform);
-			doOnNewDay();
+			handleInformNewDay(inform);
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
@@ -289,14 +294,14 @@ public abstract class MetaAgent extends Agent {
 			} else {
 				Logger.logDebug("failed to perform the requested action");
 			}
-			*/
+			 */
 			log.logFailureMessage(failure);
 			state.uncheck(State.DAYEVENT_SUBSCRIBED);
 		}
 	}
-
+	
 	private final class EndSimulationSubscriptor extends SubscriptionInitiator {
-		
+
 		private static final long serialVersionUID = 1L;
 
 		private EndSimulationSubscriptor(Agent a, ACLMessage msg) {
@@ -309,17 +314,10 @@ public abstract class MetaAgent extends Agent {
 			log.logAgreeMessage(agree);
 			super.handleAgree(agree);
 		}
-		
+
 		protected void handleInform(ACLMessage inform) {
-			state.check(State.RECEIVED_ENDSIMULATION_NOTIFICATION);
 			log.logInformMessage(inform);
-			boolean die = doBeforeDie();
-			if (die) {
-				myAgent.doDelete();
-				Logger.logDebug(myName()+": DIED");
-			}else {
-				Logger.logDebug(myName()+": RESISTED TO DIE");
-			}
+			handleInformEndSimulation(inform);
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
@@ -333,34 +331,49 @@ public abstract class MetaAgent extends Agent {
 		}
 	}
 	
-	private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour {
-			
-			private static final long serialVersionUID = -4878774871721189228L;
+	private void handleInformNewDay(ACLMessage message) {
+		doOnNewDay();
+	}
 
-			MessageTemplate agreeTemplate = MessageTemplate.and(BASIC_MESSAGE_TEMPLATE,
-					MessageTemplate.MatchPerformative(ACLMessage.AGREE));
-	
-			private ReceiveAcceptanceMsgBehavior(Agent a) {
-				super(a);
-			}
-	
-			public void action() {
-				ACLMessage msg = receive(agreeTemplate);
-	
-				if (msg != null) {
-					log.logAgreeMessage( msg);
-					receivedAcceptance(msg);
-					
-				} else {
-					// If no message arrives
-					block();
-				}
-	
-			}
+	private void handleInformEndSimulation (ACLMessage message) {
+		state.check(State.RECEIVED_ENDSIMULATION_NOTIFICATION);
+		boolean die = doBeforeDie();
+		if (die) {
+			doDelete();
+			Logger.logDebug(myName()+": DIED");
+		}else {
+			Logger.logDebug(myName()+": RESISTED TO DIE");
+		}
+	}
+
+	private final class ReceiveAcceptanceMsgBehavior extends CyclicBehaviour {
+
+		private static final long serialVersionUID = -4878774871721189228L;
+
+		MessageTemplate agreeTemplate = MessageTemplate.and(BASIC_MESSAGE_TEMPLATE,
+				MessageTemplate.MatchPerformative(ACLMessage.AGREE));
+
+		private ReceiveAcceptanceMsgBehavior(Agent a) {
+			super(a);
 		}
 
+		public void action() {
+			ACLMessage msg = receive(agreeTemplate);
+
+			if (msg != null) {
+				log.logAgreeMessage( msg);
+				receivedAcceptance(msg);
+
+			} else {
+				// If no message arrives
+				block();
+			}
+
+		}
+	}
+
 	private final class ReceiveInformMsgBehavior extends CyclicBehaviour {
-	
+
 		private static final long serialVersionUID = -4878774871721189228L;
 
 		MessageTemplate informTemplate = MessageTemplate.and(BASIC_MESSAGE_TEMPLATE,
@@ -369,23 +382,30 @@ public abstract class MetaAgent extends Agent {
 		private ReceiveInformMsgBehavior(Agent a) {
 			super(a);
 		}
-	
+
 		public void action() {
 			ACLMessage msg = receive(informTemplate);
-	
+
 			if (msg != null) {
-				log.logInformMessage( msg);				
-				receivedInform(msg);
+				log.logInformMessage(msg);				
+
+				if (msg.getProtocol().equals(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)) {
+					handleInformNewDay(msg);
+				} else if(msg.getProtocol().equals(Constants.END_SIMULATION_PROTOCOL)) {
+					handleInformEndSimulation(msg);
+				} else {
+					receivedInform(msg);
+				}
 			} else {
 				// If no message arrives
 				block();
 			}
-	
+
 		}
 	}
 
 	private final class ReceiveRefuseMsgBehavior extends CyclicBehaviour {
-		
+
 		private static final long serialVersionUID = 1L;
 
 		MessageTemplate refuseTemplate = MessageTemplate.and(BASIC_MESSAGE_TEMPLATE,
@@ -397,7 +417,7 @@ public abstract class MetaAgent extends Agent {
 
 		public void action() {
 			ACLMessage msg = receive(refuseTemplate);
-			
+
 			if (msg != null) {
 				log.logRefuseMessage(msg);
 				receivedReject(msg);
@@ -410,19 +430,19 @@ public abstract class MetaAgent extends Agent {
 	}
 
 	private final class ReceiveNotUnderstoodMsgBehavior extends CyclicBehaviour {
-		
+
 		private static final long serialVersionUID = 1L;
 
 		MessageTemplate notUnderstoodTemplate = MessageTemplate.and(BASIC_MESSAGE_TEMPLATE,
 				MessageTemplate.MatchPerformative(ACLMessage.NOT_UNDERSTOOD));
-		
+
 		private ReceiveNotUnderstoodMsgBehavior(Agent a) {
 			super(a);
 		}
 
 		public void action() {
 			ACLMessage msg = receive(notUnderstoodTemplate);
-			
+
 			if (msg != null) {
 				log.logNotUnderstoodMessage(msg);
 				receivedNotUnderstood(msg);
@@ -433,21 +453,21 @@ public abstract class MetaAgent extends Agent {
 
 		}
 	}
-	
+
 	private final class ReceiveFailureMsgBehavior extends CyclicBehaviour {
 
 		private static final long serialVersionUID = 1L;
 
 		MessageTemplate failureTemplate = MessageTemplate.and(BASIC_MESSAGE_TEMPLATE,
 				MessageTemplate.MatchPerformative(ACLMessage.FAILURE));
-		
+
 		private ReceiveFailureMsgBehavior(Agent a) {
 			super(a);
 		}
 
 		public void action() {
 			ACLMessage msg = receive(failureTemplate);
-			
+
 			if (msg != null) {
 				log.logFailureMessage(msg);
 				receivedFailure(msg);
@@ -458,7 +478,7 @@ public abstract class MetaAgent extends Agent {
 
 		}
 	}	
-	
+
 	final class LocateSimulatorBehavior extends MetaSimpleBehaviour {
 
 		private static final long serialVersionUID = 9034688687283651380L;
@@ -477,7 +497,7 @@ public abstract class MetaAgent extends Agent {
 				{
 					addSubscriptionToDayEventBehavior(agSimulator);
 				}
-				
+
 				if (setRegisterForEndSimulation()) {
 					addSubscriptionToEndSimulation(agSimulator);
 				}
@@ -504,9 +524,9 @@ public abstract class MetaAgent extends Agent {
 	public abstract void receivedReject(ACLMessage message);
 
 	public  abstract void receivedNotUnderstood(ACLMessage message);
-	
+
 	public abstract void receivedInform(ACLMessage message);
-	
+
 	public /*FIXME abstract*/void receivedFailure(ACLMessage msg){}
 
 }
