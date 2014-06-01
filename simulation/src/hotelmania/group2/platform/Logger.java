@@ -12,9 +12,9 @@ import jade.util.leap.Iterator;
  */
 public class Logger{
 	private static final String SEP = Constants.LOG_SEPARATOR;
-	private final MetaAgent me; 
+	private final IMyName me; 
 	
-	public Logger(MetaAgent owner) {
+	public Logger(IMyName owner) {
 		me = owner;
 	}
 

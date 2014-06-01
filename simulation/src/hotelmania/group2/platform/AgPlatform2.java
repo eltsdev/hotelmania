@@ -105,7 +105,7 @@ public class AgPlatform2 extends MetaAgent
 
 			sendDayNotificationToSubscriptors(day);
 
-			if (day < Constants.SIMULATION_DAYS) {
+			if (day >= Constants.FIRST_DAY && day >= Constants.SIMULATION_TIME_TO_START && day < Constants.SIMULATION_DAYS) {
 				generateClientsBehavior(day);
 			}
 		}

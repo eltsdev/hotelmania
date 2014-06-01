@@ -234,7 +234,7 @@ public class AgReporter extends MetaAgent
 		r.append(" - ");
 		r.append(Constants.CLIENTS_BUDGET+Constants.CLIENTS_BUDGET_VARIANCE);
 		r.append(" (EUR)\n");
-		r.append("Participants: "+this.report.keySet().size());
+		r.append("Participants: "+this.report.size()); //FIXME this is wrong!
 		r.append(Constants.SIMULATION_DAYS);
 		r.append("\n\n");
 		
