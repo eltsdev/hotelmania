@@ -25,13 +25,13 @@ import jade.proto.SubscriptionInitiator;
 public abstract class AbstractAgent extends Agent implements IMyName {
 	private static final long serialVersionUID = -5526226222527748058L;
 
-	protected Logger log = new Logger(this);
+	private Logger log = new Logger(this);
 
 	// Codec for the SL language used
-	protected Codec codec = new SLCodec();
+	private Codec codec = new SLCodec();
 
 	// External communication protocol's ontology
-	protected Ontology ontology = SharedAgentsOntology.getInstance();
+	private Ontology ontology = SharedAgentsOntology.getInstance();
 
 	/**
 	 * Message template used for all kind of agents (except for subscriptions)
@@ -163,7 +163,7 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 	}
 
 
-	public void sendRequestPredicate(AID receiver, Predicate content, String protocol, int performative) {
+	public void sendRequest(AID receiver, Predicate content, String protocol, int performative) {
 		ACLMessage msg = new ACLMessage(performative);
 		msg.addReceiver(receiver);
 		msg.setLanguage(this.codec.getName());
@@ -186,7 +186,7 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 		log.logSendRequest(msg);
 	}
 
-	public void sendRequestEmpty(AID receiver, String protocol, int performative) {
+	public void sendRequest(AID receiver, String protocol, int performative) {
 		ACLMessage msg = new ACLMessage(performative);
 		msg.addReceiver(receiver);
 		msg.setLanguage(this.codec.getName());
@@ -283,17 +283,17 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 
 		@Override
 		protected void handleAgree(ACLMessage agree) {
-			log.logAgreeMessage(agree);
+			getLog().logAgreeMessage(agree);
 			state.check(State.DAYEVENT_SUBSCRIBED);
 		}
 
 		protected void handleInform(ACLMessage inform) {
-			log.logInformMessage(inform);
+			getLog().logInformMessage(inform);
 			doOnNewDay();
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
-			log.logRefuseMessage(refuse);
+			getLog().logRefuseMessage(refuse);
 			state.uncheck(State.DAYEVENT_SUBSCRIBED);
 		}
 
@@ -307,7 +307,7 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 					Logger.logDebug("failed to perform the requested action");
 				}
 			 */
-			log.logFailureMessage(failure);
+			getLog().logFailureMessage(failure);
 			state.uncheck(State.DAYEVENT_SUBSCRIBED);
 		}
 	}
@@ -323,13 +323,13 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 		@Override
 		protected void handleAgree(ACLMessage agree) {
 			state.check(State.ENDSIMULATION_SUBSCRIBED);
-			log.logAgreeMessage(agree);
+			getLog().logAgreeMessage(agree);
 			super.handleAgree(agree);
 		}
 
 		protected void handleInform(ACLMessage inform) {
 			state.check(State.RECEIVED_ENDSIMULATION_NOTIFICATION);
-			log.logInformMessage(inform);
+			getLog().logInformMessage(inform);
 			boolean die = doBeforeDie();
 			if (die) {
 				myAgent.doDelete();
@@ -341,12 +341,12 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 
 		protected void handleRefuse(ACLMessage refuse) {
 			state.uncheck(State.ENDSIMULATION_SUBSCRIBED);
-			log.logRefuseMessage(refuse);
+			getLog().logRefuseMessage(refuse);
 		}
 
 		protected void handleFailure(ACLMessage failure) {
 			state.uncheck(State.ENDSIMULATION_SUBSCRIBED);
-			log.logFailureMessage(failure);
+			getLog().logFailureMessage(failure);
 		}
 	}
 
@@ -357,4 +357,21 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 	public boolean doBeforeDie() {
 		return true;
 	}
+
+	public Codec getCodec() {
+		return codec;
+	}
+
+	public Ontology getOntology() {
+		return ontology;
+	}
+
+	public Logger getLog() {
+		return log;
+	}
+
+	public void setLog(Logger log) {
+		this.log = log;
+	}
+
 }

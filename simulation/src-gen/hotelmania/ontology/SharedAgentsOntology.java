@@ -9,7 +9,7 @@ import jade.core.CaseInsensitiveString;
 
 /** file: SharedAgentsOntology.java
  * @author ontology bean generator
- * @version 2014/05/24, 18:36:35
+ * @version 2014/06/2, 11:03:18
  */
 public class SharedAgentsOntology extends jade.content.onto.Ontology  {
   //NAME
@@ -33,6 +33,8 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     public static final String HOTELINFORMATION_RATING="rating";
     public static final String HOTELINFORMATION="HotelInformation";
     public static final String NOTIFICATIONENDSIMULATION="NotificationEndSimulation";
+    public static final String HOTELSTAFFQUERYREF_DAY="day";
+    public static final String HOTELSTAFFQUERYREF="HotelStaffQueryRef";
     public static final String STAYQUERYREF_STAY="stay";
     public static final String STAYQUERYREF="StayQueryRef";
     public static final String NUMBEROFCLIENTSQUERYREF_DAY="day";
@@ -62,8 +64,6 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     public static final String CHARGEACCOUNT_HOTEL="hotel";
     public static final String CHARGEACCOUNT_MONEY="money";
     public static final String CHARGEACCOUNT="ChargeAccount";
-    public static final String CONSULTHOTELSTAFF_HOTEL="hotel";
-    public static final String CONSULTHOTELSTAFF="ConsultHotelStaff";
     public static final String SUBSCRIBETODAYEVENT="SubscribeToDayEvent";
     public static final String CONSULTACCOUNTSTATUS_HOTEL="hotel";
     public static final String CONSULTACCOUNTSTATUS="ConsultAccountStatus";
@@ -128,8 +128,6 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     add(consultAccountStatusSchema, hotelmania.ontology.ConsultAccountStatus.class);
     AgentActionSchema subscribeToDayEventSchema = new AgentActionSchema(SUBSCRIBETODAYEVENT);
     add(subscribeToDayEventSchema, hotelmania.ontology.SubscribeToDayEvent.class);
-    AgentActionSchema consultHotelStaffSchema = new AgentActionSchema(CONSULTHOTELSTAFF);
-    add(consultHotelStaffSchema, hotelmania.ontology.ConsultHotelStaff.class);
     AgentActionSchema chargeAccountSchema = new AgentActionSchema(CHARGEACCOUNT);
     add(chargeAccountSchema, hotelmania.ontology.ChargeAccount.class);
     AgentActionSchema rateHotelSchema = new AgentActionSchema(RATEHOTEL);
@@ -160,6 +158,8 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     add(numberOfClientsQueryRefSchema, hotelmania.ontology.NumberOfClientsQueryRef.class);
     PredicateSchema stayQueryRefSchema = new PredicateSchema(STAYQUERYREF);
     add(stayQueryRefSchema, hotelmania.ontology.StayQueryRef.class);
+    PredicateSchema hotelStaffQueryRefSchema = new PredicateSchema(HOTELSTAFFQUERYREF);
+    add(hotelStaffQueryRefSchema, hotelmania.ontology.HotelStaffQueryRef.class);
     PredicateSchema notificationEndSimulationSchema = new PredicateSchema(NOTIFICATIONENDSIMULATION);
     add(notificationEndSimulationSchema, hotelmania.ontology.NotificationEndSimulation.class);
     PredicateSchema hotelInformationSchema = new PredicateSchema(HOTELINFORMATION);
@@ -196,7 +196,6 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     accountSchema.add(ACCOUNT_ID_ACCOUNT, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.MANDATORY);
     dayEventSchema.add(DAYEVENT_DAY, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
     consultAccountStatusSchema.add(CONSULTACCOUNTSTATUS_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
-    consultHotelStaffSchema.add(CONSULTHOTELSTAFF_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     chargeAccountSchema.add(CHARGEACCOUNT_MONEY, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
     chargeAccountSchema.add(CHARGEACCOUNT_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     rateHotelSchema.add(RATEHOTEL_RATINGS, ratingSchema, ObjectSchema.OPTIONAL);
@@ -213,6 +212,7 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     notificationDayEventSchema.add(NOTIFICATIONDAYEVENT_DAYEVENT, dayEventSchema, ObjectSchema.MANDATORY);
     numberOfClientsQueryRefSchema.add(NUMBEROFCLIENTSQUERYREF_DAY, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
     stayQueryRefSchema.add(STAYQUERYREF_STAY, staySchema, ObjectSchema.MANDATORY);
+    hotelStaffQueryRefSchema.add(HOTELSTAFFQUERYREF_DAY, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
     hotelInformationSchema.add(HOTELINFORMATION_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
     hotelInformationSchema.add(HOTELINFORMATION_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     accountStatusSchema.add(ACCOUNTSTATUS_ACCOUNT, accountSchema, ObjectSchema.MANDATORY);

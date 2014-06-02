@@ -1,14 +1,15 @@
 package hotelmania.group2.platform;
 
-import java.util.HashMap;
-
+import hotelmania.group2.behaviours.GenericSendReceiveBehaviour;
+import hotelmania.group2.behaviours.SendReceiveBehaviour;
 import hotelmania.group2.dao.BookingOffer;
 import hotelmania.group2.dao.Client;
 import hotelmania.group2.dao.RatingInput;
 import hotelmania.ontology.BookRoom;
-import hotelmania.ontology.ConsultHotelStaff;
+import hotelmania.ontology.Contract;
 import hotelmania.ontology.Hotel;
 import hotelmania.ontology.HotelInformation;
+import hotelmania.ontology.HotelStaffQueryRef;
 import hotelmania.ontology.MakeDeposit;
 import hotelmania.ontology.NumberOfClients;
 import hotelmania.ontology.NumberOfClientsQueryRef;
@@ -24,17 +25,19 @@ import jade.content.onto.OntologyException;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.ParallelBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
+
+import java.util.HashMap;
 
 public class AgClient extends AbstractAgent {
 
 	private static final long serialVersionUID = 6748170421157254696L;
-	private enum Step {START, RECEIVING_RESPONSES, DONE};
 	private Client client;
 	private SequentialBehaviour stepsForBooking;
+	private ParallelBehaviour stepsAfterBooking;
 	
 	// -------------------------------------------------
 	// Setup
@@ -45,17 +48,18 @@ public class AgClient extends AbstractAgent {
 		super.setup();
 
 		// Get parameters
-		Object[] args = getArguments();
-		if (args != null && args.length == 1 && args[0] instanceof Client) {
-			this.client = (Client) args[0];
-		} else {
-			Logger.logError(myName()+": Invalid parameters to create this agent client");
-		}
+		initClient();
+		
+		// Behaviors for booking
+		stepsForBooking = new SequentialBehaviour(this);
+		stepsForBooking.addSubBehaviour(new GetHotelsFromHotelmaniaBehavior(this));
+		stepsForBooking.addSubBehaviour(new CallForOffersBehavior(this));
+		stepsForBooking.addSubBehaviour(new RequestBookingInHotelBehavior(this));
+		addBehaviour(stepsForBooking);
 
-		//Add behaviors
-		stepsForBooking = new SequentialBehaviour(this) {
+		// Behaviors after booking - not started yet
+		stepsAfterBooking = new ParallelBehaviour() {
 			private static final long serialVersionUID = 7599237954637997373L;
-
 			@Override
 			public int onEnd() {
 				//Die
@@ -64,14 +68,20 @@ public class AgClient extends AbstractAgent {
 				return super.onEnd();
 			}
 		};
-
-		stepsForBooking.addSubBehaviour(new GetHotelsFromHotelmaniaBehavior(this));
-		stepsForBooking.addSubBehaviour(new CallForOffersBehavior(this));
-		stepsForBooking.addSubBehaviour(new RequestBookingInHotelBehavior(this));
-		
-		addBehaviour(stepsForBooking);
+		stepsAfterBooking.addSubBehaviour(new RateHotelInHotelmaniaBehavior(this));
+		stepsAfterBooking.addSubBehaviour(new MakeDepositBehavior(this));
 	}
 	
+
+	private void initClient() {
+		Object[] args = getArguments();
+		if (args != null && args.length == 1 && args[0] instanceof Client) {
+			this.client = (Client) args[0];
+		} else {
+			Logger.logError(myName()+": Invalid parameters to create this agent client");
+		}
+	}
+
 
 	/**
 	 * This means: I AM interested on this event.
@@ -99,8 +109,7 @@ public class AgClient extends AbstractAgent {
 
 		// After the staying
 		else if (getDay() > client.getCheckOutDate() && client.isDataForRatingComplete()) {
-			addBehaviour(new RateHotelBehavior(this));
-			addBehaviour(new MakeDepositBehavior(this));
+			addBehaviour(stepsAfterBooking);			
 		}
 			
 	}
@@ -109,80 +118,20 @@ public class AgClient extends AbstractAgent {
 	// Behaviors
 	// --------------------------------------------------------
 
-	private final class GetHotelsFromHotelmaniaBehavior extends MetaSimpleBehaviour {
-		private static final long serialVersionUID = 1L;
-		private AID hotelmania;
-		private MessageTemplate messageTemplate;  
-		private Step step = Step.START;
+	private final class GetHotelsFromHotelmaniaBehavior extends SendReceiveBehaviour {
+		private static final long serialVersionUID = 287171972374945182L;
 
-		public GetHotelsFromHotelmaniaBehavior(Agent a) {
-			super(a);
-			
-			messageTemplate = MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.CONSULTHOTELSINFO_PROTOCOL));
+		public GetHotelsFromHotelmaniaBehavior(AbstractAgent agClient) {
+			super(agClient, Constants.CONSULTHOTELSINFO_PROTOCOL, Constants.CONSULTHOTELSINFO_ACTION, ACLMessage.QUERY_REF);
 		}
 
+		/**
+		 * Save list of hotels received
+		 */
 		@Override
-		public void action() {
-			switch (step) {
-			
-			case START:
-				
-				if (hotelmania == null) {
-					hotelmania = locateAgent(Constants.CONSULTHOTELSINFO_ACTION, myAgent);
-				} else {
-					sendRequestEmpty(hotelmania, Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
-					step = Step.RECEIVING_RESPONSES;
-				}				
-				break;
-				
-			case RECEIVING_RESPONSES:
-
-				ACLMessage msg = receive(messageTemplate);
-				if (msg == null) {
-					// No message arrives
-					block();					
-				}
-				//A New Message
-				else {
-					log.logReceivedMsg(msg);
-					
-					switch (msg.getPerformative()) {
-					
-					case ACLMessage.INFORM:
-						boolean resultOK = handleConsultHotelsInfoInform(msg);
-						if (resultOK) {
-							step = Step.DONE;
-						}
-						break;
-
-					case ACLMessage.REFUSE:
-						// keep trying (does not change the state)
-						break;
-					case ACLMessage.NOT_UNDERSTOOD:
-						// keep trying (does not change the state)
-						break;
-					default:
-						// keep trying (does not change the state)
-						break;
-					}
-
-				}
-				break;
-			
-			case DONE:
-			default:
-				setDone(true);
-				break;
-			}
-		}
-		
-		private boolean handleConsultHotelsInfoInform(ACLMessage message) {
+		protected boolean receiveInform(ACLMessage message) {
 			try {
-				ContentElement content = getContentManager()
-						.extractContent(message);
+				ContentElement content = getContentManager().extractContent(message);
 				if (content != null) {
 					if (content instanceof ContentElementList) {
 						ContentElementList list = (ContentElementList) content;
@@ -195,18 +144,15 @@ public class AgClient extends AbstractAgent {
 						client.getOffers().add(bookingOffer);
 						Logger.logDebug(myName() + ": Number of hotels: 1 = " + hotelInformation.getHotel().getHotel_name());
 					}
-
-					return true;
 				} else {
 					Logger.logDebug(myName() + ": Null number of hotels");
 				}
 			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
+				Logger.logError(myName()+": " + message.getContent());
 				e.printStackTrace();
-				Logger.logDebug("Message: " + message.getContent());
 			}
 			
-			return false;
+			return true; //received.
 		}
 
 		private void processListOfHotels(ContentElementList list) {
@@ -221,82 +167,29 @@ public class AgClient extends AbstractAgent {
 		}
 	}
 
-	class CallForOffersBehavior extends MetaSimpleBehaviour {
-
+	class CallForOffersBehavior extends GenericSendReceiveBehaviour {
 		private static final long serialVersionUID = -2493514102408084980L;
-		private MessageTemplate messageTemplate;
-		private Step step = Step.START;
 
-		public CallForOffersBehavior(Agent a) {
-			super(a);
-			messageTemplate = MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.CONSULTROOMPRICES_PROTOCOL));
+		public CallForOffersBehavior(AbstractAgent myAgent) {
+			super(myAgent, Constants.CONSULTROOMPRICES_PROTOCOL);
 		}
 		
-		@Override
-		public void action() {
-			switch (step) {
-			
-			case START:
-				//Call for booking proposals to all hotels
-				
-				//Create StayQueryRef predicate
-				Stay stay = new Stay();
-				stay.setCheckIn(client.getCheckInDate());
-				stay.setCheckOut(client.getCheckOutDate());
-				StayQueryRef query = new StayQueryRef();
-				query.setStay(stay);
+		//Call for booking proposals to all hotels
+		protected void doSend() {
+			//Create StayQueryRef predicate
+			Stay stay = new Stay();
+			stay.setCheckIn(client.getCheckInDate());
+			stay.setCheckOut(client.getCheckOutDate());
+			StayQueryRef query = new StayQueryRef();
+			query.setStay(stay);
 
-				//Send
-				for (BookingOffer offer : client.getOffers()) {
-					AID hotel = offer.getHotelInformation().getHotel().getAgent();
-					sendRequestPredicate(hotel, query, Constants.CONSULTROOMPRICES_PROTOCOL, ACLMessage.QUERY_REF);
-				}
-				
-				setTimeout();
-				
-				step = Step.RECEIVING_RESPONSES;
-				break;
-				
-			case RECEIVING_RESPONSES:
-
-				ACLMessage msg = receive(messageTemplate);
-				if (msg == null) {
-					// No message arrives
-					block();					
-				}
-				//A New Message
-				else {
-					log.logReceivedMsg(msg);
-					
-					switch (msg.getPerformative()) {
-					
-					case ACLMessage.INFORM:
-						saveOffer(msg);
-						step = Step.DONE;
-						break;
-
-					case ACLMessage.REFUSE:
-						// ignore
-						break;
-					case ACLMessage.NOT_UNDERSTOOD:
-						// ignore
-						break;
-					default:
-						// ignore
-						break;
-					}
-
-				}
-				break;
-			
-			case DONE:
-			default:
-				setDone(true);
-				break;
+			//Send
+			for (BookingOffer offer : client.getOffers()) {
+				AID hotel = offer.getHotelInformation().getHotel().getAgent();
+				sendRequest(hotel, query, this.protocol, ACLMessage.QUERY_REF);
 			}
+			
+			setTimeout();
 		}
 
 		private void setTimeout() {
@@ -306,9 +199,15 @@ public class AgClient extends AbstractAgent {
 				private static final long serialVersionUID = 1L;
 				@Override
 				protected void handleElapsedTimeout() {
-					step = Step.DONE;
+					setDone(true);
 				}
 			});
+		}
+		
+		@Override
+		protected boolean receiveInform(ACLMessage msg) {
+			saveOffer(msg);
+			return false; //wait for more responses
 		}
 
 		private boolean saveOffer(ACLMessage message) {
@@ -365,68 +264,23 @@ public class AgClient extends AbstractAgent {
 		}
 	}
 	
-	class RequestBookingInHotelBehavior extends MetaSimpleBehaviour {
-		
+	class RequestBookingInHotelBehavior extends GenericSendReceiveBehaviour {
 		private static final long serialVersionUID = 1790087472549757374L;
-		private MessageTemplate messageTemplate;
-		private Step step = Step.START;
 		private BookingOffer offerChosen;
 
-		private RequestBookingInHotelBehavior(Agent a) {
-			super(a);
-			messageTemplate = MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.BOOKROOM_PROTOCOL));
+		private RequestBookingInHotelBehavior(AbstractAgent myAgent) {
+			super(myAgent, Constants.BOOKROOM_PROTOCOL);
 		}
-
-		public void action() {
-			switch (step) {
-			case START:
-				offerChosen = client.computeBestRoomPrice();
-				bookRoom(offerChosen);
-				step = Step.RECEIVING_RESPONSES;
-				break;
-
-			case RECEIVING_RESPONSES:
-				
-				ACLMessage msg = receive(messageTemplate);
-				if (msg == null) {
-					// No message arrives
-					block();					
-				}
-				//A New Message
-				else {
-					log.logReceivedMsg(msg);
-					
-					switch (msg.getPerformative()) {
-					case ACLMessage.INFORM:
-						hotelmania.group2.dao.Price price = new hotelmania.group2.dao.Price();
-						price.setPrice(offerChosen.getPrice());
-						hotelmania.group2.dao.BookRoom booking = new hotelmania.group2.dao.BookRoom(client.getStay(), price);
-						
-						client.setBookingDone(booking);
-						client.setHotelOfBookingDone(offerChosen.getHotelInformation());
-						break;
-					case ACLMessage.FAILURE:
-					case ACLMessage.REFUSE:
-					case ACLMessage.NOT_UNDERSTOOD:
-					default:
-						// Restart the whole process
-						stepsForBooking.reset();
-						break;
-					}
-				}
-				step = Step.DONE;
-				break;
-
-			
-			case DONE:
-			default:
-				this.setDone(true);
-				break;
-			}
-			
+		
+		@Override
+		protected boolean doPrepare() {
+			offerChosen = client.computeBestRoomPrice();
+			return true;
+		}
+		
+		@Override
+		protected void doSend() {
+			bookRoom(offerChosen);
 		}
 
 		private void bookRoom(BookingOffer bookingOffer) {
@@ -444,81 +298,65 @@ public class AgClient extends AbstractAgent {
 			action_booking.setStay(stay);
 			
 			Logger.logDebug(myName()+": Sending request for booking. Checkin and Checkout: "+checkin+"  -  "+checkout + " TODAY = " + getDay());
+			
 			sendRequest(agHotel, action_booking, Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
 		}
 
+		@Override
+		protected boolean receiveInform(ACLMessage msg) {
+			hotelmania.group2.dao.Price price = new hotelmania.group2.dao.Price();
+			price.setPrice(offerChosen.getPrice());
+			hotelmania.group2.dao.BookRoom booking = new hotelmania.group2.dao.BookRoom(client.getStay(), price);
+			
+			client.setBookingDone(booking);
+			client.setHotelOfBookingDone(offerChosen.getHotelInformation());
+			return true;
+		}
+		
+		// Restart the whole BOOKING process if there is no success
+		
+		@Override
+		protected boolean receiveFailure(ACLMessage msg) {
+			stepsForBooking.reset();
+			return true;
+		}
+		
+		@Override
+		protected boolean receiveRefuse(ACLMessage msg) {
+			stepsForBooking.reset();
+			return true;
+		}
+		
+		@Override
+		protected boolean receiveNotUnderstood(ACLMessage msg) {
+			stepsForBooking.reset();
+			return true;
+		}
 	}
 
-	class ConsultHotelNumberOfClientsBehavior extends MetaSimpleBehaviour {
+	class ConsultHotelNumberOfClientsBehavior extends GenericSendReceiveBehaviour {
 
 		private static final long serialVersionUID = 1L;
 	
-		private MessageTemplate messageTemplate;  
-		private Step step = Step.START;
 		private AID hotel = client.getHotelOfBookingDone().getHotel().getAgent();
-		private int day;
+		private int day = getDay();
 
-		private ConsultHotelNumberOfClientsBehavior(Agent a) {
-			super(a);
-			messageTemplate = MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL));
+		private ConsultHotelNumberOfClientsBehavior(AbstractAgent myAgent) {
+			super(myAgent,Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL);
 		}
-	
 		@Override
-		public void action() {
-			
-			switch (step) {
-			
-			case START:
-				NumberOfClientsQueryRef request = new NumberOfClientsQueryRef();
-				sendRequestPredicate(hotel, request, Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL, ACLMessage.QUERY_REF);
-				day = getDay();
-				step = Step.RECEIVING_RESPONSES;
-				break;
-				
-			case RECEIVING_RESPONSES:
-
-				ACLMessage msg = receive(messageTemplate);
-				if (msg == null) {
-					// No message arrives
-					block();					
-				}
-				//A New Message
-				else {
-					log.logReceivedMsg(msg);
-					
-					switch (msg.getPerformative()) {
-					
-					case ACLMessage.INFORM:
-						boolean resultOK = handleConsultNumberOfClientsInform(msg);
-						if (resultOK) {
-							step = Step.DONE;
-						}
-						break;
-
-					case ACLMessage.REFUSE:
-						// keep trying (does not change the state)
-						break;
-					case ACLMessage.NOT_UNDERSTOOD:
-						// keep trying (does not change the state)
-						break;
-					default:
-						// keep trying (does not change the state)
-						break;
-					}
-
-				}
-				break;
-			
-			case DONE:
-			default:
-				setDone(true);
-				break;
-			}
+		protected void doSend() {
+			NumberOfClientsQueryRef request = new NumberOfClientsQueryRef();
+			request.setDay(day);
+			sendRequest(hotel, request, this.protocol, ACLMessage.QUERY_REF);
 		}
 
+		@Override
+		protected boolean receiveInform(ACLMessage msg) {
+			handleConsultNumberOfClientsInform(msg);
+			return true;
+		}
+		
 		private boolean handleConsultNumberOfClientsInform(ACLMessage message) {
 			try {
 				NumberOfClients content = (NumberOfClients) getContentManager().extractContent(message);
@@ -530,150 +368,77 @@ public class AgClient extends AbstractAgent {
 					Logger.logDebug(myName() + ": Number of clients: Not found (null)");
 				}
 			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 				Logger.logDebug(myName() + ": Message: " + message.getContent());
+				e.printStackTrace();
 			}
 			return false;
 		}
+		
+		// ignores refuse, not understood, failure.
 	}
 
-	class ConsultHotelStaffBehavior extends	MetaSimpleBehaviour {
-		private static final long serialVersionUID = -6581059230472887190L;
-		private MessageTemplate messageTemplate;
-		private Step step = Step.START;
-		private Hotel hotel;
+	class ConsultHotelStaffBehavior extends	GenericSendReceiveBehaviour {
 		
-		public ConsultHotelStaffBehavior(Agent a) {
-			super(a);
-			messageTemplate = MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.RATEHOTEL_PROTOCOL));
+		private static final long serialVersionUID = -6581059230472887190L;
+		private int day = getDay();
+		private Hotel hotel = client.getHotelOfBookingDone().getHotel().getConcept();
 
-			hotel = client.getHotelOfBookingDone().getHotel().getConcept();
+		public ConsultHotelStaffBehavior(AbstractAgent myAgent) {
+			super(myAgent,Constants.CONSULTHOTELSSTAFF_PROTOCOL);
 		}
 		
 		@Override
-		public void action() {
-			switch (step) {
-			
-			case START:
-				//FIXME: add predicate!!!!
-				ConsultHotelStaff request = new ConsultHotelStaff();
-				request.setHotel(hotel);
-				sendRequest(hotel.getHotelAgent(), request, Constants.CONSULTHOTELSSTAFF_PROTOCOL, ACLMessage.QUERY_REF);
-
-				step = Step.RECEIVING_RESPONSES;
-				break;
-				
-			case RECEIVING_RESPONSES:
-
-				ACLMessage msg = receive(messageTemplate);
-				if (msg == null) {
-					// No message arrives
-					block();					
-				}
-				//A New Message
-				else {
-					log.logReceivedMsg(msg);
-					
-					switch (msg.getPerformative()) {
-					
-					case ACLMessage.INFORM:
-						//OK
-						break;
-
-					case ACLMessage.REFUSE:
-						// ignore
-						break;
-					case ACLMessage.NOT_UNDERSTOOD:
-						// ignore
-						break;
-					default:
-						// ignore
-						break;
-					}
-					step = Step.DONE;
-				}
-				break;
-			
-			case DONE:
-			default:
-				setDone(true);
-				break;
-			}
+		protected void doSend() {
+			HotelStaffQueryRef request = new HotelStaffQueryRef();
+			request.setDay(day);
+			sendRequest(hotel.getHotelAgent(), request, this.protocol, ACLMessage.QUERY_REF);
 		}
+		
+		@Override
+		protected boolean receiveInform(ACLMessage msg) {
+			handleConsultStaff(msg);
+			return true;
+		}
+		
+		//TODO implement
+		private boolean handleConsultStaff(ACLMessage message) {
+			try {
+				Contract content = (Contract) getContentManager().extractContent(message);  
+				if (content != null) {
+					Logger.logDebug(myName() + ": Chef 1 stars Staff for day: " + content.getChef_1stars());
+					Logger.logDebug(myName() + ": Chef 2 stars Staff for day: " + content.getChef_2stars());
+					Logger.logDebug(myName() + ": Chef 3 stars Staff for day: " + content.getChef_3stars());
+					
+					//TODO Save the result!!
+					
+					return true;
+				} else {
+					Logger.logDebug(myName() + ": Staff for day: Not found (null)");
+				}
+			} catch (CodecException | OntologyException e) {
+				Logger.logDebug(myName() + ": Message: " + message.getContent());
+				e.printStackTrace();
+			}
+			return false;
+		}
+		
+		// ignores refuse, not understood, failure.
 	}
 
 	
-	class RateHotelBehavior extends MetaSimpleBehaviour {
+	class RateHotelInHotelmaniaBehavior extends SendReceiveBehaviour {
 		
 		private static final long serialVersionUID = -7663792485820846478L;
-		private MessageTemplate messageTemplate;
-		private Step step = Step.START;
-		private AID agHotelMania;
 
-		public RateHotelBehavior(Agent a) {
-			super(a);
-			messageTemplate = MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.RATEHOTEL_PROTOCOL));
+		public RateHotelInHotelmaniaBehavior(AbstractAgent a) {
+			super(a, Constants.RATEHOTEL_PROTOCOL, Constants.RATEHOTEL_ACTION, ACLMessage.REQUEST);
 		}
 		
 		@Override
-		public void action() {
-			switch (step) {
-			
-			case START:
-				if (agHotelMania == null) {
-					agHotelMania = locateAgent(Constants.RATEHOTEL_ACTION, myAgent);
-				} else {
-					rateHotel(agHotelMania);
-					step = Step.RECEIVING_RESPONSES;
-				}
-				break;
-				
-			case RECEIVING_RESPONSES:
-
-				ACLMessage msg = receive(messageTemplate);
-				if (msg == null) {
-					// No message arrives
-					block();					
-				}
-				//A New Message
-				else {
-					log.logReceivedMsg(msg);
-					
-					switch (msg.getPerformative()) {
-					
-					case ACLMessage.INFORM:
-						// ok
-						break;
-
-					case ACLMessage.REFUSE:
-						// ignore
-						break;
-					case ACLMessage.NOT_UNDERSTOOD:
-						// ignore
-						break;
-					default:
-						// ignore
-						break;
-					}
-					step = Step.DONE;
-					}
-				break;
-			
-			case DONE:
-			default:
-				setDone(true);
-				break;
-			}
+		protected void doSend() {
+			rateHotel(this.server);
 		}
-
-		
+	
 		// TODO This part must be dynamic
 		private void rateHotel(AID hotelMania) {
 
@@ -686,10 +451,10 @@ public class AgClient extends AbstractAgent {
 			HashMap<Integer, RatingInput> data = client.getRatingData();
 			for (RatingInput day : data.values()) {
 				Logger.logDebug("computing rating for one day ...."+day);
-//				cleanliness = day.getStaff()*0;
-//				kitchen = day.getStaff()*0;
-//				staff = day.getStaff()*0;
-//				price = day.getStaff()*0;
+				//cleanliness = day.getStaff()*0;
+				//kitchen = day.getStaff()*0;
+				//staff = day.getStaff()*0;
+				//price = day.getStaff()*0;
 			}
 			
 			//Build message 
@@ -707,77 +472,25 @@ public class AgClient extends AbstractAgent {
 
 			sendRequest(hotelMania, action_rating, Constants.RATEHOTEL_PROTOCOL, ACLMessage.REQUEST);
 		}
+		
+		
+		//ignore responses
 
 	}
 
-	class MakeDepositBehavior extends MetaSimpleBehaviour {
-
+	class MakeDepositBehavior extends SendReceiveBehaviour {
 		private static final long serialVersionUID = -270503232133476854L;
-		private MessageTemplate messageTemplate;
-		private Step step = Step.START;
-		private AID agBank = null;
 		
-		public MakeDepositBehavior(Agent a) {
-			super(a);
-			messageTemplate = MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.MAKEDEPOSIT_PROTOCOL));
+		public MakeDepositBehavior(AbstractAgent a) {
+			super(a,Constants.MAKEDEPOSIT_PROTOCOL,Constants.MAKEDEPOSIT_ACTION, ACLMessage.REQUEST);
 		}
 		
+
 		@Override
-		public void action() {
-			
-			switch (step) {
-			
-			case START:
-				if (agBank == null) {
-					agBank = locateAgent(Constants.MAKEDEPOSIT_ACTION, myAgent);
-
-				} else {
-					makeDeposit(agBank);
-					step = Step.RECEIVING_RESPONSES;
-				}
-				break;
-				
-			case RECEIVING_RESPONSES:
-
-				ACLMessage msg = receive(messageTemplate);
-				if (msg == null) {
-					// No message arrives
-					block();					
-				}
-				//A New Message
-				else {
-					log.logReceivedMsg(msg);
-					
-					switch (msg.getPerformative()) {
-					
-					case ACLMessage.INFORM:
-						// OK
-						break;
-
-					case ACLMessage.REFUSE:
-						// ignore
-						break;
-					case ACLMessage.NOT_UNDERSTOOD:
-						// ignore
-						break;
-					default:
-						// ignore
-						break;
-					}
-					step = Step.DONE;
-				}
-				break;
-			
-			case DONE:
-			default:
-				this.setDone(true);
-				break;
-			}
-		}
-
+		protected void doSend() {
+			makeDeposit(this.server);
+		}	
+		
 		//TODO finish
 		private void makeDeposit(AID bank) {
 			MakeDeposit action_deposit = new MakeDeposit();
@@ -785,8 +498,10 @@ public class AgClient extends AbstractAgent {
 			action_deposit.setMoney(client.getBookingDone().getRoomPrice().getPrice());
 
 			sendRequest(bank, action_deposit, Constants.MAKEDEPOSIT_PROTOCOL, ACLMessage.REQUEST);
-		}	
+		}
+		
+		// ignore responses.
+
 	}
 	
 }
-

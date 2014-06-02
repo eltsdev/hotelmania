@@ -1,4 +1,4 @@
-; Sat May 24 18:36:37 CEST 2014
+; Mon Jun 02 11:49:45 CEST 2014
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -47,10 +47,6 @@
 
 	(%3AJADE-IGNORE FALSE))
 
-([ConsultHotelStaff] of  %3AJADE-CLASS
-
-	(%3AJADE-IGNORE FALSE))
-
 ([Contract] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE FALSE))
@@ -76,6 +72,10 @@
 	(%3AJADE-IGNORE FALSE))
 
 ([HotelInformation] of  %3AJADE-CLASS
+
+	(%3AJADE-IGNORE FALSE))
+
+([HotelStaffQueryRef] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE FALSE))
 
