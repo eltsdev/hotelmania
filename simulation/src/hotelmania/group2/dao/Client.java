@@ -116,6 +116,11 @@ public class Client {
 		
 		ratingInput.setOccupancy(num_clients);
 	}
+	
+	public RatingInput getOccupancyForDay (int day) {
+		return this.ratingData.get(day);
+	}
+	
 	public HashMap<Integer, RatingInput> getRatingData() {
 		return ratingData;
 	}

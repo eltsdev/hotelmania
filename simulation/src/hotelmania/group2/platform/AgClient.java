@@ -30,6 +30,7 @@ import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class AgClient extends AbstractAgent {
@@ -404,10 +405,14 @@ public class AgClient extends AbstractAgent {
 		private boolean handleConsultStaff(ACLMessage message) {
 			try {
 				Contract content = (Contract) getContentManager().extractContent(message);  
-				if (content != null) {
+				if (content != null && content instanceof Contract) {
 					Logger.logDebug(myName() + ": Chef 1 stars Staff for day: " + content.getChef_1stars());
 					Logger.logDebug(myName() + ": Chef 2 stars Staff for day: " + content.getChef_2stars());
 					Logger.logDebug(myName() + ": Chef 3 stars Staff for day: " + content.getChef_3stars());
+					RatingInput ratingInput = client.getOccupancyForDay(day);
+					if (ratingInput != null) {
+						ratingInput.setStaff(new hotelmania.group2.dao.Contract(content));
+					}
 					
 					//TODO Save the result!!
 					
@@ -448,31 +453,88 @@ public class AgClient extends AbstractAgent {
 			float kitchen = 0;
 			float staff = 0;
 			float price = 0;
+			int numberOfRatings = 0;
 			HashMap<Integer, RatingInput> data = client.getRatingData();
-			for (RatingInput day : data.values()) {
-				Logger.logDebug("computing rating for one day ...."+day);
-				//cleanliness = day.getStaff()*0;
-				//kitchen = day.getStaff()*0;
-				//staff = day.getStaff()*0;
-				//price = day.getStaff()*0;
+			for (RatingInput ratingInput : data.values()) {
+				Logger.logDebug("computing rating for one day ...."+ratingInput.toString());
+				hotelmania.group2.dao.Contract contract = ratingInput.getStaff();
+				kitchen += this.getKitchenRating(contract);
+				staff += this.getReceptionistRating(contract,ratingInput.getOccupancy());
+				cleanliness += this.getStaffRating(contract,ratingInput.getOccupancy());
+				numberOfRatings++;
+			}
+			
+			if (numberOfRatings != 0) {
+				cleanliness /= numberOfRatings;
+				kitchen /= numberOfRatings;
+				staff /= numberOfRatings;
+				//After this point, cleanliness kitcfhen and staff are calculated
+				price = getPriceRating();
+				
+				RateHotel action_rating = new RateHotel();
+				Rating rating = new Rating();
+				rating.setChef_rating(kitchen);
+				rating.setPrice_rating(price);
+				rating.setRoom_staff_rating(staff);
+				rating.setCleanliness_rating(cleanliness);
+
+				action_rating.setRatings(rating);
+				Hotel hotel = client.getHotelOfBookingDone().getHotel().getConcept();
+				action_rating.setHotel(hotel);
+
+				sendRequest(hotelMania, action_rating, Constants.RATEHOTEL_PROTOCOL, ACLMessage.REQUEST);
 			}
 			
 			//Build message 
 			
-			RateHotel action_rating = new RateHotel();
-			Rating rating = new Rating();
-			rating.setChef_rating(kitchen);
-			rating.setPrice_rating(price);
-			rating.setRoom_staff_rating(staff);
-			rating.setCleanliness_rating(cleanliness);
-
-			action_rating.setRatings(rating);
-			Hotel hotel = client.getHotelOfBookingDone().getHotel().getConcept();
-			action_rating.setHotel(hotel);
-
-			sendRequest(hotelMania, action_rating, Constants.RATEHOTEL_PROTOCOL, ACLMessage.REQUEST);
+			
 		}
 		
+		private float getPriceRating() {
+			double budget = client.getBudget();
+			double hotelCost = 50;//TODO donde narices tenemos lo que nos ha costado el hotel?
+			double difference = budget - hotelCost;
+			if (difference > 0) {
+				double rating = difference/5;
+				if (rating > 10) {
+					rating = 10;
+				}
+				return (float) rating;
+			} else {
+				return 0;
+			}
+		}
+		
+		private double getKitchenRating (hotelmania.group2.dao.Contract contract){
+			int numberOfCheffs1Star = contract.getchef1stars();
+			int numberOfCheffs2Star = contract.getchef2stars();
+			int numberOfCheffs3Star = contract.getchef3stars();
+			double rating = numberOfCheffs1Star*3.33 + numberOfCheffs2Star*6.66 + numberOfCheffs3Star*10;
+			if (rating > 10) {
+				rating = 10;
+			}
+			return rating;
+		}
+		
+		private double getReceptionistRating (hotelmania.group2.dao.Contract contract, int numberOfClients){
+			int numberOfNoviceRecepcionist = contract.getRecepcionistNovice();
+			int numberOfExpertRecepcionist = contract.getRecepcionistExperienced();
+			double rating = ((numberOfExpertRecepcionist*3 + numberOfNoviceRecepcionist*2)/numberOfClients)*10;
+			if (rating > 10) {
+				rating = 10;
+			}
+			return rating;
+		}
+		
+		private double getStaffRating (hotelmania.group2.dao.Contract contract, int numberOfClients){
+			int numberOfWorkers = contract.getRoomService();
+
+			double rating = (numberOfWorkers/numberOfClients)*10;
+			if (rating > 10) {
+				rating = 10;
+			}
+			return rating;
+		}
 		
 		//ignore responses
 

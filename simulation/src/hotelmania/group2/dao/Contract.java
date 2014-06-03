@@ -27,6 +27,18 @@ public class Contract {
 		this.recepcionistNovice = recepcionistNovice;
 		this.roomService = roomService;
 	}
+	
+	public Contract(hotelmania.ontology.Contract contract) {
+		super();
+		//this.hotelName = hotelName;
+		this.date = contract.getDay();
+		this.chef1stars = contract.getChef_1stars();
+		this.chef2stars = contract.getChef_2stars();
+		this.chef3stars = contract.getChef_3stars();
+		this.recepcionistExperienced = contract.getRecepcionist_experienced();
+		this.recepcionistNovice = contract.getRecepcionist_novice();
+		this.roomService = contract.getRoom_service_staff();
+	}
 
 	public String getHotelName() {
 		return hotelName;

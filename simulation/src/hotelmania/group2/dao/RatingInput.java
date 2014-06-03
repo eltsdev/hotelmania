@@ -19,5 +19,9 @@ public class RatingInput {
 	public void setStaff(Contract staff) {
 		this.staff = staff;
 	}
+	@Override
+	public String toString() {
+		return "Occupancy: " + this.occupancy + " day:" + this.staff.getDate();
+	}
 
 }
