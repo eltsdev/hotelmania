@@ -6,14 +6,14 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
 
-public abstract class GenericServerBehaviour extends MetaSimpleBehaviour {
+public abstract class GenericServerResponseBehaviour extends MetaSimpleBehaviour {
 	
 	protected static final long serialVersionUID = -4878507137076376248L;
 	protected AbstractAgent myAgent;
 	protected String protocol;
 	protected MessageTemplate messageTemplate;
 
-	public GenericServerBehaviour(AbstractAgent myAgent, String protocol) {
+	public GenericServerResponseBehaviour(AbstractAgent myAgent, String protocol) {
 		super(myAgent);
 		this.myAgent = myAgent;
 		this.protocol = protocol;

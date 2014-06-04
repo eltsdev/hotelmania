@@ -30,7 +30,6 @@ import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class AgClient extends AbstractAgent {
@@ -485,14 +484,11 @@ public class AgClient extends AbstractAgent {
 				sendRequest(hotelMania, action_rating, Constants.RATEHOTEL_PROTOCOL, ACLMessage.REQUEST);
 			}
 			
-			//Build message 
-			
-			
 		}
 		
 		private float getPriceRating() {
 			double budget = client.getBudget();
-			double hotelCost = 50;//TODO donde narices tenemos lo que nos ha costado el hotel?
+			double hotelCost = client.getBookingDone().getRoomPrice().getPrice();
 			double difference = budget - hotelCost;
 			if (difference > 0) {
 				double rating = difference/5;
@@ -537,6 +533,7 @@ public class AgClient extends AbstractAgent {
 		}
 		
 		//ignore responses
+		
 
 	}
 

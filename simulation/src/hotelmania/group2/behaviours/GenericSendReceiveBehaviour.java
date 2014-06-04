@@ -119,7 +119,7 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 	 * @return retry if true the agent will finish the behavior. If false, it will keep receiving additional messages.
 	 */
 	protected boolean receiveAgree(ACLMessage msg) {
-		return false;
+		return true;
 	}
 	/**
 	 * Placeholder for business-logic
@@ -127,7 +127,7 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 	 * @return retry if true the agent will finish the behavior. If false, it will keep receiving additional messages.
 	 */
 	protected boolean receiveInform(ACLMessage msg) {
-		return false;
+		return true;
 	}
 	/**
 	 * Placeholder for business-logic
@@ -135,7 +135,7 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 	 * @return retry if true the agent will finish the behavior. If false, it will keep receiving additional messages.
 	 */
 	protected boolean receiveNotUnderstood(ACLMessage msg) {
-		return false;
+		return true;
 	}
 	/**
 	 * Placeholder for business-logic
@@ -143,7 +143,7 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 	 * @return retry if true the agent will finish the behavior. If false, it will keep receiving additional messages.
 	 */
 	protected boolean receiveFailure(ACLMessage msg) {
-		return false;
+		return true;
 	}
 	/**
 	 * Placeholder for business-logic
