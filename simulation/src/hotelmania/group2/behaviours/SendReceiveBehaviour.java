@@ -3,7 +3,6 @@ package hotelmania.group2.behaviours;
 import hotelmania.group2.platform.AbstractAgent;
 import hotelmania.group2.platform.Constants;
 import jade.core.AID;
-import jade.lang.acl.ACLMessage;
 
 
 public class SendReceiveBehaviour extends GenericSendReceiveBehaviour {

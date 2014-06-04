@@ -5,6 +5,7 @@ import hotelmania.ontology.EndSimulation;
 import hotelmania.ontology.SharedAgentsOntology;
 import hotelmania.ontology.SubscribeToDayEvent;
 import jade.content.Concept;
+import jade.content.ContentElement;
 import jade.content.Predicate;
 import jade.content.lang.Codec;
 import jade.content.lang.Codec.CodecException;
@@ -372,6 +373,49 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 
 	public void setLog(Logger log) {
 		this.log = log;
+	}
+	
+	public Concept getConceptFromMessage(ACLMessage msg) {
+		ContentElement ce;
+		try {
+			ce = this.getContentManager().extractContent(msg);
+			if (ce instanceof Action) {
+				Action agAction = (Action) ce;
+				Concept conc = agAction.getAction();
+				return conc;
+			}
+			Logger.logError("[getConceptFromMessage] null : No content extracted because it is not an action");
+			
+		} catch (CodecException | OntologyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	public Predicate getPredicateFromMessage(ACLMessage msg) {
+		ContentElement content;
+		try {
+			content = this.getContentManager().extractContent(msg);
+			if (content instanceof Predicate) {
+				return (Predicate)content;
+			}
+			Logger.logError("[getPredicateFromMessage] null : No content extracted because it is not an action");
+		} catch (CodecException | OntologyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public void sendRequestEmpty(AID receiver, String protocol, int performative) {
+		ACLMessage msg = new ACLMessage(performative);
+		msg.addReceiver(receiver);
+		msg.setLanguage(this.codec.getName());
+		msg.setOntology(this.ontology.getName());
+		msg.setProtocol(protocol);
+		msg.setReplyWith(ConversationID.newCID());
+
+		this.send(msg);
 	}
 
 }
