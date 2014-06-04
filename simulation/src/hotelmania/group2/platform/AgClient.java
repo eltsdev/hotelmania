@@ -51,7 +51,15 @@ public class AgClient extends AbstractAgent {
 		initClient();
 		
 		// Behaviors for booking
-		stepsForBooking = new SequentialBehaviour(this);
+		stepsForBooking = new SequentialBehaviour(this){
+			private static final long serialVersionUID = 4696060378279974678L;
+
+			@Override
+			public void reset() {
+				Logger.logDebug(myName()+": Steps for booking restarted!");
+				super.reset();
+			}
+		};
 		stepsForBooking.addSubBehaviour(new GetHotelsFromHotelmaniaBehavior(this));
 		stepsForBooking.addSubBehaviour(new CallForOffersBehavior(this));
 		stepsForBooking.addSubBehaviour(new RequestBookingInHotelBehavior(this));
@@ -129,7 +137,7 @@ public class AgClient extends AbstractAgent {
 		 * Save list of hotels received
 		 */
 		@Override
-		protected boolean receiveInform(ACLMessage message) {
+		protected void receiveInform(ACLMessage message) {
 			try {
 				ContentElement content = getContentManager().extractContent(message);
 				if (content != null) {
@@ -151,24 +159,29 @@ public class AgClient extends AbstractAgent {
 				Logger.logError(myName()+": " + message.getContent());
 				e.printStackTrace();
 			}
-			
-			return true; //received.
 		}
 
 		private void processListOfHotels(ContentElementList list) {
 			for (int i = 0; i < list.size(); i++) {
 				if (list.get(i) instanceof HotelInformation) {
 					HotelInformation hotelInformation = (HotelInformation) list.get(i);
-					BookingOffer booking = new BookingOffer(new hotelmania.group2.dao.HotelInformation(hotelInformation));
-					client.getOffers().add(booking);
+					BookingOffer offer = new BookingOffer(new hotelmania.group2.dao.HotelInformation(hotelInformation));
+					client.getOffers().add(offer);
 				}
 
 			}
+		}
+
+		@Override
+		protected boolean finishOrResend(int performativeReceived) {
+			return performativeReceived==ACLMessage.INFORM;
 		}
 	}
 
 	class CallForOffersBehavior extends GenericSendReceiveBehaviour {
 		private static final long serialVersionUID = -2493514102408084980L;
+		private int informs = 0;
+		private int numberOfMessages = 0;
 
 		public CallForOffersBehavior(AbstractAgent myAgent) {
 			super(myAgent, Constants.CONSULTROOMPRICES_PROTOCOL);
@@ -190,6 +203,8 @@ public class AgClient extends AbstractAgent {
 			}
 			
 			setTimeout();
+			
+			this.numberOfMessages = client.getOffers().size();
 		}
 
 		private void setTimeout() {
@@ -205,9 +220,8 @@ public class AgClient extends AbstractAgent {
 		}
 		
 		@Override
-		protected boolean receiveInform(ACLMessage msg) {
+		protected void receiveInform(ACLMessage msg) {
 			saveOffer(msg);
-			return false; //wait for more responses
 		}
 
 		private boolean saveOffer(ACLMessage message) {
@@ -228,6 +242,18 @@ public class AgClient extends AbstractAgent {
 				Logger.logDebug(myName() + ": Message: " + message.getContent());
 			}
 
+			return false;
+		}
+
+		@Override
+		protected boolean finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.INFORM) {
+				informs++;
+			}
+			
+			if (informs == numberOfMessages ) {
+				return true;
+			}
 			return false;
 		}
 	}
@@ -275,6 +301,10 @@ public class AgClient extends AbstractAgent {
 		@Override
 		protected boolean doPrepare() {
 			offerChosen = client.computeBestRoomPrice();
+			if (offerChosen == null) {
+				//No offer chosen to make the booking
+				stepsForBooking.reset();
+			}
 			return true;
 		}
 		
@@ -303,34 +333,38 @@ public class AgClient extends AbstractAgent {
 		}
 
 		@Override
-		protected boolean receiveInform(ACLMessage msg) {
+		protected void receiveInform(ACLMessage msg) {
 			hotelmania.group2.dao.Price price = new hotelmania.group2.dao.Price();
 			price.setPrice(offerChosen.getPrice());
 			hotelmania.group2.dao.BookRoom booking = new hotelmania.group2.dao.BookRoom(client.getStay(), price);
 			
 			client.setBookingDone(booking);
 			client.setHotelOfBookingDone(offerChosen.getHotelInformation());
-			return true;
 		}
 		
 		// Restart the whole BOOKING process if there is no success
 		
 		@Override
-		protected boolean receiveFailure(ACLMessage msg) {
+		protected void receiveFailure(ACLMessage msg) {
 			stepsForBooking.reset();
-			return true;
 		}
 		
 		@Override
-		protected boolean receiveRefuse(ACLMessage msg) {
+		protected void receiveRefuse(ACLMessage msg) {
 			stepsForBooking.reset();
-			return true;
 		}
 		
 		@Override
-		protected boolean receiveNotUnderstood(ACLMessage msg) {
+		protected void receiveNotUnderstood(ACLMessage msg) {
 			stepsForBooking.reset();
-			return true;
+		}
+
+		@Override
+		protected boolean finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.INFORM) {
+				return true;
+			}
+			return false;
 		}
 	}
 
@@ -352,18 +386,16 @@ public class AgClient extends AbstractAgent {
 		}
 
 		@Override
-		protected boolean receiveInform(ACLMessage msg) {
+		protected void receiveInform(ACLMessage msg) {
 			handleConsultNumberOfClientsInform(msg);
-			return true;
 		}
 		
-		private boolean handleConsultNumberOfClientsInform(ACLMessage message) {
+		private void handleConsultNumberOfClientsInform(ACLMessage message) {
 			try {
 				NumberOfClients content = (NumberOfClients) getContentManager().extractContent(message);
 				if (content != null) {
 					Logger.logDebug(myName() + ": Number of clients: " + content.getNum_clients());
 					client.addOccupancyForRating(day, content.getNum_clients());
-					return true;
 				} else {
 					Logger.logDebug(myName() + ": Number of clients: Not found (null)");
 				}
@@ -371,10 +403,18 @@ public class AgClient extends AbstractAgent {
 				Logger.logDebug(myName() + ": Message: " + message.getContent());
 				e.printStackTrace();
 			}
-			return false;
 		}
 		
 		// ignores refuse, not understood, failure.
+		
+		@Override
+		protected boolean finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.INFORM) {
+				return true;
+			}else {
+				return false;
+			}
+		}
 	}
 
 	class ConsultHotelStaffBehavior extends	GenericSendReceiveBehaviour {
@@ -395,9 +435,8 @@ public class AgClient extends AbstractAgent {
 		}
 		
 		@Override
-		protected boolean receiveInform(ACLMessage msg) {
+		protected void receiveInform(ACLMessage msg) {
 			handleConsultStaff(msg);
-			return true;
 		}
 		
 		//TODO implement
@@ -425,8 +464,17 @@ public class AgClient extends AbstractAgent {
 			}
 			return false;
 		}
-		
+
 		// ignores refuse, not understood, failure.
+		
+		@Override
+		protected boolean finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.INFORM) {
+				return true;
+			}else {
+				return false;
+			}
+		}
 	}
 
 	
@@ -534,7 +582,14 @@ public class AgClient extends AbstractAgent {
 		
 		//ignore responses
 		
-
+		@Override
+		protected boolean finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.INFORM) {
+				return true;
+			}else {
+				return false;
+			}
+		}
 	}
 
 	class MakeDepositBehavior extends SendReceiveBehaviour {
@@ -559,8 +614,16 @@ public class AgClient extends AbstractAgent {
 			sendRequest(bank, action_deposit, Constants.MAKEDEPOSIT_PROTOCOL, ACLMessage.REQUEST);
 		}
 		
-		// ignore responses.
-
+		// ignore failure, and other responses.
+		
+		@Override
+		protected boolean finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.INFORM) {
+				return true;
+			}else {
+				return false;
+			}
+		}
 	}
 	
 }

@@ -30,6 +30,7 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 	
 	@Override
 	public void action() {
+		
 	switch (step) {
 		case PREPARE:
 			boolean _continue = doPrepare();
@@ -55,37 +56,36 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 				//A New Message
 				myAgent.getLog().logReceivedMsg(msg);
 				
-				boolean finish = true;
 				
 				switch (msg.getPerformative()) {
 
 				case ACLMessage.AGREE:
-					finish = receiveAgree(msg);
+					receiveAgree(msg);
 					break;
 				
 				case ACLMessage.INFORM:
 					//inform++;
-					finish = receiveInform(msg);
+					receiveInform(msg);
 					break;
 
 				case ACLMessage.REFUSE:
-					finish = receiveRefuse(msg);
+					receiveRefuse(msg);
 					break;
 
 				case ACLMessage.FAILURE:
-					finish = receiveFailure(msg);
+					receiveFailure(msg);
 					break;					
 				
 				case ACLMessage.NOT_UNDERSTOOD:
-					finish = receiveNotUnderstood(msg);
+					receiveNotUnderstood(msg);
 					break;
 				
 				default:
 					//ignore
 					break;
 				}
-				
-				if (finish) {
+
+				if (finishOrResend(msg.getPerformative())) {
 					step = ClientStep.DONE;
 				}
 			}
@@ -96,8 +96,14 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 			setDone(true);
 			break;
 		}
-
 	}
+	
+	/**
+	 * Termination condition
+	 * @param performativeReceived 
+	 * @return condition if true, the behavior finishes. If false, it reset the behavior to send the message again.
+	 */
+	protected abstract boolean finishOrResend(int performativeReceived);
 
 	/**
 	 * Placeholder for locating the target agent, and so on. 
@@ -108,7 +114,7 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 	}
 
 	/**
-	 * Placeholder for sending the message to the targe agent (one or more messages to one or more agents, etc).  
+	 * Placeholder for sending the message to the target agent (one or more messages to one or more agents, etc).  
 	 * @return 
 	 */
 	protected abstract void doSend();
@@ -116,41 +122,41 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 	/**
 	 * Placeholder for business-logic
 	 * @param msg
-	 * @return retry if true the agent will finish the behavior. If false, it will keep receiving additional messages.
+
 	 */
-	protected boolean receiveAgree(ACLMessage msg) {
-		return true;
+	protected void receiveAgree(ACLMessage msg) {
+
 	}
 	/**
 	 * Placeholder for business-logic
 	 * @param msg
-	 * @return retry if true the agent will finish the behavior. If false, it will keep receiving additional messages.
+
 	 */
-	protected boolean receiveInform(ACLMessage msg) {
-		return true;
+	protected void receiveInform(ACLMessage msg) {
+
 	}
 	/**
 	 * Placeholder for business-logic
 	 * @param msg
-	 * @return retry if true the agent will finish the behavior. If false, it will keep receiving additional messages.
+
 	 */
-	protected boolean receiveNotUnderstood(ACLMessage msg) {
-		return true;
+	protected void receiveNotUnderstood(ACLMessage msg) {
+
 	}
 	/**
 	 * Placeholder for business-logic
 	 * @param msg
-	 * @return retry if true the agent will finish the behavior. If false, it will keep receiving additional messages.
+
 	 */
-	protected boolean receiveFailure(ACLMessage msg) {
-		return true;
+	protected void receiveFailure(ACLMessage msg) {
+
 	}
 	/**
 	 * Placeholder for business-logic
 	 * @param msg
-	 * @return retry if true the agent will finish the behavior. If false, it will keep receiving additional messages.
+
 	 */
-	protected boolean receiveRefuse(ACLMessage msg) {
-		return true;
+	protected void receiveRefuse(ACLMessage msg) {
+
 	}	
 }

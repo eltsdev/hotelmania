@@ -5,7 +5,7 @@ import hotelmania.group2.platform.Constants;
 import jade.core.AID;
 
 
-public class SendReceiveBehaviour extends GenericSendReceiveBehaviour {
+public abstract class SendReceiveBehaviour extends GenericSendReceiveBehaviour {
 	
 	protected static final long serialVersionUID = -4878507137076376248L;
 	protected AID server;

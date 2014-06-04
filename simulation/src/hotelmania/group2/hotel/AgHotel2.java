@@ -122,12 +122,20 @@ public class AgHotel2 extends AbstractAgent {
 		}
 		
 		@Override
-		protected boolean receiveAgree(ACLMessage msg) {
+		protected void receiveAgree(ACLMessage msg) {
 			state.check(State.REGISTERED_HOTELMANIA);
-			return true;
 		}
 		
 		// ignore responses.
+		
+		@Override
+		protected boolean finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.AGREE) {
+				return true;
+			}else {
+				return false;
+			}
+		}
 	}
 
 	
@@ -157,22 +165,10 @@ public class AgHotel2 extends AbstractAgent {
 			sendRequest(this.server, action_account,this.protocol, this.sendPerformative);
 
 		}
-		
+
 		@Override
-		protected boolean receiveAgree(ACLMessage msg) {
-			return false;
-		}
-		
-		@Override
-		protected boolean receiveFailure(ACLMessage msg) {
-			stepsForCreationHotel.reset();
-			return true;
-		}
-		
-		@Override
-		protected boolean receiveInform(ACLMessage msg) {
+		protected void receiveInform(ACLMessage msg) {
 			handleAccount(msg);
-			return true;
 		}
 		
 		protected boolean handleAccount(ACLMessage message) {
@@ -189,7 +185,15 @@ public class AgHotel2 extends AbstractAgent {
 		
 			return true;
 		}
-		// ignore responses.
+
+		@Override
+		protected boolean finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.INFORM) {
+				return true;
+			}else {
+				return false;
+			}
+		}
 	}
 
 	private final class MakeRoomBookingBehavior extends GenericServerResponseBehaviour {
@@ -197,21 +201,12 @@ public class AgHotel2 extends AbstractAgent {
 		private static final long serialVersionUID = -390060690778340930L;
 
 		public MakeRoomBookingBehavior(AbstractAgent agHotel) {
-			super(agHotel,Constants.BOOKROOM_PROTOCOL);
+			super(agHotel,Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
 		}
 		
-		
-		/* (non-Javadoc)
-		 * @see hotelmania.group2.behaviours.GenericSendReceiveBehaviour#receiveAgree(jade.lang.acl.ACLMessage)
-		 */
-			
 		@Override
 		protected ACLMessage doSendResponse(ACLMessage msg) {
-			ACLMessage reply = msg.createReply();
-			
-			/*
-			 * The ContentManager transforms the message content (string) in
-			 */
+			// The ContentManager transforms the message content (string) in objects
 			try {
 				ContentElement ce = getContentManager().extractContent(msg);
 
@@ -223,14 +218,19 @@ public class AgHotel2 extends AbstractAgent {
 					// If the action is BookRoom...
 					if (conc instanceof BookRoom) {
 						// execute request
-						 reply = answerBookingRequest(msg,(BookRoom) conc);
+						return answerBookingRequest(msg,(BookRoom) conc);
 					}
 				}
 			
 			} catch (CodecException | OntologyException e) {
-				Logger.logError(myName()+": " + reply.getContent());
+				Logger.logError(myName()+": " + msg.getContent());
 				e.printStackTrace();
 			}
+
+			//Send response to unexpected message
+			ACLMessage reply = msg.createReply();
+			reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+			reply.setContent("No sending the right Ontology");
 			return reply;
 		
 		}
@@ -338,18 +338,14 @@ public class AgHotel2 extends AbstractAgent {
 		}
 		
 		@Override
-		protected boolean receiveAgree(ACLMessage msg) {
-//			state.check(State.);
-			return false;
+		protected boolean finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.INFORM) {
+				return true;
+			}else {
+				return false;
+			}
 		}
 		
-		/* (non-Javadoc)
-		 * @see hotelmania.group2.behaviours.GenericSendReceiveBehaviour#receiveInform(jade.lang.acl.ACLMessage)
-		 */
-		@Override
-		protected boolean receiveInform(ACLMessage msg) {
-			return true;
-		}
 	}
 	
 	
@@ -358,10 +354,8 @@ public class AgHotel2 extends AbstractAgent {
 		private static final long serialVersionUID = -4414753731149819352L;
 
 		public ProvideHotelNumberOfClientsBehavior(AbstractAgent agHotel) {
-			super(agHotel,Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL);
+			super(agHotel,Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL, ACLMessage.QUERY_REF);
 		}
-
-		
 		
 		@Override
 		protected ACLMessage doSendResponse(ACLMessage message) {
@@ -369,10 +363,12 @@ public class AgHotel2 extends AbstractAgent {
 			
 			if (predicate instanceof NumberOfClientsQueryRef) {
 				return answerGetNumberOfClients(message,(NumberOfClientsQueryRef) predicate);
+			}else {
+				ACLMessage reply = message.createReply();
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				reply.setContent("No sending the right Ontology");
+				return reply;
 			}
-			
-			message.setPerformative(ACLMessage.REFUSE);
-			return message;
 		}
 
 		/**
@@ -418,10 +414,6 @@ public class AgHotel2 extends AbstractAgent {
 			numberOfClients.setNum_clients(clients);
 			return numberOfClients;
 		}
-
-
-		
-		
 	}
 		
 	private final class ProvideRoomInfoBehavior extends GenericServerResponseBehaviour {
@@ -429,7 +421,7 @@ public class AgHotel2 extends AbstractAgent {
 		private static final long serialVersionUID = 1955222376582492939L;
 
 		public ProvideRoomInfoBehavior(AbstractAgent agHotel) {
-			super(agHotel, Constants.CONSULTROOMPRICES_PROTOCOL);
+			super(agHotel, Constants.CONSULTROOMPRICES_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
 		
@@ -440,14 +432,13 @@ public class AgHotel2 extends AbstractAgent {
 			// If the action is Registration Request...
 			if (offer instanceof hotelmania.ontology.StayQueryRef) {
 				// execute request
-				ACLMessage reply = answerRoomPriceOffer(msg,(hotelmania.ontology.StayQueryRef) offer);
-				// send reply
+				return answerRoomPriceOffer(msg,(hotelmania.ontology.StayQueryRef) offer);
+			}else {
+				ACLMessage reply = msg.createReply();
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				reply.setContent("No sending the right Ontology");
 				return reply;
 			}
-			
-			msg.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-			msg.setContent("No sending the right Ontology");
-			return msg;
 		}
 		
 				
@@ -524,20 +515,17 @@ public class AgHotel2 extends AbstractAgent {
 			if(idAccount!=null){
 				consultHotelAccountInfo();
 			}
-			
 		}
 
 		private void consultHotelAccountInfo() {
 			AccountStatusQueryRef request = new AccountStatusQueryRef();
 			request.setId_account(idAccount);
-
 			sendRequest(this.server, request, this.protocol, this.sendPerformative);
 		}
 		
 		@Override
-		protected boolean receiveInform(ACLMessage message) {
+		protected void receiveInform(ACLMessage message) {
 			handleConsultAccount(message);
-			return true;
 		}
 		
 		public void handleConsultAccount(ACLMessage message){
@@ -553,7 +541,11 @@ public class AgHotel2 extends AbstractAgent {
 			}
 			
 		}
-
+		
+		@Override
+		protected boolean finishOrResend(int performativeReceived) {
+			return true;
+		}
 	}
 	
 	private final class ConsultMyRatingBehavior extends SendReceiveBehaviour {
@@ -563,14 +555,12 @@ public class AgHotel2 extends AbstractAgent {
 		public ConsultMyRatingBehavior(AbstractAgent agHotel) {
 			super(agHotel, Constants.CONSULTHOTELSINFO_PROTOCOL, Constants.CONSULTHOTELSINFO_ACTION, ACLMessage.QUERY_REF);
 		}
-
-		
 	
 		/**
 		 * Save list of hotels received
 		 */
 		@Override
-		protected boolean receiveInform(ACLMessage message) {
+		protected void receiveInform(ACLMessage message) {
 			try {
 				ContentElement content = getContentManager().extractContent(message);
 				if (content != null) {
@@ -592,21 +582,24 @@ public class AgHotel2 extends AbstractAgent {
 				Logger.logError(myName()+": " + message.getContent());
 				e.printStackTrace();
 			}
-			
-			return true; //received.
 		}
 
 		private void processListOfHotels(ContentElementList list) {
 			for (int i = 0; i < list.size(); i++) {
 				if (list.get(i) instanceof HotelInformation) {
 					HotelInformation hotelInformation = (HotelInformation) list.get(i);
-					hotelmania.group2.dao.BookingOffer booking = new hotelmania.group2.dao.BookingOffer(new hotelmania.group2.dao.HotelInformation(hotelInformation));
-					if (myAgent.getAID()==booking.getHotelInformation().getHotel().getAgent()){
-						myRating=booking.getHotelInformation().getRating();
+					hotelmania.group2.dao.BookingOffer offer = new hotelmania.group2.dao.BookingOffer(new hotelmania.group2.dao.HotelInformation(hotelInformation));
+					if (myAgent.getAID()==offer.getHotelInformation().getHotel().getAgent()){
+						myRating=offer.getHotelInformation().getRating();
 					}
 				}
 
 			}
+		}
+		
+		@Override
+		protected boolean finishOrResend(int performativeReceived) {
+			return true;
 		}
 	}		
 

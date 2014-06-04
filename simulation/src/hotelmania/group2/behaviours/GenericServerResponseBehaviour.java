@@ -12,15 +12,18 @@ public abstract class GenericServerResponseBehaviour extends MetaSimpleBehaviour
 	protected AbstractAgent myAgent;
 	protected String protocol;
 	protected MessageTemplate messageTemplate;
+	private int incomingMessagePerformative;
 
-	public GenericServerResponseBehaviour(AbstractAgent myAgent, String protocol) {
+	public GenericServerResponseBehaviour(AbstractAgent myAgent, String protocol, int incomingMessagePerformative) {
 		super(myAgent);
 		this.myAgent = myAgent;
 		this.protocol = protocol;
+		this.incomingMessagePerformative = incomingMessagePerformative;
 		
-		this.messageTemplate = MessageTemplate.and(MessageTemplate.and(
+		this.messageTemplate = MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
 				MessageTemplate.MatchLanguage(myAgent.getCodec().getName()),
 				MessageTemplate.MatchOntology(myAgent.getOntology().getName())),
+				MessageTemplate.MatchPerformative(this.incomingMessagePerformative)),
 				MessageTemplate.MatchProtocol(this.protocol));
 	}
 	
@@ -34,7 +37,6 @@ public abstract class GenericServerResponseBehaviour extends MetaSimpleBehaviour
 		else {
 			//A New Message
 			myAgent.getLog().logReceivedMsg(msg);
-			
 			ACLMessage reply = doSendResponse(msg);
 			myAgent.send(reply);
 			myAgent.getLog().logSendReply(reply);
