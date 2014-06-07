@@ -415,14 +415,13 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 	private final class ReceiveInformMsgBehavior extends CyclicBehaviour {
 
 		private static final long serialVersionUID = -4878774871721189228L;
-		AbstractAgent myAgent; 
 
-		MessageTemplate informTemplate = MessageTemplate.and(BASIC_TEMPLATE,
-			MessageTemplate.MatchPerformative(ACLMessage.INFORM));
+		MessageTemplate informTemplate = MessageTemplate.and(BASIC_TEMPLATE,MessageTemplate.and(
+			MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+			MessageTemplate.or(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL),MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))));
 
 		private ReceiveInformMsgBehavior(AbstractAgent a) {
 			super(a);
-			this.myAgent = a;
 		}
 
 		public void action() {
