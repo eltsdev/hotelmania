@@ -406,7 +406,7 @@ public class AgHotel2 extends MetaAgent {
 		} else {
 			contract = buildNewContract(day);
 		}
-
+		contract.setDay(day);
 		return contract;
 	}
 
