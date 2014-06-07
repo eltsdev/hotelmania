@@ -387,7 +387,6 @@ public class AgHotel2 extends MetaAgent {
 		try {
 			//TODO Contract must be dynamic
 			request.setContract(hireDailyStaff(getDay()+1));
-			//System.out.println("[HOTEL] Wants to hire staff for day: "+(request.getContract().getDay())+ " Today is:"+day);
 			this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
 		} catch (Exception e) {//this never happens
 			e.printStackTrace();

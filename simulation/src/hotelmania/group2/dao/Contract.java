@@ -206,13 +206,16 @@ public class Contract {
 				int random = ClientGenerator.randomBetween(1, maxRandom);
 				switch (random) {
 				case 1: // Recepcionist
-					this.increaseCurrentRecepcionist(budget);
+					this.decreaseCurrentRecepcionist(budget);
+					decrementFound = true;
 					break;
 				case 2: // Room Services
-					this.increaseCurrentRoomServices(budget);
+					this.decreaseCurrentRoomServices(budget);
+					decrementFound = true;
 					break;
 				case 3:// Cheff
-					this.increaseCurrentChef(budget);
+					this.decreaseCurrentChef(budget);
+					decrementFound = true;
 					break;
 				default:
 					break;
