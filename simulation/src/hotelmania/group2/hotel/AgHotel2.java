@@ -313,9 +313,9 @@ System.out.println(myName() +": Day staffff=====================================
 			//TODO dynamic
 			Contract c = new Contract();
 			c.setDay(day);
-			c.setChef_1stars(5);
-			c.setChef_2stars(5);
-			c.setChef_3stars(5);
+			c.setChef_1stars(1);
+			c.setChef_2stars(0);
+			c.setChef_3stars(0);
 			c.setRecepcionist_experienced(2);
 			c.setRecepcionist_novice(2);
 			c.setRoom_service_staff(20);
@@ -330,9 +330,9 @@ System.out.println(myName() +": Day staffff=====================================
 		Contract getInitialContract() {
 			Contract c = new Contract();
 			c.setDay(1);
-			c.setChef_1stars(5);
-			c.setChef_2stars(5);
-			c.setChef_3stars(5);
+			c.setChef_1stars(1);
+			c.setChef_2stars(0);
+			c.setChef_3stars(0);
 			c.setRecepcionist_experienced(2);
 			c.setRecepcionist_novice(2);
 			c.setRoom_service_staff(20);
@@ -430,7 +430,7 @@ System.out.println(myName() +": Day staffff=====================================
 		
 		@Override
 		protected ACLMessage doSendResponse(ACLMessage msg) {
-			
+			System.out.println(myName() +" estoy aqui!!!");
 			Predicate offer = getPredicateFromMessage(msg);
 			// If the action is Registration Request...
 			if (offer instanceof hotelmania.ontology.StayQueryRef) {
