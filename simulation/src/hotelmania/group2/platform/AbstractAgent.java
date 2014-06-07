@@ -2,6 +2,7 @@ package hotelmania.group2.platform;
 
 import hotelmania.group2.platform.AgentState.State;
 import hotelmania.ontology.EndSimulation;
+import hotelmania.ontology.NotificationDayEvent;
 import hotelmania.ontology.SharedAgentsOntology;
 import hotelmania.ontology.SubscribeToDayEvent;
 import jade.content.Concept;
@@ -46,6 +47,8 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 	 * State manager to track state changes 
 	 */
 	protected AgentState state;
+	
+	private Integer day;
 
 	@Override
 	protected void setup() {
@@ -447,6 +450,11 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 
 	public void handleInformNewDay(ACLMessage inform) {
 		getLog().logInformMessage(inform);
+		NotificationDayEvent event = (NotificationDayEvent) getPredicateFromMessage(inform);
+		this.day = event.getDayEvent().getDay();
+		if (this.day > Constants.DAY ) {
+			Constants.DAY = day;
+		}
 		doOnNewDay();
 		
 	}
