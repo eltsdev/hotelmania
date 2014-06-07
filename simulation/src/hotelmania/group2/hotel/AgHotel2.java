@@ -64,7 +64,6 @@ public class AgHotel2 extends AbstractAgent {
 	@Override
 	protected void setup() {
 		super.setup();
-
 		this.hotelIdentity.setHotel_name(myName());
 		this.hotelIdentity.setHotelAgent(getAID());
 
@@ -74,15 +73,18 @@ public class AgHotel2 extends AbstractAgent {
 		this.stepsForCreationHotel.addSubBehaviour(new CreateBankAccountBehavior(this));
 		addBehaviour(stepsForCreationHotel);
 		
-		//Behaviors that are responsible for responding to requests
-		addBehaviour(new MakeRoomBookingBehavior(this));
-		addBehaviour(new ProvideHotelNumberOfClientsBehavior(this));
-		
 		//Behaviors to calculate room prices and provide it to Client
 		this.stepsForRoomPrice = new SequentialBehaviour(this);
 		this.stepsForRoomPrice.addSubBehaviour(new ConsultBankAccountInfoBehavior(this));
 		this.stepsForRoomPrice.addSubBehaviour(new ConsultMyRatingBehavior(this));
 		this.stepsForRoomPrice.addSubBehaviour(new ProvideRoomInfoBehavior(this));
+		addBehaviour(stepsForRoomPrice);
+		
+		//Behaviors that are responsible for responding to requests
+		addBehaviour(new MakeRoomBookingBehavior(this));
+		addBehaviour(new ProvideHotelNumberOfClientsBehavior(this));
+		
+	
 	}
 
 	/*
@@ -368,6 +370,7 @@ public class AgHotel2 extends AbstractAgent {
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 				reply.setContent("No sending the right Ontology");
 				return reply;
+				
 			}
 		}
 

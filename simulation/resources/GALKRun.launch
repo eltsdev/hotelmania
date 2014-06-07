@@ -7,7 +7,7 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="jade.Boot"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-services jade.core.event.NotificationService;jade.core.messaging.TopicManagementService  platform:hotelmania.group2.platform.AgPlatform2;hotelII:hotelmania.group2.hotel.AgHotel"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-services jade.core.event.NotificationService;jade.core.messaging.TopicManagementService  platform:hotelmania.group2.platform.AgPlatform2;Hotel2:hotelmania.group2.hotel.AgHotel2"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="simulation"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms256m -Xmx512m"/>
 </launchConfiguration>
