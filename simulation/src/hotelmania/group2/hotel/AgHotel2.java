@@ -305,7 +305,7 @@ public class AgHotel2 extends AbstractAgent {
 			} else {
 				contract = buildNewContract(day);
 			}
-
+System.out.println(myName() +": Day staffff========================================> "+ day);
 			return contract;
 		}
 
