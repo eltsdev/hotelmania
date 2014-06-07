@@ -78,6 +78,7 @@ public class AgClient extends AbstractAgent {
 		};
 		stepsAfterBooking.addSubBehaviour(new RateHotelInHotelmaniaBehavior(this));
 		stepsAfterBooking.addSubBehaviour(new MakeDepositBehavior(this));
+		
 	}
 	
 
