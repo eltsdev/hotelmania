@@ -30,8 +30,6 @@ public class Constants {
 	
 	// Query-ref Actions
 	public static final String CONSULTHOTELSINFO_ACTION = "QueryHotelmaniaHotel";
-	/**Dont use it because it will provide ALL hotels!*/
-	@Deprecated
 	public static final String CONSULTHOTELSSTAFF_ACTION = CONSULTHOTELSSTAFF_PROTOCOL;
 	public static final String CONSULTROOMPRICES_ACTION = CONSULTROOMPRICES_PROTOCOL;
 	public static final String CONSULTACCOUNTSTATUS_ACTION = CONSULTACCOUNTSTATUS_PROTOCOL;

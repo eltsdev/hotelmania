@@ -8,7 +8,7 @@ import jade.core.*;
 /**
 * Protege name: HotelStaffQueryRef
 * @author ontology bean generator
-* @version 2014/06/2, 11:03:18
+* @version 2014/06/7, 20:28:10
 */
 public class HotelStaffQueryRef implements Predicate {
 
@@ -21,6 +21,17 @@ public class HotelStaffQueryRef implements Predicate {
    }
    public int getDay() {
      return this.day;
+   }
+
+   /**
+* Protege name: hotel
+   */
+   private Hotel hotel;
+   public void setHotel(Hotel value) { 
+    this.hotel=value;
+   }
+   public Hotel getHotel() {
+     return this.hotel;
    }
 
 }

@@ -216,6 +216,7 @@ public class AgHotel extends AbstractAgent {
 		
 		@Override
 		protected ACLMessage doSendResponse(ACLMessage msg) {
+			
 			// The ContentManager transforms the message content (string) in objects
 			try {
 				ContentElement ce = getContentManager().extractContent(msg);
@@ -231,7 +232,9 @@ public class AgHotel extends AbstractAgent {
 						ACLMessage reply = answerBookingRequest(msg,(BookRoom) conc);
 						myAgent.send(reply);
 						myAgent.getLog().logSendReply(reply);
-
+						
+						
+						//Send next message
 						if (reply.getPerformative()==ACLMessage.AGREE) {
 							reply.setPerformative(ACLMessage.INFORM);
 						}else if (reply.getPerformative()==ACLMessage.REFUSE) {

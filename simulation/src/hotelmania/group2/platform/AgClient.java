@@ -432,21 +432,22 @@ public class AgClient extends AbstractAgent {
 		}
 	}
 
-	class ConsultHotelStaffBehavior extends	GenericSendReceiveBehaviour {
+	class ConsultHotelStaffBehavior extends	SendReceiveBehaviour {
 		
 		private static final long serialVersionUID = -6581059230472887190L;
 		private int day = getDay();
 		private Hotel hotel = client.getHotelOfBookingDone().getHotel().getConcept();
 
 		public ConsultHotelStaffBehavior(AbstractAgent myAgent) {
-			super(myAgent,Constants.CONSULTHOTELSSTAFF_PROTOCOL);
+			super(myAgent,Constants.CONSULTHOTELSSTAFF_PROTOCOL, Constants.CONSULTHOTELSSTAFF_ACTION,ACLMessage.QUERY_REF);
 		}
 		
 		@Override
 		protected void doSend() {
 			HotelStaffQueryRef request = new HotelStaffQueryRef();
 			request.setDay(day);
-			sendRequest(hotel.getHotelAgent(), request, this.protocol, ACLMessage.QUERY_REF);
+			request.setHotel(hotel);
+			sendRequest(this.server, request, this.protocol, ACLMessage.QUERY_REF);
 		}
 		
 		@Override

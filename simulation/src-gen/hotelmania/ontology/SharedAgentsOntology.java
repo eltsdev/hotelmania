@@ -9,7 +9,7 @@ import jade.core.CaseInsensitiveString;
 
 /** file: SharedAgentsOntology.java
  * @author ontology bean generator
- * @version 2014/06/2, 11:03:18
+ * @version 2014/06/7, 20:28:09
  */
 public class SharedAgentsOntology extends jade.content.onto.Ontology  {
   //NAME
@@ -33,6 +33,7 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     public static final String HOTELINFORMATION_RATING="rating";
     public static final String HOTELINFORMATION="HotelInformation";
     public static final String NOTIFICATIONENDSIMULATION="NotificationEndSimulation";
+    public static final String HOTELSTAFFQUERYREF_HOTEL="hotel";
     public static final String HOTELSTAFFQUERYREF_DAY="day";
     public static final String HOTELSTAFFQUERYREF="HotelStaffQueryRef";
     public static final String STAYQUERYREF_STAY="stay";
@@ -213,6 +214,7 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     numberOfClientsQueryRefSchema.add(NUMBEROFCLIENTSQUERYREF_DAY, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
     stayQueryRefSchema.add(STAYQUERYREF_STAY, staySchema, ObjectSchema.MANDATORY);
     hotelStaffQueryRefSchema.add(HOTELSTAFFQUERYREF_DAY, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
+    hotelStaffQueryRefSchema.add(HOTELSTAFFQUERYREF_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     hotelInformationSchema.add(HOTELINFORMATION_RATING, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.MANDATORY);
     hotelInformationSchema.add(HOTELINFORMATION_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     accountStatusSchema.add(ACCOUNTSTATUS_ACCOUNT, accountSchema, ObjectSchema.MANDATORY);
