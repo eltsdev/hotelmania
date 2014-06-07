@@ -2,9 +2,11 @@ package hotelmania.group2.platform;
 
 import hotelmania.group2.platform.AgentState.State;
 import hotelmania.ontology.EndSimulation;
+import hotelmania.ontology.NotificationDayEvent;
 import hotelmania.ontology.SharedAgentsOntology;
 import hotelmania.ontology.SubscribeToDayEvent;
 import jade.content.Concept;
+import jade.content.ContentElement;
 import jade.content.Predicate;
 import jade.content.lang.Codec;
 import jade.content.lang.Codec.CodecException;
@@ -335,8 +337,15 @@ public abstract class MetaAgent extends Agent  implements IMyName {
 		}
 	}
 	
-	private void handleInformNewDay(ACLMessage message) {
+	private void handleInformNewDay(ACLMessage inform) {
+		this.log.logInformMessage(inform);
+		NotificationDayEvent event = (NotificationDayEvent) getPredicateFromMessage(inform);
+		int day = event.getDayEvent().getDay();
+		if (day > Constants.DAY ) {
+			Constants.DAY = day;
+		}
 		doOnNewDay();
+		
 	}
 
 	private void handleInformEndSimulation (ACLMessage message) {
@@ -532,5 +541,20 @@ public abstract class MetaAgent extends Agent  implements IMyName {
 	public abstract void receivedInform(ACLMessage message);
 
 	public /*FIXME abstract*/void receivedFailure(ACLMessage msg){}
-
+	
+	
+	public Predicate getPredicateFromMessage(ACLMessage msg) {
+		ContentElement content;
+		try {
+			content = getContentManager().extractContent(msg);
+			if (content instanceof Predicate) {
+				return (Predicate)content;
+			}
+			Logger.logError("[getPredicateFromMessage] null : No content extracted because it is not an action");
+		} catch (CodecException | OntologyException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 }

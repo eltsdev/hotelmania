@@ -27,17 +27,11 @@ import jade.content.ContentElement;
 import jade.content.Predicate;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
-import jade.content.onto.UngroundedException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Properties;
 
 public class AgHotel2 extends MetaAgent {
 
@@ -54,17 +48,10 @@ public class AgHotel2 extends MetaAgent {
 	private float rating = 5;
 	private hotelmania.group2.dao.Contract currentContract;
 	private float currentPrice = 0;
-	
-	/**
-	 * This value is updated by simulator only if the subscription is TRUE
-	 */
-	private int day = Constants.FIRST_DAY-1;
-
 
 	@Override
 	protected void setup() {
 		super.setup();
-		loadProperties();
 		this.registerServices(Constants.BOOKROOM_ACTION, Constants.CONSULTROOMPRICES_ACTION);
 
 		identity.setHotel_name(myName());
@@ -82,10 +69,6 @@ public class AgHotel2 extends MetaAgent {
 		state.setLogEnabled(Constants.LOG_DEBUG);
 	}
 
-	private void loadProperties() {
-		AgPlatform2.loadProperties();
-	}
-
 	@Override
 	public String myName() {
 		return Constants.HOTEL_NAME;
@@ -99,8 +82,7 @@ public class AgHotel2 extends MetaAgent {
 	@Override
 	protected void doOnNewDay() {
 		super.doOnNewDay();
-		this.day++;
-		Logger.logDebug("HOTEL: DAY IS "+day + " =========================================================================");
+		Logger.logDebug("HOTEL DAY = "+ getDay()+ " =========================================================================");
 		addBehaviour(new ConsultMyRatingBehavior(this));
 		hireDailyStaffBehaviorAction();
 	}
@@ -669,10 +651,4 @@ public class AgHotel2 extends MetaAgent {
 			}
 		}
 	}
-
-	@Override
-	public int getDay() {
-		return day;
-	}
-
 }
