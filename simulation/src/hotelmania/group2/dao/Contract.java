@@ -141,10 +141,13 @@ public class Contract {
 
 		switch (random) {
 		case 1: // Recepcionist
+			this.increaseCurrentRecepcionist(budget);
 			break;
 		case 2: // Room Services
+			this.increaseCurrentRoomServices(budget);
 			break;
 		case 3:// Cheff
+			this.increaseCurrentChef(budget);
 			break;
 		default:
 			break;
@@ -152,36 +155,124 @@ public class Contract {
 
 	}
 
-	public float costOfIncreasingCurrentChef() {
-		if(this.chef1stars>0){
-			return Constants.chef2StarCost - Constants.chef1StarCost;
-		}else if(this.chef2stars>0){
-			return Constants.chef3StarCost - Constants.chef2StarCost;
-		}
-		return -1;
-	}
-
 	public void increaseCurrentRecepcionist(float budget) {
-		
 		if(this.recepcionistExperienced<this.recepcionistNovice){
 			if (budget>=Constants.recepcionistExperiencedCost) {
 				int numberOfNewExperencedRecepcionist = (int) Math.floor(budget/Constants.recepcionistExperiencedCost);
-				this.recepcionistExperienced+=numberOfNewExperencedRecepcionist;
+				this.recepcionistExperienced += numberOfNewExperencedRecepcionist;
 			}
-		}else{
+		} else {
 			if (budget>=Constants.recepcionistNoviceCost) {
 				int numberOfNewNoviceRecepcionist = (int) Math.floor(budget/Constants.recepcionistNoviceCost);
-				this.recepcionistNovice+=numberOfNewNoviceRecepcionist;
+				this.recepcionistNovice += numberOfNewNoviceRecepcionist;
 			}
 		}
 	}
 
-	public float costOfIncreasingCurrentRoomServicesUnit() {
-		return Constants.roomServiceCost;
+	public void increaseCurrentRoomServices(float budget) {
+		int numberOfNewRoomServices = (int) Math.floor(budget/Constants.roomServiceCost);
+		this.roomService += numberOfNewRoomServices;
 	}
 
-	public void decreaseQuality(float budget) {
+	public void increaseCurrentChef(float budget) {
+		float cost;
+		if(this.chef1stars>0){
+			cost = Constants.chef2StarCost - Constants.chef1StarCost;
+			if (cost <= budget) {
+				this.chef1stars = 0;
+				this.chef2stars = 1;
+			}
+		}else if(this.chef2stars>0){
+			cost = Constants.chef3StarCost - Constants.chef2StarCost;
+			if (cost <= budget) {
+				this.chef2stars = 0;
+				this.chef3stars = 1;
+			}
+		}
+	}
 
+
+	public void decreaseQuality(float budget) {
+		if (this.canBeDecreased()) {
+			boolean decrementFound = false;
+			while (!decrementFound) {
+				int maxRandom = 3;
+				if (this.chef1stars > 1) {
+					maxRandom = 2;
+				}
+				if (this.roomService <= 1) {
+					maxRandom = 1;
+				}
+				int random = ClientGenerator.randomBetween(1, maxRandom);
+				switch (random) {
+				case 1: // Recepcionist
+					this.increaseCurrentRecepcionist(budget);
+					break;
+				case 2: // Room Services
+					this.increaseCurrentRoomServices(budget);
+					break;
+				case 3:// Cheff
+					this.increaseCurrentChef(budget);
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		
+	}
+	
+	private boolean canBeDecreased() {
+		if (this.chef3stars > 0 || this.chef2stars > 0) {
+			return true;
+		}
+		
+		if (this.roomService > 1) {
+			return true;
+		}
+		
+		if (this.recepcionistExperienced > 0 || this.recepcionistNovice > 1) {
+			return true;
+		}
+		return false;
+	}
+	
+	public void decreaseCurrentRecepcionist(float budget) {
+		if (this.recepcionistExperienced > 0) {
+			if (budget>=Constants.recepcionistExperiencedCost) {
+				int numberOfNewExperencedRecepcionist = (int) Math.floor(budget/Constants.recepcionistExperiencedCost);
+				this.recepcionistExperienced -= numberOfNewExperencedRecepcionist;
+			}
+		} else if (this.recepcionistNovice > 1) {
+			int maxNumberOfRecepcionist = this.recepcionistNovice - 1;
+			if (budget>=Constants.recepcionistNoviceCost) {
+				int numberOfNewNoviceRecepcionist = (int) Math.floor(budget/Constants.recepcionistNoviceCost);
+				this.recepcionistNovice -= Math.min(maxNumberOfRecepcionist, numberOfNewNoviceRecepcionist);
+			}
+		}
+	}
+
+	public void decreaseCurrentRoomServices(float budget) {
+		int maxNumberOfRoomServices = this.roomService - 1;
+		int numberOfNewRoomServices = (int) Math.floor(budget/Constants.roomServiceCost);
+		this.roomService -= Math.min(numberOfNewRoomServices, maxNumberOfRoomServices);
+	}
+
+	public void decreaseCurrentChef(float budget) {
+		float cost;
+		if(this.chef3stars>0){
+			cost = Constants.chef3StarCost - Constants.chef2StarCost;
+			if (cost <= budget) {
+				this.chef3stars = 0;
+				this.chef2stars = 1;
+			}
+		}else if(this.chef2stars>0){
+			cost = Constants.chef2StarCost - Constants.chef1StarCost;
+			if (cost <= budget) {
+				this.chef2stars = 0;
+				this.chef1stars = 1;
+			}
+		}
 	}
 
 }
