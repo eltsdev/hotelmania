@@ -43,7 +43,6 @@ public class AgPlatform2 extends MetaAgent
 	protected void setup() 
 	{
 		super.setup();
-		loadProperties();
 		registerServices(Constants.SUBSCRIBETODAYEVENT_ACTION, Constants.END_SIMULATION_ACTION); //TODO + set time behavior?
 
 		// Behaviors

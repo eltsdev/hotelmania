@@ -313,7 +313,7 @@ public class AgHotel extends AbstractAgent {
 			} else {
 				contract = buildNewContract(day);
 			}
-System.out.println(myName() +": Day staffff========================================> "+ day);
+			System.out.println(myName() +": Day staffff========================================> "+ day);
 			return contract;
 		}
 
@@ -438,7 +438,6 @@ System.out.println(myName() +": Day staffff=====================================
 		
 		@Override
 		protected ACLMessage doSendResponse(ACLMessage msg) {
-			System.out.println(myName() +" estoy aqui!!!");
 			Predicate offer = getPredicateFromMessage(msg);
 			// If the action is Registration Request...
 			if (offer instanceof hotelmania.ontology.StayQueryRef) {

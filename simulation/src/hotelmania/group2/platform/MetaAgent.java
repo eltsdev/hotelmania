@@ -51,7 +51,7 @@ public abstract class MetaAgent extends Agent  implements IMyName {
 	@Override
 	protected void setup() {
 		super.setup();
-
+		loadProperties();
 		Logger.logDebug(myName() + ": HAS ENTERED");
 		state = new AgentState(false, myName());
 		state.check(State.LOADED);
@@ -67,6 +67,10 @@ public abstract class MetaAgent extends Agent  implements IMyName {
 		addBehaviour(new ReceiveFailureMsgBehavior(this));
 	}
 
+	private void loadProperties() {
+		AgPlatform2.loadProperties();
+		
+	}
 	public String myName()
 	{
 		return super.getLocalName();
