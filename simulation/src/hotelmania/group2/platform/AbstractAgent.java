@@ -15,6 +15,7 @@ import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -59,6 +60,8 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 
 		//Behaviors
 		addBehaviour(new LocateSimulatorBehavior(this));
+		
+		addBehaviour(new ReceiveInformMsgBehavior(this));
 
 	}
 
@@ -289,8 +292,7 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 		}
 
 		protected void handleInform(ACLMessage inform) {
-			getLog().logInformMessage(inform);
-			doOnNewDay();
+			handleInformNewDay(inform);
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
@@ -329,15 +331,7 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 		}
 
 		protected void handleInform(ACLMessage inform) {
-			state.check(State.RECEIVED_ENDSIMULATION_NOTIFICATION);
-			getLog().logInformMessage(inform);
-			boolean die = doBeforeDie();
-			if (die) {
-				myAgent.doDelete();
-				Logger.logDebug(myName()+": DIED");
-			}else {
-				Logger.logDebug(myName()+": RESISTED TO DIE");
-			}
+			handleInformEndSimulation(inform);
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
@@ -416,6 +410,58 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 		msg.setReplyWith(ConversationID.newCID());
 
 		this.send(msg);
+	}
+	
+	private final class ReceiveInformMsgBehavior extends CyclicBehaviour {
+
+		private static final long serialVersionUID = -4878774871721189228L;
+		AbstractAgent myAgent; 
+
+		MessageTemplate informTemplate = MessageTemplate.and(BASIC_TEMPLATE,
+			MessageTemplate.MatchPerformative(ACLMessage.INFORM));
+
+		private ReceiveInformMsgBehavior(AbstractAgent a) {
+			super(a);
+			this.myAgent = a;
+		}
+
+		public void action() {
+			ACLMessage msg = receive(informTemplate);
+
+			if (msg != null) {
+				log.logInformMessage(msg);				
+
+				if (msg.getProtocol().equals(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)) {
+					handleInformNewDay(msg);
+				} else if(msg.getProtocol().equals(Constants.END_SIMULATION_PROTOCOL)) {
+					handleInformEndSimulation(msg);
+				} else {
+					Logger.logDebug("Message received but not expected: " +msg.toString());
+				}
+			} else {
+				// If no message arrives
+				block();
+			}
+
+		}
+	}
+
+	public void handleInformNewDay(ACLMessage inform) {
+		getLog().logInformMessage(inform);
+		doOnNewDay();
+		
+	}
+
+	public void handleInformEndSimulation(ACLMessage inform) {
+		state.check(State.RECEIVED_ENDSIMULATION_NOTIFICATION);
+		getLog().logInformMessage(inform);
+		boolean die = doBeforeDie();
+		if (die) {
+			doDelete();
+			Logger.logDebug(myName()+": DIED");
+		}else {
+			Logger.logDebug(myName()+": RESISTED TO DIE");
+		}
 	}
 
 }
