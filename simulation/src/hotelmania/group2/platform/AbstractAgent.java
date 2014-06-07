@@ -434,6 +434,8 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 				log.logReceivedMsg(msg);
 				
 				switch ( msg.getPerformative() ) {
+				case ACLMessage.AGREE:
+					return;
 				case ACLMessage.INFORM:
 					if (msg.getProtocol().equals(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)) {
 						handleInformNewDay(msg);
@@ -448,7 +450,7 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 				default:
 					break;
 				}
-				Logger.logDebug("Message received but not expected: " +msg.toString());
+				Logger.logError("Message received but not expected: " +msg.toString());
 
 
 			} else {
