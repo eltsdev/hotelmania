@@ -78,6 +78,7 @@ public class AgClient extends AbstractAgent {
 		};
 		stepsAfterBooking.addSubBehaviour(new RateHotelInHotelmaniaBehavior(this));
 		stepsAfterBooking.addSubBehaviour(new MakeDepositBehavior(this));
+		
 	}
 	
 
@@ -310,7 +311,12 @@ public class AgClient extends AbstractAgent {
 		
 		@Override
 		protected void doSend() {
+			if(offerChosen!=null){
 			bookRoom(offerChosen);
+			}else{
+				stepsForBooking.reset();
+			}
+			
 		}
 
 		private void bookRoom(BookingOffer bookingOffer) {
