@@ -34,18 +34,26 @@ public class Logger{
 	//-----------------------------------------------
 	
 	public void logSendRequest(ACLMessage message) {
+		String receivers = getReceiver(message);
+		System.out.println("[INFO]" + SEP + me.myName()+ SEP + "Send_Request "+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo() + SEP + "TO:" + receivers); 		
+	}
+
+	
+	public void logSendReply(ACLMessage message) {
+		String receivers = getReceiver(message);
+		System.out.println("[INFO]"+ SEP + me.myName() + SEP +"Send_Response "+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo()+ SEP + "TO:" + receivers); 		
+	}
+	
+	private String getReceiver(ACLMessage message) {
 		String receivers = "";
 		Iterator aids = message.getAllReceiver();
 		while (aids.hasNext()) {
 			AID receiver = (AID) aids.next();
 			receivers = receivers + receiver.getLocalName() + " ";
 		}
-		System.out.println("[INFO]" + SEP + me.myName()+ SEP + "Send_Request "+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo() + SEP + "TO:" + receivers); 		
+		return receivers;
 	}
-	
-	public void logSendReply(ACLMessage message) {
-		System.out.println("[INFO]"+ SEP + me.myName() + SEP +"Send_Response "+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: "+message.getProtocol() + SEP + "CID: "+message.getInReplyTo()); 		
-	}
+
 
 	//-----------------------------------------------
 	// Logging of Message Reception
