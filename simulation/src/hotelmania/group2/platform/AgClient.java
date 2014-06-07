@@ -333,7 +333,7 @@ public class AgClient extends AbstractAgent {
 		}
 
 		@Override
-		protected void receiveInform(ACLMessage msg) {
+		protected void receiveAgree(ACLMessage msg) {
 			hotelmania.group2.dao.Price price = new hotelmania.group2.dao.Price();
 			price.setPrice(offerChosen.getPrice());
 			hotelmania.group2.dao.BookRoom booking = new hotelmania.group2.dao.BookRoom(client.getStay(), price);
