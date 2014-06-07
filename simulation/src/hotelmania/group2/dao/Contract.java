@@ -1,5 +1,6 @@
 package hotelmania.group2.dao;
 
+import hotelmania.group2.platform.ClientGenerator;
 import hotelmania.group2.platform.Constants;
 
 public class Contract {
@@ -16,8 +17,8 @@ public class Contract {
 		this.date = 0;
 	}
 
-	public Contract(String hotelName, int date, int chef1stars,
-			int chef2stars, int chef3stars, int recepcionistExperienced,
+	public Contract(String hotelName, int date, int chef1stars, int chef2stars,
+			int chef3stars, int recepcionistExperienced,
 			int recepcionistNovice, int roomService) {
 		super();
 		this.hotelName = hotelName;
@@ -32,7 +33,7 @@ public class Contract {
 
 	public Contract(hotelmania.ontology.Contract contract) {
 		super();
-		//this.hotelName = hotelName;
+		// this.hotelName = hotelName;
 		this.date = contract.getDay();
 		this.chef1stars = contract.getChef_1stars();
 		this.chef2stars = contract.getChef_2stars();
@@ -119,17 +120,64 @@ public class Contract {
 
 	public float getCost() {
 		float cost = 0;
-		cost += this.chef1stars*Constants.chef1StarCost;
-		cost += this.chef2stars*Constants.chef2StarCost;
-		cost += this.chef3stars*Constants.chef3StarCost;
-		cost += this.recepcionistExperienced*Constants.recepcionistExperiencedCost;
-		cost += this.recepcionistNovice*Constants.recepcionistNoviceCost;
-		cost += this.roomService*Constants.roomServiceCost;
+		cost += this.chef1stars * Constants.chef1StarCost;
+		cost += this.chef2stars * Constants.chef2StarCost;
+		cost += this.chef3stars * Constants.chef3StarCost;
+		cost += this.recepcionistExperienced
+				* Constants.recepcionistExperiencedCost;
+		cost += this.recepcionistNovice * Constants.recepcionistNoviceCost;
+		cost += this.roomService * Constants.roomServiceCost;
 		return cost;
 	}
 
 	public void increaseQuality(float budget) {
+		int random;
+		if (this.chef3stars > 0) {
+			random = ClientGenerator.randomBetween(1, 2);
+
+		} else {
+			random = ClientGenerator.randomBetween(1, 3);
+		}
+
+		switch (random) {
+		case 1: // Recepcionist
+			break;
+		case 2: // Room Services
+			break;
+		case 3:// Cheff
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	public float costOfIncreasingCurrentChef() {
+		if(this.chef1stars>0){
+			return Constants.chef2StarCost - Constants.chef1StarCost;
+		}else if(this.chef2stars>0){
+			return Constants.chef3StarCost - Constants.chef2StarCost;
+		}
+		return -1;
+	}
+
+	public void increaseCurrentRecepcionist(float budget) {
 		
+		if(this.recepcionistExperienced<this.recepcionistNovice){
+			if (budget>=Constants.recepcionistExperiencedCost) {
+				int numberOfNewExperencedRecepcionist = (int) Math.floor(budget/Constants.recepcionistExperiencedCost);
+				this.recepcionistExperienced+=numberOfNewExperencedRecepcionist;
+			}
+		}else{
+			if (budget>=Constants.recepcionistNoviceCost) {
+				int numberOfNewNoviceRecepcionist = (int) Math.floor(budget/Constants.recepcionistNoviceCost);
+				this.recepcionistNovice+=numberOfNewNoviceRecepcionist;
+			}
+		}
+	}
+
+	public float costOfIncreasingCurrentRoomServicesUnit() {
+		return Constants.roomServiceCost;
 	}
 
 	public void decreaseQuality(float budget) {
