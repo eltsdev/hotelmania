@@ -62,5 +62,13 @@ public class Constants {
 
 	// Current day during simulation
 	public static int DAY = FIRST_DAY-1;
+	
+	//Contract constants
+	public static final float chef1StarCost = 45;
+	public static final float chef2StarCost = 58;
+	public static final float chef3StarCost = 77;
+	public static final float roomServiceCost = 28;
+	public static final float recepcionistExperiencedCost = 44;
+	public static final float recepcionistNoviceCost = 35;
 
 }

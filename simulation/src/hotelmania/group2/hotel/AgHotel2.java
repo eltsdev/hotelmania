@@ -17,6 +17,7 @@ import hotelmania.ontology.BookingOffer;
 import hotelmania.ontology.Contract;
 import hotelmania.ontology.CreateAccountRequest;
 import hotelmania.ontology.Hotel;
+import hotelmania.ontology.HotelInformation;
 import hotelmania.ontology.NumberOfClients;
 import hotelmania.ontology.NumberOfClientsQueryRef;
 import hotelmania.ontology.RegistrationRequest;
@@ -26,6 +27,7 @@ import jade.content.ContentElement;
 import jade.content.Predicate;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
+import jade.content.onto.UngroundedException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
 import jade.core.Agent;
@@ -49,6 +51,10 @@ public class AgHotel2 extends MetaAgent {
 	// Used in Create Account (when receive the Inform) and consultHotelAccountInfo
 	private Integer id_account;
 	private final Hotel identity = new Hotel();
+	private float rating = 5;
+	private hotelmania.group2.dao.Contract currentContract;
+	private float currentPrice = 0;
+	
 	/**
 	 * This value is updated by simulator only if the subscription is TRUE
 	 */
@@ -95,6 +101,7 @@ public class AgHotel2 extends MetaAgent {
 		super.doOnNewDay();
 		this.day++;
 		Logger.logDebug("HOTEL: DAY IS "+day + " =========================================================================");
+		addBehaviour(new ConsultMyRatingBehavior(this));
 		hireDailyStaffBehaviorAction();
 	}
 
@@ -311,11 +318,7 @@ public class AgHotel2 extends MetaAgent {
 		 * @param stay
 		 */
 		private float calculatePrice(int totalDays) {
-			float price = 900;
-			//TODO Calculate price Properly
-			//price = bookDAO.getActualPrice()*totalDays;
-
-			return price;
+			return currentPrice;
 		}
 
 	}
@@ -427,15 +430,37 @@ public class AgHotel2 extends MetaAgent {
 	}
 
 	Contract buildNewContract(int day) {
-		Contract c = new Contract();
-		c.setDay(day);
-		c.setChef_1stars(1);
-		c.setChef_2stars(0);
-		c.setChef_3stars(0);
-		c.setRecepcionist_experienced(2);
-		c.setRecepcionist_novice(2);
-		c.setRoom_service_staff(20);
-		return c;
+		if (rating > 5) {
+			if (this.currentPrice > this.currentContract.getCost()) {
+				if (rating > 7.5) {//If our rating is very good, we increase prices a lot
+					float increment = (float) (this.currentPrice*0.2);
+					this.currentPrice += increment;//increase price 20%
+				} else {//If our rating is good but not that good, we increase prices but also increase quality of contract
+					float increment = (float) (this.currentPrice*0.1);
+					this.currentPrice += increment;//increase price 10%
+					this.currentContract.increaseQuality((float) (increment*0.5));//Increase contract quality with half of price raise
+				}
+			} else {//If our contract cost more than we earn
+				this.currentPrice = (float) (this.currentContract.getCost());//We can not set the prices under the cost of contract 
+			}
+		} else {
+			if (this.currentPrice > this.currentContract.getCost()) {
+				if (rating > 2.5) {//If the rating is not that bad, we just decrease the quality contract
+					float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
+					this.currentContract.increaseQuality(budget);
+				} else {//If the rating is too bad, we decrease quality contract and price
+					float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
+					this.currentPrice -= budget;
+					this.currentContract.decreaseQuality((float) (budget*0.5));
+				}
+			} else {//If our contract cost more than we earn
+				float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
+				this.currentContract.decreaseQuality((float) (budget));
+				this.currentPrice = (float) (this.currentContract.getCost());//We can not set the prices under the cost of contract 
+			}
+		}
+
+		return this.currentContract.getConcept();
 	}
 
 	/**
@@ -444,15 +469,13 @@ public class AgHotel2 extends MetaAgent {
 	 * @return
 	 */
 	Contract getInitialContract() {
-		Contract c = new Contract();
-		c.setDay(1);
-		c.setChef_1stars(1);
-		c.setChef_2stars(0);
-		c.setChef_3stars(0);
-		c.setRecepcionist_experienced(2);
-		c.setRecepcionist_novice(2);
-		c.setRoom_service_staff(20);
-		return c;
+		hotelmania.group2.dao.Contract contract = new hotelmania.group2.dao.Contract();
+		contract.setchef3stars(1);
+		contract.setRecepcionistExperienced(3);
+		contract.setRoomService(3);
+		this.currentContract = contract;
+		this.currentPrice = (float) (this.currentContract.getCost());
+		return contract.getConcept();
 	}
 
 	private final class ConsultMyRatingBehavior extends MetaSimpleBehaviour {
@@ -623,12 +646,19 @@ public class AgHotel2 extends MetaAgent {
 				e.printStackTrace();
 			}
 
-		}else if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_ACTION)) {
+		} else if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_ACTION)) {
 			try {
 				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
 				Logger.logDebug("Account Balance:" + accountStatus.getAccount().getBalance());
 			} catch (CodecException | OntologyException e) {
 				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+			try {
+				HotelInformation content = (HotelInformation) getContentManager().extractContent(message);
+				this.rating = content.getRating();
+			} catch (CodecException | OntologyException e) {
 				e.printStackTrace();
 			}
 		}

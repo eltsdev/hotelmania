@@ -1,14 +1,16 @@
 package hotelmania.group2.dao;
 
+import hotelmania.group2.platform.Constants;
+
 public class Contract {
 	String hotelName;
 	int date;
-	int chef1stars;
-	int chef2stars;
-	int chef3stars;
-	int recepcionistExperienced;
-	int recepcionistNovice;
-	int roomService;
+	int chef1stars = 0;
+	int chef2stars = 0;
+	int chef3stars = 0;
+	int recepcionistExperienced = 0;
+	int recepcionistNovice = 0;
+	int roomService = 0;
 
 	public Contract() {
 		this.date = 0;
@@ -27,7 +29,7 @@ public class Contract {
 		this.recepcionistNovice = recepcionistNovice;
 		this.roomService = roomService;
 	}
-	
+
 	public Contract(hotelmania.ontology.Contract contract) {
 		super();
 		//this.hotelName = hotelName;
@@ -102,6 +104,36 @@ public class Contract {
 
 	public void setRoomService(int roomService) {
 		this.roomService = roomService;
+	}
+
+	public hotelmania.ontology.Contract getConcept() {
+		hotelmania.ontology.Contract contract = new hotelmania.ontology.Contract();
+		contract.setChef_1stars(this.chef1stars);
+		contract.setChef_2stars(this.chef2stars);
+		contract.setChef_3stars(this.chef3stars);
+		contract.setRecepcionist_experienced(this.recepcionistExperienced);
+		contract.setRecepcionist_novice(this.recepcionistNovice);
+		contract.setRoom_service_staff(this.roomService);
+		return contract;
+	}
+
+	public float getCost() {
+		float cost = 0;
+		cost += this.chef1stars*Constants.chef1StarCost;
+		cost += this.chef2stars*Constants.chef2StarCost;
+		cost += this.chef3stars*Constants.chef3StarCost;
+		cost += this.recepcionistExperienced*Constants.recepcionistExperiencedCost;
+		cost += this.recepcionistNovice*Constants.recepcionistNoviceCost;
+		cost += this.roomService*Constants.roomServiceCost;
+		return cost;
+	}
+
+	public void increaseQuality(float budget) {
+		
+	}
+
+	public void decreaseQuality(float budget) {
+
 	}
 
 }
