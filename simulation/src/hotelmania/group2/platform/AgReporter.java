@@ -126,6 +126,7 @@ public class AgReporter extends MetaAgent
 		if (this.ratingsDataReceived && this.financeDataReceived) {
 			String reportText = generateSimulationReport();
 			printToFile(reportText, Constants.REPORT_FILE);
+			System.out.println(reportText);
 			
 			//Die!
 			doDelete();
