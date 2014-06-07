@@ -430,6 +430,9 @@ public class AgHotel2 extends MetaAgent {
 	}
 
 	Contract buildNewContract(int day) {
+		if (this.currentContract == null) {
+			buildInitialContract();
+		}
 		if (rating > 5) {
 			if (this.currentPrice > this.currentContract.getCost()) {
 				if (rating > 7.5) {//If our rating is very good, we increase prices a lot
@@ -464,19 +467,21 @@ public class AgHotel2 extends MetaAgent {
 		return this.currentContract.getConcept();
 	}
 
+	public void buildInitialContract() {
+		this.currentContract = new hotelmania.group2.dao.Contract();
+		this.currentContract.setchef3stars(1);
+		this.currentContract.setRecepcionistExperienced(3);
+		this.currentContract.setRoomService(3);
+	}
+	
 	/**
 	 * Default values for staff hiring
 	 * 
 	 * @return
 	 */
 	Contract getInitialContract() {
-		hotelmania.group2.dao.Contract contract = new hotelmania.group2.dao.Contract();
-		contract.setchef3stars(1);
-		contract.setRecepcionistExperienced(3);
-		contract.setRoomService(3);
-		this.currentContract = contract;
-		this.currentPrice = (float) (this.currentContract.getCost());
-		return contract.getConcept();
+		buildInitialContract();
+		return this.currentContract.getConcept();
 	}
 
 	private final class ConsultMyRatingBehavior extends MetaSimpleBehaviour {
