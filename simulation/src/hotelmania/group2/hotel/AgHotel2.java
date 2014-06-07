@@ -85,56 +85,6 @@ public class AgHotel2 extends MetaAgent {
 		return Constants.HOTEL_NAME;
 	}
 
-<<<<<<< Upstream, based on origin/master
-	
-	@Override
-	protected void doOnNewDay() {
-		super.doOnNewDay();
-		Logger.logDebug("HOTEL: DAY IS "+ getDay() + " =========================================================================");
-		addBehaviour(new SignContractBehavior(this));
-	}
-	@Override
-	protected void setup() {
-		super.setup();
-
-		this.hotelIdentity.setHotel_name(myName());
-		this.hotelIdentity.setHotelAgent(getAID());
-
-		// Behaviors for configuration Hotel
-		this.stepsForCreationHotel = new SequentialBehaviour(this) {
-			private static final long serialVersionUID = 7546466232205586064L;
-
-			@Override
-			public int onEnd() {
-				//Behaviors that are responsible for responding to requests
-				myAgent.addBehaviour(new ProvideRoomInfoBehavior(AgHotel2.this));
-				myAgent.addBehaviour(new MakeRoomBookingBehavior(AgHotel2.this));
-				myAgent.addBehaviour(new ProvideHotelNumberOfClientsBehavior(AgHotel2.this));
-				
-				//Behaviors to calculate room prices and provide it to Client
-				stepsForRoomPrice = new SequentialBehaviour(AgHotel2.this);
-				stepsForRoomPrice.addSubBehaviour(new ConsultBankAccountInfoBehavior(AgHotel2.this));
-				stepsForRoomPrice.addSubBehaviour(new ConsultMyRatingBehavior(AgHotel2.this));
-				//TODO decide when to start this behaviors addBehaviour(stepsForRoomPrice);
-
-				return super.onEnd();
-			}
-		};
-		
-		this.stepsForCreationHotel.addSubBehaviour(new RegisterInHotelmaniaBehavior(this));
-		this.stepsForCreationHotel.addSubBehaviour(new CreateBankAccountBehavior(this));
-		addBehaviour(stepsForCreationHotel);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see hotelmania.group2.platform.AbstractAgent#setRegisterForDayEvents()
-=======
-	/**
-	 * This means: I AM interested on this event.
->>>>>>> 62c1e80 Add Old version of AgHotel2
-	 */
 	@Override
 	protected boolean setRegisterForDayEvents() {
 		return true;
