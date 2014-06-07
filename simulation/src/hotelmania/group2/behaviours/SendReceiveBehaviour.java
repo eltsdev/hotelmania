@@ -1,7 +1,6 @@
 package hotelmania.group2.behaviours;
 
 import hotelmania.group2.platform.AbstractAgent;
-import hotelmania.group2.platform.Constants;
 import jade.core.AID;
 
 
@@ -30,6 +29,6 @@ public abstract class SendReceiveBehaviour extends GenericSendReceiveBehaviour {
 	
 	@Override
 	protected void doSend() {
-			myAgent.sendRequest(server, Constants.CONSULTHOTELSINFO_PROTOCOL, sendPerformative);
+			myAgent.sendRequest(server, this.protocol, sendPerformative);
 	}
 }

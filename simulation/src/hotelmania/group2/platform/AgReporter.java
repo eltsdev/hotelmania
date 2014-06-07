@@ -30,7 +30,6 @@ public class AgReporter extends AbstractAgent
 	protected void setup() 
 	{
 		super.setup();
-		// Behaviors
 		report = new HashMap<>();
 	}
 	
@@ -51,7 +50,6 @@ public class AgReporter extends AbstractAgent
 	// --------------------------------------------------------
 	
 	private final class GetHotelsFromHotelmaniaBehavior extends SendReceiveBehaviour {
-		private static final long serialVersionUID = 287171972374945182L;
 
 		public GetHotelsFromHotelmaniaBehavior(AbstractAgent agClient) {
 			super(agClient, Constants.CONSULTHOTELSINFO_PROTOCOL, Constants.CONSULTHOTELSINFO_ACTION, ACLMessage.QUERY_REF);
@@ -114,7 +112,6 @@ public class AgReporter extends AbstractAgent
 	}
 	
 	private final class GetFinanceReportBehavior extends SendReceiveBehaviour {
-		private static final long serialVersionUID = 287171972374945182L;
 
 		public GetFinanceReportBehavior(AbstractAgent agClient) {
 			super(agClient, Constants.CONSULTFINANCEREPORT_PROTOCOL, Constants.CONSULTFINANCEREPORT_ACTION, ACLMessage.QUERY_REF);
@@ -179,6 +176,7 @@ public class AgReporter extends AbstractAgent
 	}
 	
 	public void checkIfDone() {
+		System.out.println(myName()+": check if done..."+this.ratingsDataReceived + " - " + this.financeDataReceived);
 		if (this.ratingsDataReceived && this.financeDataReceived) {
 			String reportText = generateSimulationReport();
 			printToFile(reportText, Constants.REPORT_FILE);
