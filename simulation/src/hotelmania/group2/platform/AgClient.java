@@ -454,22 +454,12 @@ public class AgClient extends AbstractAgent {
 			handleConsultStaff(msg);
 		}
 		
-		//TODO implement
 		private boolean handleConsultStaff(ACLMessage message) {
 			try {
 				Contract content = (Contract) getContentManager().extractContent(message);  
-				if (content != null && content instanceof Contract) {
-					Logger.logDebug(myName() + ": Chef 1 stars Staff for day: " + content.getChef_1stars());
-					Logger.logDebug(myName() + ": Chef 2 stars Staff for day: " + content.getChef_2stars());
-					Logger.logDebug(myName() + ": Chef 3 stars Staff for day: " + content.getChef_3stars());
-					RatingInput ratingInput = client.getOccupancyForDay(day);
-					if (ratingInput != null) {
-						ratingInput.setStaff(new hotelmania.group2.dao.Contract(content));
-					}
-					
-					//TODO Save the result!!
-					
-					return true;
+				if (content != null) {
+					Logger.logDebug(myName() + ": hotel staff : " + content.toString());
+					client.addStaffForRating(day, content);
 				} else {
 					Logger.logDebug(myName() + ": Staff for day: Not found (null)");
 				}
@@ -479,6 +469,7 @@ public class AgClient extends AbstractAgent {
 			}
 			return false;
 		}
+
 
 		// ignores refuse, not understood, failure.
 		
@@ -519,6 +510,12 @@ public class AgClient extends AbstractAgent {
 			HashMap<Integer, RatingInput> data = client.getRatingData();
 			for (RatingInput ratingInput : data.values()) {
 				Logger.logDebug("computing rating for one day ...."+ratingInput.toString());
+				//skip if its not complete
+				if (ratingInput.getStaff() == null || ratingInput.getOccupancy() == null) {
+					continue;
+				}
+				
+				//compute
 				hotelmania.group2.dao.Contract contract = ratingInput.getStaff();
 				kitchen += this.getKitchenRating(contract);
 				staff += this.getReceptionistRating(contract,ratingInput.getOccupancy());

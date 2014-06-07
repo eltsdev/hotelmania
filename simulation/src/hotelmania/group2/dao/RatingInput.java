@@ -1,10 +1,10 @@
 package hotelmania.group2.dao;
 
 public class RatingInput {
-	private int occupancy;
+	private Integer occupancy;
 	private Contract staff;
 
-	public int getOccupancy() {
+	public Integer getOccupancy() {
 		return occupancy;
 	}
 
