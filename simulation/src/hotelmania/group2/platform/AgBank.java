@@ -291,6 +291,17 @@ public class AgBank extends MetaAgent {
 						ACLMessage reply = chargeAccount(msg,(ChargeAccount) conc);
 						myAgent.send(reply);
 						log.logSendReply(reply);
+						
+						if (reply.getPerformative()==ACLMessage.AGREE) {
+							reply.setPerformative(ACLMessage.INFORM);
+							myAgent.send(reply);
+							log.logSendReply(reply);
+						}else if (reply.getPerformative()==ACLMessage.REFUSE) {
+							reply.setPerformative(ACLMessage.FAILURE);
+							myAgent.send(reply);
+							log.logSendReply(reply);
+						}
+						
 					}
 				}
 
@@ -415,10 +426,10 @@ public class AgBank extends MetaAgent {
 			 * Look for messages
 			 */
 			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-							MessageTemplate.MatchLanguage(codec.getName()),
-							MessageTemplate.MatchOntology(ontology.getName())),
-							MessageTemplate.MatchProtocol(Constants.CONSULTFINANCEREPORT_ACTION)),
-							MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.CONSULTFINANCEREPORT_ACTION)),
+					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
 
 			/*
 			 * If no message arrives
@@ -427,28 +438,11 @@ public class AgBank extends MetaAgent {
 				block();
 				return;
 			}
-			
+
 			log.logReceivedMsg(msg);
 
-			/*
-			 * The ContentManager transforms the message content (string) in objects
-			 */
-			try {
-				ContentElement ce = getContentManager().extractContent(msg);
-				// We expect an action inside the message
-				if (ce instanceof Action) {
-					Action agAction = (Action) ce;
-					Concept conc = agAction.getAction();
-					if (conc instanceof GetFinanceReport) {
-						// execute action
-						ContentElementList data = buildFinanceReport();
-						sendResponse(msg, data);
-					}
-				}
-
-			} catch (CodecException | OntologyException e) {
-				e.printStackTrace();
-			}
+			ContentElementList data = buildFinanceReport();
+			sendResponse(msg, data);
 		}
 
 		private void sendResponse(ACLMessage msg, ContentElementList accounts) {
