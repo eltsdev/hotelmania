@@ -1,5 +1,6 @@
 package hotelmania.group2.dao;
 
+import hotelmania.ontology.Contract;
 import jade.core.AID;
 
 import java.util.ArrayList;
@@ -40,9 +41,6 @@ public class Client {
 	public ArrayList<BookingOffer> getOffers() {
 		return offers;
 	}
-	public void setOffers(ArrayList<BookingOffer> offers) {
-		this.offers = offers;
-	}
 	public BookRoom getBookingDone() {
 		return bookingDone;
 	}
@@ -55,7 +53,6 @@ public class Client {
 	public int getCheckOutDate() {
 		return this.stay.getCheckOut();
 	}
-	
 	
 	public void setOfferPrice(AID hotel, float roomPrice) {
 		//Seek the Hotel in BookingOffers and updates the price
@@ -117,6 +114,17 @@ public class Client {
 		ratingInput.setOccupancy(num_clients);
 	}
 	
+	public void addStaffForRating(int day, Contract content) {
+		RatingInput ratingInput = ratingData.get(day);
+
+		if (ratingInput == null) {
+			ratingInput = new RatingInput();
+			this.ratingData.put(day, ratingInput);
+		}
+
+		ratingInput.setStaff(new hotelmania.group2.dao.Contract(content));
+	}
+	
 	public RatingInput getOccupancyForDay (int day) {
 		return this.ratingData.get(day);
 	}
@@ -124,4 +132,5 @@ public class Client {
 	public HashMap<Integer, RatingInput> getRatingData() {
 		return ratingData;
 	}
+	
 }
