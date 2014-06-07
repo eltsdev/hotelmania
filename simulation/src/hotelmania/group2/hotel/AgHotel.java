@@ -228,7 +228,16 @@ public class AgHotel extends AbstractAgent {
 					// If the action is BookRoom...
 					if (conc instanceof BookRoom) {
 						// execute request
-						return answerBookingRequest(msg,(BookRoom) conc);
+						ACLMessage reply = answerBookingRequest(msg,(BookRoom) conc);
+						myAgent.send(reply);
+						myAgent.getLog().logSendReply(reply);
+
+						if (reply.getPerformative()==ACLMessage.AGREE) {
+							reply.setPerformative(ACLMessage.INFORM);
+						}else if (reply.getPerformative()==ACLMessage.REFUSE) {
+							reply.setPerformative(ACLMessage.FAILURE);
+						}
+						return reply;
 					}
 				}
 			
