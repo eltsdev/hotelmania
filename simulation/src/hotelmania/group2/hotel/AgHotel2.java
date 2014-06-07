@@ -1,17 +1,15 @@
-/**
- * 
- */
 package hotelmania.group2.hotel;
 
-import hotelmania.group2.behaviours.GenericServerResponseBehaviour;
-import hotelmania.group2.behaviours.SendReceiveBehaviour;
 import hotelmania.group2.dao.BookingDAO;
 import hotelmania.group2.dao.Price;
 import hotelmania.group2.dao.Stay;
-import hotelmania.group2.platform.AbstractAgent;
+import hotelmania.group2.platform.AgPlatform2;
 import hotelmania.group2.platform.AgentState.State;
 import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.Logger;
+import hotelmania.group2.platform.MetaAgent;
+import hotelmania.group2.platform.MetaCyclicBehaviour;
+import hotelmania.group2.platform.MetaSimpleBehaviour;
 import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.AccountStatusQueryRef;
 import hotelmania.ontology.BookRoom;
@@ -19,41 +17,75 @@ import hotelmania.ontology.BookingOffer;
 import hotelmania.ontology.Contract;
 import hotelmania.ontology.CreateAccountRequest;
 import hotelmania.ontology.Hotel;
-import hotelmania.ontology.HotelInformation;
 import hotelmania.ontology.NumberOfClients;
 import hotelmania.ontology.NumberOfClientsQueryRef;
 import hotelmania.ontology.RegistrationRequest;
 import hotelmania.ontology.SignContract;
 import jade.content.Concept;
 import jade.content.ContentElement;
-import jade.content.ContentElementList;
 import jade.content.Predicate;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
-import jade.core.behaviours.SequentialBehaviour;
+import jade.core.AID;
+import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 
-/**
- * @author user
- *
- */
-public class AgHotel2 extends AbstractAgent {
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
 
-	private SequentialBehaviour stepsForCreationHotel;
-	private SequentialBehaviour stepsForRoomPrice;
-	private static final long serialVersionUID = 6197364680986347122L;
-	private final Hotel hotelIdentity = new Hotel();
+public class AgHotel2 extends MetaAgent {
+
+	private static final long serialVersionUID = 2893904717857535232L;
 	private BookingDAO bookDAO = new BookingDAO();
-	private float actualBalance;
-	private float myRating;
-	private Integer idAccount;
+
+	// -------------------------------------------------
+	// Agent Attributes
+	// -------------------------------------------------
+
+	// Used in Create Account (when receive the Inform) and consultHotelAccountInfo
+	private Integer id_account;
+	private final Hotel identity = new Hotel();
+	/**
+	 * This value is updated by simulator only if the subscription is TRUE
+	 */
+	private int day = Constants.FIRST_DAY-1;
+
+
+	@Override
+	protected void setup() {
+		super.setup();
+		loadProperties();
+		this.registerServices(Constants.BOOKROOM_ACTION, Constants.CONSULTROOMPRICES_ACTION);
+
+		identity.setHotel_name(myName());
+		identity.setHotelAgent(getAID());
+
+		addBehaviour(new RegisterInHotelmaniaBehavior(this));
+		addBehaviour(new CreateBankAccountBehavior(this));
+		addBehaviour(new ConsultBankAccountInfoBehavior(this));
+		addBehaviour(new ProvideHotelNumberOfClientsBehavior(this));
+		addBehaviour(new MakeRoomBookingBehavior(this));
+		addBehaviour(new ProvideRoomInfoBehavior(this));
+		// addBehaviour(new ConsultHotelInfoBehavior(this));
+		// TODO Consult account status
+
+		state.setLogEnabled(Constants.LOG_DEBUG);
+	}
+
+	private void loadProperties() {
+		AgPlatform2.loadProperties();
+	}
 
 	@Override
 	public String myName() {
 		return Constants.HOTEL_NAME;
 	}
 
+<<<<<<< Upstream, based on origin/master
 	
 	@Override
 	protected void doOnNewDay() {
@@ -98,124 +130,93 @@ public class AgHotel2 extends AbstractAgent {
 	 * (non-Javadoc)
 	 * 
 	 * @see hotelmania.group2.platform.AbstractAgent#setRegisterForDayEvents()
+=======
+	/**
+	 * This means: I AM interested on this event.
+>>>>>>> 62c1e80 Add Old version of AgHotel2
 	 */
 	@Override
 	protected boolean setRegisterForDayEvents() {
 		return true;
 	}
 
+	@Override
+	protected void doOnNewDay() {
+		super.doOnNewDay();
+		this.day++;
+		Logger.logDebug("HOTEL: DAY IS "+day + " =========================================================================");
+		hireDailyStaffBehaviorAction();
+	}
+
 	// --------------------------------------------------------
-	// Behaviors
+	// BEHAVIOURS
 	// --------------------------------------------------------
 
-	/*
-	 * Registration Hotel in Hotelmania
-	 */
-	private final class RegisterInHotelmaniaBehavior extends SendReceiveBehaviour {
+	private final class RegisterInHotelmaniaBehavior extends
+	MetaSimpleBehaviour {
 		private static final long serialVersionUID = 1256090117313507535L;
+		private AID agHotelmania;
 
-		private RegisterInHotelmaniaBehavior(AbstractAgent AgHotel) {
-			super(AgHotel, Constants.REGISTRATION_PROTOCOL,	Constants.REGISTRATION_ACTION, ACLMessage.REQUEST);
+		private RegisterInHotelmaniaBehavior(Agent a) {
+			super(a);
 		}
 
 		@Override
-		protected void doSend() {
-			registerHotel();
+		public void action() {
+			// Register hotel
+			if (agHotelmania == null) {
+				// Search hotelmania agent
+				agHotelmania = locateAgent(Constants.REGISTRATION_ACTION, myAgent);
+				// block();
+				// return;
+			} else {
+				registerHotel();
+				this.setDone(true);
+			}
+
 		}
 
 		private void registerHotel() {
-			RegistrationRequest action_register = new RegistrationRequest();
-			action_register.setHotel(hotelIdentity);
+			RegistrationRequest register = new RegistrationRequest();
+			register.setHotel(identity);
 
-			sendRequest(this.server, action_register,this.protocol, this.sendPerformative);
-		}
-		
-		@Override
-		protected void receiveAgree(ACLMessage msg) {
-			state.check(State.REGISTERED_HOTELMANIA);
-		}
-		
-		// ignore responses.
-		
-		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			if (performativeReceived==ACLMessage.AGREE) {
-				return true;
-			}else {
-				return false;
-			}
+			sendRequest(agHotelmania, register,	Constants.REGISTRATION_PROTOCOL, ACLMessage.REQUEST);
 		}
 	}
 
-	
-	/**
-	 * @author user
-	 *Create Hotel Account
-	 */
-	private final class CreateBankAccountBehavior extends SendReceiveBehaviour {
-
-		private static final long serialVersionUID = 1955222376582492939L;
-
-		/**
-		 * @param agHotel
-		 */
-		public CreateBankAccountBehavior(AbstractAgent agHotel) {
-			super(agHotel, Constants.CREATEACCOUNT_PROTOCOL,Constants.CREATEACCOUNT_ACTION, ACLMessage.REQUEST);
-		}
-
-		@Override
-		protected void doSend() {
-			createHotelAccount();
-		}
-
-		private void createHotelAccount() {
-			CreateAccountRequest action_account = new CreateAccountRequest();
-			action_account.setHotel(hotelIdentity);
-			sendRequest(this.server, action_account,this.protocol, this.sendPerformative);
-
-		}
-
-		@Override
-		protected void receiveInform(ACLMessage msg) {
-			handleAccount(msg);
-		}
-		
-		protected boolean handleAccount(ACLMessage message) {
-			try {
-				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
-				idAccount = accountStatus.getAccount().getId_account();
-				
-				state.check(State.ACCOUNT_CREATED);
-				Logger.logDebug(myName() + ": My bank account is: " + idAccount);
-			} catch (CodecException | OntologyException e) {
-				Logger.logError(myName()+": " + message.getContent());
-				e.printStackTrace();
-			}
-		
-			return true;
-		}
-
-		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			if (performativeReceived==ACLMessage.INFORM) {
-				return true;
-			}else {
-				return false;
-			}
-		}
-	}
-
-	private final class MakeRoomBookingBehavior extends GenericServerResponseBehaviour {
+	private final class MakeRoomBookingBehavior extends MetaCyclicBehaviour {
 
 		private static final long serialVersionUID = -390060690778340930L;
 
-		public MakeRoomBookingBehavior(AbstractAgent agHotel) {
-			super(agHotel,Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
+		public MakeRoomBookingBehavior(Agent a) {
+			super(a);
 		}
-		
+
 		@Override
-		protected ACLMessage doSendResponse(ACLMessage msg) {
-			// The ContentManager transforms the message content (string) in objects
+		public void action() {
+			/*
+			 * Look for messages
+			 */
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.BOOKROOM_PROTOCOL)),
+					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
+
+
+			/*
+			 * If no message arrives
+			 */
+			if (msg == null) {
+				block();
+				return;
+			}
+
+			log.logReceivedMsg(msg);
+
+			/*
+			 * The ContentManager transforms the message content (string) in
+			 */
 			try {
 				ContentElement ce = getContentManager().extractContent(msg);
 
@@ -227,27 +228,28 @@ public class AgHotel2 extends AbstractAgent {
 					// If the action is BookRoom...
 					if (conc instanceof BookRoom) {
 						// execute request
-						return answerBookingRequest(msg,(BookRoom) conc);
+						answerBookingRequest(msg,(BookRoom) conc);
 					}
 				}
-			
+
+
+
 			} catch (CodecException | OntologyException e) {
-				Logger.logError(myName()+": " + msg.getContent());
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
-			//Send response to unexpected message
-			ACLMessage reply = msg.createReply();
-			reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-			reply.setContent("No sending the right Ontology");
-			return reply;
-		
 		}
 
-		private ACLMessage answerBookingRequest(ACLMessage msg, BookRoom bookData) {
+		/**
+		 * @param msg
+		 * @param conc
+		 * @return
+		 */
+		private void answerBookingRequest(ACLMessage msg, BookRoom bookData) {
 			// send reply
 			ACLMessage reply = msg.createReply();
-		
+
 			if(bookData!=null){
 				if( bookRoom(bookData)){
 					reply.setPerformative(ACLMessage.AGREE);
@@ -257,13 +259,10 @@ public class AgHotel2 extends AbstractAgent {
 			} else {
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
 			}
-			return reply;
+			myAgent.send(reply);
+			log.logSendReply(reply);
 		}
-		/**
-		 * @param book
-		 * Save the booking in the DAO
-		 * @return
-		 */
+
 		private boolean bookRoom(BookRoom book) {
 			Stay stay = new Stay();
 			stay.setCheckIn(book.getStay().getCheckIn());
@@ -272,186 +271,50 @@ public class AgHotel2 extends AbstractAgent {
 			price.setPrice(book.getPrice().getAmount());
 			hotelmania.group2.dao.BookRoom booking= new hotelmania.group2.dao.BookRoom(stay, price);
 			return bookDAO.book(booking);
-			
+
 		}
 
 	}
-	
-	
-	private final class SignContractBehavior extends SendReceiveBehaviour {
 
-		private static final long serialVersionUID = -1320828325347509541L;
-		
-		/**
-		 * @param myAgent
-		 * @param protocol
-		 * @param serviceToLookUp
-		 * @param sendPerformative
-		 */
-		public SignContractBehavior(AbstractAgent agHotel) {
-			super(agHotel, Constants.SIGNCONTRACT_PROTOCOL, Constants.SIGNCONTRACT_ACTION, ACLMessage.REQUEST);
-		}
-		@Override
-		protected void doSend() {
-			
-			SignContract requestContract = new SignContract();
-			requestContract.setHotel(hotelIdentity);
-			requestContract.setContract(hireDailyStaff(getDay()+1));
-			sendRequest(this.server, requestContract, this.protocol, this.sendPerformative);
-		};
-		
-		/**
-		 * This is invoked on a NewDay event.
-		 * 
-		 * @param date of the contract
-		 */
-		Contract hireDailyStaff(int day) {
-			Contract contract;
-			if (day == Constants.FIRST_DAY) {
-				contract = getInitialContract();
-			} else {
-				contract = buildNewContract(day);
-			}
-System.out.println(myName() +": Day staffff========================================> "+ day);
-			return contract;
-		}
 
-		Contract buildNewContract(int day) {
-			//TODO dynamic
-			Contract c = new Contract();
-			c.setDay(day);
-			c.setChef_1stars(1);
-			c.setChef_2stars(0);
-			c.setChef_3stars(0);
-			c.setRecepcionist_experienced(2);
-			c.setRecepcionist_novice(2);
-			c.setRoom_service_staff(20);
-			return c;
-		}
-
-		/**
-		 * Default values for staff hiring
-		 * 
-		 * @return
-		 */
-		Contract getInitialContract() {
-			Contract c = new Contract();
-			c.setDay(1);
-			c.setChef_1stars(1);
-			c.setChef_2stars(0);
-			c.setChef_3stars(0);
-			c.setRecepcionist_experienced(2);
-			c.setRecepcionist_novice(2);
-			c.setRoom_service_staff(20);
-			return c;
-		}
-		
-		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			if (performativeReceived==ACLMessage.INFORM) {
-				return true;
-			}else {
-				return false;
-			}
-		}
-		
-	}
-	
-	
-	private final class ProvideHotelNumberOfClientsBehavior extends GenericServerResponseBehaviour {
-
-		private static final long serialVersionUID = -4414753731149819352L;
-
-		public ProvideHotelNumberOfClientsBehavior(AbstractAgent agHotel) {
-			super(agHotel,Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL, ACLMessage.QUERY_REF);
-		}
-		
-		@Override
-		protected ACLMessage doSendResponse(ACLMessage message) {
-			Predicate predicate = getPredicateFromMessage(message);
-			
-			if (predicate instanceof NumberOfClientsQueryRef) {
-				return answerGetNumberOfClients(message,(NumberOfClientsQueryRef) predicate);
-			}else {
-				ACLMessage reply = message.createReply();
-				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-				reply.setContent("No sending the right Ontology");
-				return reply;
-				
-			}
-		}
-
-		/**
-		 * INFORM: If the request is valid
-		 * REFUSE: if day is in the future or before day 1.
-		 * NOT UNDERSTOOD: if there are missing parameters
-		 * @param message
-		 * @param numberOfClientsQueryRef
-		 * @return
-		 */
-		private ACLMessage answerGetNumberOfClients(ACLMessage message,	NumberOfClientsQueryRef numberOfClientsQueryRef) {
-			ACLMessage reply = message.createReply();
-
-			//missing parameters?
-			if (numberOfClientsQueryRef == null) {
-				
-				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-				reply.setContent("There are missing parameters: NumberOfClientsQueryRef action or hotel name");
-
-			} else if (!(numberOfClientsQueryRef.getDay() >= Constants.FIRST_DAY && numberOfClientsQueryRef.getDay() <= getDay() )) {
-				//invalid day in request?
-				reply.setPerformative(ACLMessage.REFUSE);
-				reply.setContent("Day is in the future or before day 1.");
-				
-
-			} else {
-				//request is valid
-				hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getDay());
-				try {
-					reply.setPerformative(ACLMessage.INFORM);
-					myAgent.getContentManager().fillContent(reply, numberOfClients);
-				} catch (CodecException | OntologyException e) {
-					Logger.logError(myName()+": " + message.getContent());
-					e.printStackTrace();
-				}
-			}
-			return reply;
-		}
-
-		private hotelmania.ontology.NumberOfClients getNumberOfClients(int day) { 
-			hotelmania.ontology.NumberOfClients numberOfClients = new NumberOfClients(); 
-			int clients = bookDAO.getClientsAtDay(day);
-			numberOfClients.setNum_clients(clients);
-			return numberOfClients;
-		}
-	}
-		
-	private final class ProvideRoomInfoBehavior extends GenericServerResponseBehaviour {
+	private final class ProvideRoomInfoBehavior extends MetaCyclicBehaviour {
 
 		private static final long serialVersionUID = 1955222376582492939L;
 
-		public ProvideRoomInfoBehavior(AbstractAgent agHotel) {
-			super(agHotel, Constants.CONSULTROOMPRICES_PROTOCOL, ACLMessage.QUERY_REF);
+		public ProvideRoomInfoBehavior(Agent a) {
+			super(a);
 		}
 
-		
 		@Override
-		protected ACLMessage doSendResponse(ACLMessage msg) {
-			System.out.println(myName() +" estoy aqui!!!");
-			Predicate offer = getPredicateFromMessage(msg);
-			// If the action is Registration Request...
-			if (offer instanceof hotelmania.ontology.StayQueryRef) {
-				// execute request
-				return answerRoomPriceOffer(msg,(hotelmania.ontology.StayQueryRef) offer);
-			}else {
-				ACLMessage reply = msg.createReply();
-				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-				reply.setContent("No sending the right Ontology");
-				return reply;
+		public void action() {
+
+			/*
+			 * Look for messages
+			 */
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.CONSULTROOMPRICES_PROTOCOL)),
+					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
+
+			if (msg == null) {
+				block();
+				return;
 			}
+
+			log.logReceivedMsg(msg);
+
+			Predicate conc = this.getPredicateFromMessage(msg);
+			// If the action is Registration Request...
+			if (conc instanceof hotelmania.ontology.StayQueryRef) {
+				// execute request
+				ACLMessage reply = answerRoomPriceOffer(msg,(hotelmania.ontology.StayQueryRef) conc);
+				// send reply
+				myAgent.send(reply);
+				log.logSendReply(reply);
+			}
+
 		}
-		
-				
 
 		/**
 		 * @param msg
@@ -461,7 +324,7 @@ System.out.println(myName() +": Day staffff=====================================
 		private ACLMessage answerRoomPriceOffer(ACLMessage msg,	hotelmania.ontology.StayQueryRef conc) {
 			int totalDays;
 			ACLMessage reply = msg.createReply();
-		
+
 			//missing parameters?
 			if (conc == null) {
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
@@ -487,7 +350,6 @@ System.out.println(myName() +": Day staffff=====================================
 						reply.setPerformative(ACLMessage.INFORM);
 						myAgent.getContentManager().fillContent(reply, offer_inform);
 					} catch (CodecException | OntologyException e) {
-						Logger.logError(myName()+": " + msg.getContent());
 						e.printStackTrace();
 					}
 				}
@@ -499,118 +361,332 @@ System.out.println(myName() +": Day staffff=====================================
 		 * @param stay
 		 */
 		private float calculatePrice(int totalDays) {
-			float price = 50;
+			float price = 900;
 			//TODO Calculate price Properly
 			//price = bookDAO.getActualPrice()*totalDays;
-			
+
 			return price;
 		}
 
-
-
-		
-
 	}
-	
-	private final class ConsultBankAccountInfoBehavior extends SendReceiveBehaviour {
+
+	/**
+	 * @author user
+	 *
+	 */
+	private final class CreateBankAccountBehavior extends MetaSimpleBehaviour {
 
 		private static final long serialVersionUID = 1955222376582492939L;
 
-		public ConsultBankAccountInfoBehavior(AbstractAgent agHotel) {
-			super(agHotel, Constants.CONSULTACCOUNTSTATUS_PROTOCOL, Constants.CONSULTACCOUNTSTATUS_ACTION, ACLMessage.QUERY_REF);
+		private AID agBank;
+
+		public CreateBankAccountBehavior(Agent a) {
+			super(a);
 		}
-		
+
 		@Override
-		protected void doSend() {
-			if(idAccount!=null){
-				consultHotelAccountInfo();
+		public void action() {
+			// Create hotel account
+			if (agBank == null) {
+				agBank = locateAgent(Constants.CREATEACCOUNT_ACTION, myAgent);
+			} else {
+				createHotelAccount();
+			}
+		}
+
+		private void createHotelAccount() {
+			CreateAccountRequest action_account = new CreateAccountRequest();
+			action_account.setHotel(identity);
+			sendRequest(agBank, action_account, Constants.CREATEACCOUNT_PROTOCOL, ACLMessage.REQUEST);
+
+			this.setDone(true);
+		}
+
+	}
+
+	private final class ConsultBankAccountInfoBehavior extends
+	MetaSimpleBehaviour {
+
+		private static final long serialVersionUID = 1955222376582492939L;
+
+		private AID agBank;
+
+		public ConsultBankAccountInfoBehavior(Agent a) {
+			super(a);
+		}
+
+		@Override
+		public void action() {
+			// Consult hotel account
+			if (agBank == null) {
+				agBank = locateAgent(Constants.CONSULTACCOUNTSTATUS_ACTION, myAgent);
+			} else {
+				if(id_account!=null){
+					consultHotelAccountInfo();
+				}
+
 			}
 		}
 
 		private void consultHotelAccountInfo() {
 			AccountStatusQueryRef request = new AccountStatusQueryRef();
-			request.setId_account(idAccount);
-			sendRequest(this.server, request, this.protocol, this.sendPerformative);
+			request.setId_account(id_account);// TODO set real account id
+
+			sendRequest(agBank, request, Constants.CONSULTACCOUNTSTATUS_PROTOCOL, ACLMessage.QUERY_REF);
+
+			this.setDone(true);
 		}
-		
-		@Override
-		protected void receiveInform(ACLMessage message) {
-			handleConsultAccount(message);
-		}
-		
-		public void handleConsultAccount(ACLMessage message){
-			AccountStatus accountStatus;
-			try {
-				accountStatus = (AccountStatus) getContentManager().extractContent(message);
-				actualBalance = accountStatus.getAccount().getBalance();
-	
-				Logger.logDebug("Account Balance:" + accountStatus.getAccount().getBalance());
-			} catch (CodecException  | OntologyException e) {
-				Logger.logError(myName()+": " + message.getContent());
-				e.printStackTrace();
-			}
-			
-		}
-		
-		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			return true;
+
+	}
+
+	/**
+	 * Behavior for hiring the staff
+	 */
+	private void hireDailyStaffBehaviorAction() {
+		AID agAgency = locateAgent(Constants.SIGNCONTRACT_ACTION, this);
+
+		SignContract request = new SignContract();
+
+		request.setHotel(identity);
+
+		try {
+			//TODO Contract must be dynamic
+			request.setContract(hireDailyStaff(getDay()+1));
+			//System.out.println("[HOTEL] Wants to hire staff for day: "+(request.getContract().getDay())+ " Today is:"+day);
+			this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
+		} catch (Exception e) {//this never happens
+			e.printStackTrace();
 		}
 	}
-	
-	private final class ConsultMyRatingBehavior extends SendReceiveBehaviour {
+
+	/**
+	 * This is invoked on a NewDay event.
+	 * 
+	 * @param date
+	 *            of the contract
+	 */
+	Contract hireDailyStaff(int day) {
+		Contract contract;
+		if (day == Constants.FIRST_DAY) {
+			contract = getInitialContract();
+		} else {
+			contract = buildNewContract(day);
+		}
+
+		return contract;
+	}
+
+	Contract buildNewContract(int day) {
+		Contract c = new Contract();
+		c.setDay(day);
+		c.setChef_1stars(1);
+		c.setChef_2stars(0);
+		c.setChef_3stars(0);
+		c.setRecepcionist_experienced(2);
+		c.setRecepcionist_novice(2);
+		c.setRoom_service_staff(20);
+		return c;
+	}
+
+	/**
+	 * Default values for staff hiring
+	 * 
+	 * @return
+	 */
+	Contract getInitialContract() {
+		Contract c = new Contract();
+		c.setDay(1);
+		c.setChef_1stars(1);
+		c.setChef_2stars(0);
+		c.setChef_3stars(0);
+		c.setRecepcionist_experienced(2);
+		c.setRecepcionist_novice(2);
+		c.setRoom_service_staff(20);
+		return c;
+	}
+
+	private final class ConsultMyRatingBehavior extends MetaSimpleBehaviour {
 
 		private static final long serialVersionUID = 1L;
+		private AID agHotelmania;
 
-		public ConsultMyRatingBehavior(AbstractAgent agHotel) {
-			super(agHotel, Constants.CONSULTHOTELSINFO_PROTOCOL, Constants.CONSULTHOTELSINFO_ACTION, ACLMessage.QUERY_REF);
+		private ConsultMyRatingBehavior(Agent a) {
+			super(a);
 		}
-	
-		/**
-		 * Save list of hotels received
-		 */
-		@Override
-		protected void receiveInform(ACLMessage message) {
-			try {
-				ContentElement content = getContentManager().extractContent(message);
-				if (content != null) {
-					if (content instanceof ContentElementList) {
-						ContentElementList list = (ContentElementList) content;
-						this.processListOfHotels(list);
-						Logger.logDebug(myName() + ": Number of hotels: " + list.size());
 
-					} else if (content instanceof HotelInformation) {
-						HotelInformation hotelInformation = (HotelInformation) content;
-						hotelmania.group2.dao.BookingOffer bookingOffer = new hotelmania.group2.dao.BookingOffer(new hotelmania.group2.dao.HotelInformation(hotelInformation));
-						myRating=bookingOffer.getHotelInformation().getRating();
-						Logger.logDebug(myName() + ": Number of hotels: 1 = " + hotelInformation.getHotel().getHotel_name());
-					}
-				} else {
-					Logger.logDebug(myName() + ": Null number of hotels");
+		@Override
+		public void action() {
+			if (agHotelmania == null) {
+				agHotelmania = locateAgent(Constants.CONSULTHOTELSINFO_ACTION, myAgent);
+			} else {
+				this.consultHotelInfo(agHotelmania);
+				this.setDone(true);
+			}
+		}
+
+		private void consultHotelInfo(AID hotelmania) {
+			sendRequestEmpty(hotelmania, Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
+		}
+
+	}
+
+	private final class ProvideHotelNumberOfClientsBehavior extends
+	MetaCyclicBehaviour {
+
+		private static final long serialVersionUID = -4414753731149819352L;
+
+		public ProvideHotelNumberOfClientsBehavior(Agent a) {
+			super(a);
+		}
+
+		@Override
+		public void action() {
+			/*
+			 * Look for messages
+			 */
+			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
+					MessageTemplate.MatchLanguage(codec.getName()),
+					MessageTemplate.MatchOntology(ontology.getName())),
+					MessageTemplate.MatchProtocol(Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL)),
+					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
+
+			/*
+			 * If no message arrives
+			 */
+			if (msg == null) {
+				block();
+				return;
+			}
+
+			log.logReceivedMsg(msg);
+
+			Predicate predicate = this.getPredicateFromMessage(msg);
+			// If the action is Registration Request...
+			if (predicate instanceof NumberOfClientsQueryRef) {
+				// execute request
+				ACLMessage reply = answerGetNumberOfClients(msg,(NumberOfClientsQueryRef) predicate);
+				// send reply
+				myAgent.send(reply);
+				log.logSendReply(reply);
+			}
+		}
+
+		/**
+		 * INFORM: If the request is valid
+		 * REFUSE: if day is in the future or before day 1.
+		 * NOT UNDERSTOOD: if there are missing parameters
+		 * @param msg
+		 * @param numberOfClientsQueryRef
+		 * @return
+		 */
+		private ACLMessage answerGetNumberOfClients(ACLMessage msg,	NumberOfClientsQueryRef numberOfClientsQueryRef) {
+			ACLMessage reply = msg.createReply();
+
+			//missing parameters?
+			if (numberOfClientsQueryRef == null) {
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				reply.setContent("There are missing parameters: NumberOfClientsQueryRef action or hotel name");
+
+			} else if (!(numberOfClientsQueryRef.getDay() >= Constants.FIRST_DAY && numberOfClientsQueryRef.getDay() <= getDay() )) {
+				//invalid day in request?
+				reply.setPerformative(ACLMessage.REFUSE);
+				reply.setContent("Day is in the future or before day 1.");
+
+			} else {
+				//request is valid
+				hotelmania.ontology.NumberOfClients numberOfClients = getNumberOfClients(numberOfClientsQueryRef.getDay());
+				try {
+					reply.setPerformative(ACLMessage.INFORM);
+					myAgent.getContentManager().fillContent(reply, numberOfClients);
+				} catch (CodecException | OntologyException e) {
+					e.printStackTrace();
 				}
+			}
+
+			log.logSendReply(reply);
+			return reply;
+		}
+
+		private hotelmania.ontology.NumberOfClients getNumberOfClients(int day) { 
+			hotelmania.ontology.NumberOfClients numberOfClients = new NumberOfClients(); 
+			int clients = bookDAO.getClientsAtDay(day);
+			numberOfClients.setNum_clients(clients);
+			return numberOfClients;
+		}
+	}
+
+	@Override
+	public void receivedAcceptance(ACLMessage message) {
+		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
+			state.check(State.REGISTERED_HOTELMANIA);
+//		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+//			state.check(State.ACCOUNT_CREATED);
+		}
+	}
+
+	@Override
+	public void receivedReject(ACLMessage message) {
+		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
+			state.uncheck(State.REGISTERED_HOTELMANIA);
+		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+			state.uncheck(State.ACCOUNT_CREATED);
+		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+
+		} else if (message.getProtocol().equals(Constants.BOOKROOM_PROTOCOL)){
+
+		}
+		/*
+		 * TODO include cases for: MakeRoomBookingBehavior
+		 * ProvideRoomInfoBehavior Consult account status
+		 */
+	}
+
+	@Override
+	public void receivedNotUnderstood(ACLMessage message) {
+		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
+			state.uncheck(State.REGISTERED_HOTELMANIA);
+		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+			state.uncheck(State.ACCOUNT_CREATED);
+		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
+
+		}else if( message.getProtocol().equals(Constants.BOOKROOM_PROTOCOL)){
+
+		}
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see hotelmania.group2.platform.MetaAgent#receiveInform()
+	 */
+	@Override
+	public void receivedInform(ACLMessage message) {
+		if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+			try {
+				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
+				this.id_account = accountStatus.getAccount().getId_account();
+
+				state.check(State.ACCOUNT_CREATED);
 			} catch (CodecException | OntologyException e) {
-				Logger.logError(myName()+": " + message.getContent());
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}else if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_ACTION)) {
+			try {
+				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
+				Logger.logDebug("Account Balance:" + accountStatus.getAccount().getBalance());
+			} catch (CodecException | OntologyException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+	}
 
-		private void processListOfHotels(ContentElementList list) {
-			for (int i = 0; i < list.size(); i++) {
-				if (list.get(i) instanceof HotelInformation) {
-					HotelInformation hotelInformation = (HotelInformation) list.get(i);
-					hotelmania.group2.dao.BookingOffer offer = new hotelmania.group2.dao.BookingOffer(new hotelmania.group2.dao.HotelInformation(hotelInformation));
-					if (myAgent.getAID()==offer.getHotelInformation().getHotel().getAgent()){
-						myRating=offer.getHotelInformation().getRating();
-					}
-				}
-
-			}
-		}
-		
-		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			return true;
-		}
-	}		
+	@Override
+	public int getDay() {
+		return day;
+	}
 
 }

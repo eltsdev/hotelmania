@@ -64,6 +64,7 @@ public class AgHotel extends AbstractAgent {
 	@Override
 	protected void setup() {
 		super.setup();
+<<<<<<< Upstream, based on origin/master
 
 		this.hotelIdentity.setHotel_name(myName());
 		this.hotelIdentity.setHotelAgent(getAID());
@@ -92,6 +93,31 @@ public class AgHotel extends AbstractAgent {
 		this.stepsForCreationHotel.addSubBehaviour(new RegisterInHotelmaniaBehavior(this));
 		this.stepsForCreationHotel.addSubBehaviour(new CreateBankAccountBehavior(this));
 		addBehaviour(stepsForCreationHotel);
+=======
+//		this.registerServices(Constants.CONSULTHOTELNUMBEROFCLIENTS_ACTION, Constants.BOOKROOM_ACTION, Constants.CONSULTROOMPRICES_ACTION);
+
+		this.hotelIdentity.setHotel_name(myName());
+		this.hotelIdentity.setHotelAgent(getAID());
+
+		// Behaviors for configuration Hotel
+		this.stepsForCreationHotel = new SequentialBehaviour(this);
+		this.stepsForCreationHotel.addSubBehaviour(new RegisterInHotelmaniaBehavior(this));
+		this.stepsForCreationHotel.addSubBehaviour(new CreateBankAccountBehavior(this));
+		addBehaviour(stepsForCreationHotel);
+		
+		//Behaviors to calculate room prices and provide it to Client
+		this.stepsForRoomPrice = new SequentialBehaviour(this);
+		this.stepsForRoomPrice.addSubBehaviour(new ConsultBankAccountInfoBehavior(this));
+		this.stepsForRoomPrice.addSubBehaviour(new ConsultMyRatingBehavior(this));
+		this.stepsForRoomPrice.addSubBehaviour(new ProvideRoomInfoBehavior(this));
+		addBehaviour(stepsForRoomPrice);
+		
+		//Behaviors that are responsible for responding to requests
+		addBehaviour(new MakeRoomBookingBehavior(this));
+		addBehaviour(new ProvideHotelNumberOfClientsBehavior(this));
+		
+	
+>>>>>>> 62c1e80 Add Old version of AgHotel2
 	}
 
 	/*
