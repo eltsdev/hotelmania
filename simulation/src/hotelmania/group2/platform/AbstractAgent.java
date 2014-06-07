@@ -64,7 +64,7 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 		//Behaviors
 		addBehaviour(new LocateSimulatorBehavior(this));
 		
-		addBehaviour(new ReceiveInformMsgBehavior(this));
+		addBehaviour(new ReceiveMsgOfSubscriptionsBehavior(this));
 
 	}
 
@@ -415,15 +415,14 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 		this.send(msg);
 	}
 	
-	private final class ReceiveInformMsgBehavior extends CyclicBehaviour {
+	private final class ReceiveMsgOfSubscriptionsBehavior extends CyclicBehaviour {
 
 		private static final long serialVersionUID = -4878774871721189228L;
 
-		MessageTemplate informTemplate = MessageTemplate.and(BASIC_TEMPLATE,MessageTemplate.and(
-			MessageTemplate.MatchPerformative(ACLMessage.INFORM),
-			MessageTemplate.or(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL),MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL))));
+		MessageTemplate informTemplate = MessageTemplate.and(BASIC_TEMPLATE,
+			MessageTemplate.or(MessageTemplate.MatchProtocol(Constants.SUBSCRIBETODAYEVENT_PROTOCOL),MessageTemplate.MatchProtocol(Constants.END_SIMULATION_PROTOCOL)));
 
-		private ReceiveInformMsgBehavior(AbstractAgent a) {
+		private ReceiveMsgOfSubscriptionsBehavior(AbstractAgent a) {
 			super(a);
 		}
 
@@ -431,15 +430,27 @@ public abstract class AbstractAgent extends Agent implements IMyName {
 			ACLMessage msg = receive(informTemplate);
 
 			if (msg != null) {
-				log.logInformMessage(msg);				
+				
+				log.logReceivedMsg(msg);
+				
+				switch ( msg.getPerformative() ) {
+				case ACLMessage.INFORM:
+					if (msg.getProtocol().equals(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)) {
+						handleInformNewDay(msg);
+						return;
+					} else if(msg.getProtocol().equals(Constants.END_SIMULATION_PROTOCOL)) {
+						handleInformEndSimulation(msg);
+						return;
+					}
 
-				if (msg.getProtocol().equals(Constants.SUBSCRIBETODAYEVENT_PROTOCOL)) {
-					handleInformNewDay(msg);
-				} else if(msg.getProtocol().equals(Constants.END_SIMULATION_PROTOCOL)) {
-					handleInformEndSimulation(msg);
-				} else {
-					Logger.logDebug("Message received but not expected: " +msg.toString());
+					break;
+
+				default:
+					break;
 				}
+				Logger.logDebug("Message received but not expected: " +msg.toString());
+
+
 			} else {
 				// If no message arrives
 				block();
