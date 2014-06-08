@@ -1,4 +1,4 @@
-; Sat Jun 07 20:28:14 CEST 2014
+; Sun Jun 08 15:02:21 CEST 2014
 ; 
 ;+ (version "3.4.8")
 ;+ (build "Build 629")
@@ -75,6 +75,10 @@
 
 	(%3AJADE-IGNORE FALSE))
 
+([HotelStaffInfo] of  %3AJADE-CLASS
+
+	(%3AJADE-IGNORE FALSE))
+
 ([HotelStaffQueryRef] of  %3AJADE-CLASS
 
 	(%3AJADE-IGNORE FALSE))
@@ -133,10 +137,6 @@
 ([resolvers] of  %3AJADE-SLOT
 
 	(%3AJADE-UNNAMED-SLOT FALSE))
-
-([RoomHotelInfo] of  %3AJADE-CLASS
-
-	(%3AJADE-IGNORE FALSE))
 
 ([SharedAgentsOntology_Class10000] of  %3AINSTANCE-ANNOTATION
 )
