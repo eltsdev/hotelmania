@@ -99,13 +99,6 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 	}
 	
 	/**
-	 * Termination condition
-	 * @param performativeReceived 
-	 * @return condition if true, the behavior finishes. If false, it reset the behavior to send the message again.
-	 */
-	protected abstract boolean finishOrResend(int performativeReceived);
-
-	/**
 	 * Placeholder for locating the target agent, and so on. 
 	 * @return 
 	 */
@@ -158,5 +151,12 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 	 */
 	protected void receiveRefuse(ACLMessage msg) {
 
-	}	
+	}
+
+	/**
+	 * Termination condition
+	 * @param performativeReceived 
+	 * @return condition if true, the behavior finishes. If false, it reset the behavior to send the message again.
+	 */
+	protected abstract boolean finishOrResend(int performativeReceived);	
 }
