@@ -56,6 +56,7 @@ public class Constants {
 	public static final String HOTEL_NAME = "Hotel2";
 	public static final String LOG_SEPARATOR = "\t";
 	public static String REPORT_FILE;
+	public static String LOG_FILE;
 	public static boolean LOG_DEBUG;
 
 	// Current day during simulation

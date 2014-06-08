@@ -74,6 +74,7 @@ public class AgPlatform2 extends MetaAgent
 			Constants.SIMULATION_TIME_TO_START = Integer.parseInt(defaultProps.getProperty("simulation.time_to_start","1"));
 			//Private settings
 			Constants.REPORT_FILE=defaultProps.getProperty("","results.txt");
+			Constants.LOG_FILE=defaultProps.getProperty("","log.txt");
 			Constants.LOG_DEBUG=Boolean.parseBoolean(defaultProps.getProperty("log.debug","true"));
 			in.close();
 		} catch (FileNotFoundException e) {

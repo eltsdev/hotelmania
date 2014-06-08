@@ -117,8 +117,8 @@ public class Logger{
 		output.append(out + "\n");
 	}
 
-	public static void printFile() {
-		printToFile(output.toString(), "log.txt");
+	public static void printFile(String file) {
+		printToFile(output.toString(), file);
 	}
 	
 	private static void printToFile(String data, String fileName) {
