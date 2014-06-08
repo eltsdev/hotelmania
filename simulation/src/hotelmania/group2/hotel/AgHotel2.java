@@ -418,42 +418,32 @@ public class AgHotel2 extends MetaAgent {
 			buildInitialContract();
 		}
 		if (rating > 5) {
-			if (this.currentPrice > this.currentContract.getCost()) {
-				if (rating > 7.5) {//If our rating is very good, we increase prices a lot
-					float increment = (float) (this.currentPrice*0.5);
-					this.currentPrice += increment;//increase price 50%
-					this.currentContract.decreaseQuality((float) (increment*0.5));
-				} else {//If our rating is good but not that good, we increase prices but also increase quality of contract
-					float increment = (float) (this.currentPrice*0.25);
-					this.currentPrice += increment;//increase price 25%
-					this.currentContract.decreaseQuality((float) (increment*0.5));//Increase contract quality with half of price raise
-				}
-			} else {//If our contract cost more than we earn
-				this.currentPrice = (float) (this.currentContract.getCost());//We can not set the prices under the cost of contract 
+			if (rating > 7.5) {//If our rating is very good, we increase prices a lot
+				float increment = (float) (this.currentPrice*0.5);
+				this.currentPrice += increment;//increase price 50%
+				this.currentContract.decreaseQuality((float) (increment*0.5));
+			} else {//If our rating is good but not that good, we increase prices but also increase quality of contract
+				float increment = (float) (this.currentPrice*0.25);
+				this.currentPrice += increment;//increase price 25%
+				this.currentContract.decreaseQuality((float) (increment*0.5));//Increase contract quality with half of price raise
 			}
 		} else {
 			if (!this.bookDAO.isThereAnyBooking()) {
 				float decrease = (float) (this.currentPrice*0.5);
 				this.currentPrice -= decrease;
 			} else {
-				if (this.currentPrice > this.currentContract.getCost()) {
-					if (rating > 2.5) {//If the rating is not that bad, we just decrease the quality contract
-						float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
-						this.currentContract.increaseQuality(budget);
-					} else {//If the rating is too bad, we decrease quality contract and price
-						float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
-						this.currentPrice -= budget;
-						this.currentContract.increaseQuality((float) (budget*0.5));
-					}
-				} else {//If our contract cost more than we earn
+				if (rating > 2.5) {//If the rating is not that bad, we just decrease the quality contract
 					float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
-					this.currentContract.decreaseQuality((float) (budget));
-					this.currentPrice = (float) (this.currentContract.getCost());//We can not set the prices under the cost of contract 
+					this.currentContract.increaseQuality(budget);
+				} else {//If the rating is too bad, we decrease quality contract and price
+					float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
+					this.currentPrice -= budget;
+					this.currentContract.increaseQuality((float) (budget*0.5));
 				}
 			}
 
 		}
-
+		//Logger.logDebug(myName() + ": new price: " + this.currentPrice);
 		return this.currentContract.getConcept();
 	}
 
@@ -500,7 +490,7 @@ public class AgHotel2 extends MetaAgent {
 		}
 
 	}
-	
+
 	private final class GetHotelsFromHotelmaniaBehavior extends SendReceiveBehaviour {
 		private static final long serialVersionUID = 287171972374945182L;
 
