@@ -438,7 +438,6 @@ public class AgClient extends AbstractAgent {
 			HotelStaffQueryRef request = new HotelStaffQueryRef();
 			request.setDay(day);
 			request.setHotel(hotel);
-			System.out.println(myName() + " Estoy enviando");
 			sendRequest(this.server, request, this.protocol, ACLMessage.QUERY_REF);
 		}
 		
@@ -451,7 +450,6 @@ public class AgClient extends AbstractAgent {
 			try {
 				HotelStaffInfo hotelStaff = (HotelStaffInfo) getContentManager().extractContent(message);
 				Contract content = hotelStaff.getContract();  
-				System.out.println(myName()+ ": HotelStaffInfo============ " + hotelStaff);
 				if (content != null) {
 					Logger.logDebug(myName() + ": hotel staff : " + content.toString());
 					client.addStaffForRating(day, content);
