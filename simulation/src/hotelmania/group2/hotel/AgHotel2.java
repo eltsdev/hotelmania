@@ -417,13 +417,13 @@ public class AgHotel2 extends MetaAgent {
 		if (rating > 5) {
 			if (this.currentPrice > this.currentContract.getCost()) {
 				if (rating > 7.5) {//If our rating is very good, we increase prices a lot
-					float increment = (float) (this.currentPrice*0.2);
-					this.currentPrice += increment;//increase price 20%
+					float increment = (float) (this.currentPrice*0.5);
+					this.currentPrice += increment;//increase price 50%
 					this.currentContract.decreaseQuality((float) (increment*0.5));
 				} else {//If our rating is good but not that good, we increase prices but also increase quality of contract
-					float increment = (float) (this.currentPrice*0.1);
-					this.currentPrice += increment;//increase price 10%
-					this.currentContract.decreaseQuality((float) (increment*0.25));//Increase contract quality with half of price raise
+					float increment = (float) (this.currentPrice*0.25);
+					this.currentPrice += increment;//increase price 25%
+					this.currentContract.decreaseQuality((float) (increment*0.5));//Increase contract quality with half of price raise
 				}
 			} else {//If our contract cost more than we earn
 				this.currentPrice = (float) (this.currentContract.getCost());//We can not set the prices under the cost of contract 
