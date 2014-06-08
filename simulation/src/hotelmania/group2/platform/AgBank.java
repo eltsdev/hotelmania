@@ -285,8 +285,7 @@ public class AgBank extends AbstractAgent {
 		}
 
 		private boolean chargeMoney(ChargeAccount money) {
-			return accountDAO.chargeMoney(money.getHotel().getHotel_name(),
-					money.getMoney());
+			return accountDAO.chargeMoney(money.getHotel().getHotel_name(), money.getMoney());
 		}
 
 	

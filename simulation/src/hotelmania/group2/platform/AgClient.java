@@ -628,7 +628,6 @@ public class AgClient extends AbstractAgent {
 			makeDeposit(this.server);
 		}	
 		
-		//TODO finish
 		private void makeDeposit(AID bank) {
 			MakeDeposit action_deposit = new MakeDeposit();
 			action_deposit.setHotel(client.getHotelOfBookingDone().getHotel().getConcept());
