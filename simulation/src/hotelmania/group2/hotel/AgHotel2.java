@@ -442,7 +442,7 @@ public class AgHotel2 extends MetaAgent {
 		}
 		
 		this.currentContract.setDate(day);
-		//Logger.logDebug(myName() + ": new price: " + this.currentPrice);
+		Logger.logDebug(myName() + ": new price: " + this.currentPrice);
 		return this.currentContract.getConcept();
 	}
 
@@ -726,8 +726,9 @@ public class AgHotel2 extends MetaAgent {
 				HotelInformation hotelInformation = (HotelInformation) list.get(i);
 				if (hotelInformation.getHotel().getHotel_name().equals(myName())) {
 					this.rating = hotelInformation.getRating();
+					break;
 				}
-				break;
+				
 			}
 
 		}
