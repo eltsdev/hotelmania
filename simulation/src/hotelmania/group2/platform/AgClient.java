@@ -111,15 +111,16 @@ public class AgClient extends AbstractAgent {
 		// After the staying
 		if (getDay() >= client.getCheckOutDate()) {
 			
-			addBehaviour(new MakeDepositBehavior(this));
+			if (!this.servicePaid) {
+				addBehaviour(new MakeDepositBehavior(this));
+			}
 			
-			if (client.isDataForRatingComplete()) {
+			if (!this.ratingSent && client.isDataForRatingComplete()) {
 				addBehaviour(new RateHotelInHotelmaniaBehavior(this));
 			}else {
 				Logger.logError(myName()+": Can not rate hotel (isDataForRatingComplete)");
 			}
 		}
-			
 	}
 
 	// --------------------------------------------------------
@@ -599,9 +600,6 @@ public class AgClient extends AbstractAgent {
 		protected boolean finishOrResend(int performativeReceived) {
 			if (performativeReceived==ACLMessage.INFORM) {
 				ratingSent=true;
-				if (checkEnd()) {
-					doDelete();
-				}
 				return true;
 			}else {
 				return false;
@@ -639,9 +637,6 @@ public class AgClient extends AbstractAgent {
 		protected boolean finishOrResend(int performativeReceived) {
 			if (performativeReceived==ACLMessage.INFORM) {
 				servicePaid = true;
-				if(checkEnd()){
-					doDelete();
-				}
 				return true;
 			}else {
 				return false;
