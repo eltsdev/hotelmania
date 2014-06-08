@@ -182,6 +182,9 @@ public class AgReporter extends AbstractAgent
 			printToFile(reportText, Constants.REPORT_FILE);
 			System.out.println(reportText);
 			
+			
+			Logger.printFile();
+			
 			//Die!
 			doDelete();
 		}

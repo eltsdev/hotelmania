@@ -237,7 +237,7 @@ public class AgPlatform2 extends MetaAgent
 		
 		private boolean isSimulationEnd(int day) {
 			//TODO || cancelled ;
-			return day > Constants.SIMULATION_DAYS; 
+			return day > Constants.SIMULATION_DAYS + 1; 
 		}
 	}
 

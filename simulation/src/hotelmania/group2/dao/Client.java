@@ -1,5 +1,6 @@
 package hotelmania.group2.dao;
 
+import hotelmania.group2.platform.Logger;
 import hotelmania.ontology.Contract;
 import jade.core.AID;
 
@@ -123,6 +124,13 @@ public class Client {
 		}
 
 		ratingInput.setStaff(new hotelmania.group2.dao.Contract(content));
+	}
+	
+	public void printRatingData() {
+		for (Integer day : ratingData.keySet()) {
+			String line = "Rating Data: Day = "+day + ": Staff = "+ratingData.get(day).getStaff().toString() + " Occupancy = " + ratingData.get(day).getOccupancy();
+			Logger.logDebug(line );
+		}
 	}
 	
 	public RatingInput getOccupancyForDay (int day) {

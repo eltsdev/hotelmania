@@ -278,5 +278,16 @@ public class Contract {
 			}
 		}
 	}
+	
+	@Override
+	public String toString() {
+		String c = "chef1stars:" +chef1stars +"; "
+				+"chef2stars:" +chef2stars +"; "
+				+"chef3stars:" +chef3stars +"; "
+				+"roomService:" +roomService +"; "
+				+"recepcionistExperienced: " + recepcionistExperienced +";" 
+				+"recepcionistNovice: " + recepcionistNovice +";";
+		return c;
+	}
 
 }

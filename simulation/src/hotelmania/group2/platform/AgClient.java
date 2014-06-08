@@ -98,7 +98,7 @@ public class AgClient extends AbstractAgent {
 		// Check checkin date deadline 
 		if ( client.getStay().getCheckIn() >= getDay() && this.client.getBookingDone()==null ) {
 			//Die
-			doDie();
+			doDelete();
 		}
 		
 		// Starts data collection while staying in the hotel
@@ -592,7 +592,7 @@ public class AgClient extends AbstractAgent {
 			if (performativeReceived==ACLMessage.INFORM) {
 				ratingSent=true;
 				if (checkEnd()) {
-					doDie();
+					doDelete();
 				}
 				return true;
 			}else {
@@ -631,7 +631,7 @@ public class AgClient extends AbstractAgent {
 			if (performativeReceived==ACLMessage.INFORM) {
 				servicePaid = true;
 				if(checkEnd()){
-					doDie();
+					doDelete();
 				}
 				return true;
 			}else {
@@ -655,13 +655,19 @@ public class AgClient extends AbstractAgent {
 
 	@Override
 	public boolean doBeforeDie() {
+		Logger.logDebug(myName() + ": STAY DAYS = " + client.getStay().getDays()+ " - TOTAL RATING DATA = " + this.client.getRatingData().size());
+		client.printRatingData();
 		return checkEnd();
 	}
 	
-	private void doDie() {
+	
+	@Override
+	public void doDelete() {
+		Logger.logDebug(myName() + ": STAY DAYS = " + client.getStay().getDays()+ " - TOTAL RATING DATA = " + this.client.getRatingData().size());
+		client.printRatingData();
 		//Die
-		doDelete();
 		Logger.logDebug(myName()+": DIED");		
+		super.doDelete();
 	}
 
 }
