@@ -99,16 +99,17 @@ public class AgClient extends AbstractAgent {
 		if ( client.getStay().getCheckIn() >= getDay() && this.client.getBookingDone()==null ) {
 			//Die
 			doDelete();
+			return;
 		}
 		
 		// Starts data collection while staying in the hotel
-		else if (client.getBookingDone()!=null && client.getCheckInDate() >= getDay()  &&  getDay() <= client.getCheckOutDate() ) {
+		if (client.getBookingDone()!=null && client.getCheckInDate() >= getDay()  &&  getDay() < client.getCheckOutDate() ) {
 			addBehaviour(new ConsultHotelNumberOfClientsBehavior(this));
 			addBehaviour(new ConsultHotelStaffBehavior(this));
 		}
 
 		// After the staying
-		else if (getDay() > client.getCheckOutDate() && client.isDataForRatingComplete()) {
+		if (getDay() >= client.getCheckOutDate() && client.isDataForRatingComplete()) {
 			addBehaviour(new RateHotelInHotelmaniaBehavior(this));
 			addBehaviour(new MakeDepositBehavior(this));
 		}
@@ -202,7 +203,7 @@ public class AgClient extends AbstractAgent {
 
 		private void setTimeout() {
 			//Set timeout
-			long timeout = (long) (Constants.DAY_IN_MILLISECONDS * 0.25);
+			long timeout = (long) (Constants.DAY_IN_MILLISECONDS / 4);
 			myAgent.addBehaviour(new WakerBehaviour(myAgent, timeout) {
 				private static final long serialVersionUID = 1L;
 				@Override

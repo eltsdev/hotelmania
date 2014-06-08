@@ -22,7 +22,7 @@ public class RatingInput {
 	@Override
 	public String toString() {
 		if( staff!= null){
-			return "Occupancy: " + this.occupancy + " day:" + this.staff.getDate();	
+			return "Occupancy: " + this.occupancy + "; staff hired in day:" + this.staff.getDate();	
 		}
 		return "RatingInput with Null Staff";
 	
