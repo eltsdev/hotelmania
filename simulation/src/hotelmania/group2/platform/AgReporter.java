@@ -1,6 +1,7 @@
 package hotelmania.group2.platform;
 
 import hotelmania.group2.behaviours.SendReceiveBehaviour;
+import hotelmania.group2.dao.RatingInput;
 import hotelmania.group2.dao.ReportRecord;
 import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.HotelInformation;
@@ -178,8 +179,9 @@ public class AgReporter extends AbstractAgent
 	}
 	
 	public void checkIfDone() {
-		System.out.println(myName()+": check if done..."+this.ratingsDataReceived + " - " + this.financeDataReceived);
 		if (this.ratingsDataReceived && this.financeDataReceived) {
+			this.addCustomersToReport();
+			
 			String reportText = generateSimulationReport();
 			printToFile(reportText, Constants.REPORT_FILE);
 			System.out.println(reportText);
@@ -191,6 +193,13 @@ public class AgReporter extends AbstractAgent
 		}
 	}
 	
+	private void addCustomersToReport() {
+		for (String hotel : this.report.keySet()) {
+			//TODO Get clients from each hotel.
+		}
+		
+	}
+
 	public String generateSimulationReport() {
 		StringBuilder r = new StringBuilder();
 		r.append("SIMULATION RESULTS\n\n");
