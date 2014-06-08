@@ -9,7 +9,7 @@ import jade.core.CaseInsensitiveString;
 
 /** file: SharedAgentsOntology.java
  * @author ontology bean generator
- * @version 2014/06/7, 20:28:09
+ * @version 2014/06/8, 15:02:17
  */
 public class SharedAgentsOntology extends jade.content.onto.Ontology  {
   //NAME
@@ -25,6 +25,8 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
    // VOCABULARY
     public static final String BOOKINGOFFER_ROOMPRICE="roomPrice";
     public static final String BOOKINGOFFER="BookingOffer";
+    public static final String HOTELSTAFFINFO_CONTRACT="contract";
+    public static final String HOTELSTAFFINFO="HotelStaffInfo";
     public static final String NUMBEROFCLIENTS_NUM_CLIENTS="num_clients";
     public static final String NUMBEROFCLIENTS="NumberOfClients";
     public static final String ACCOUNTSTATUS_ACCOUNT="account";
@@ -92,9 +94,6 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     public static final String CONTRACT_RECEPCIONIST_EXPERIENCED="recepcionist_experienced";
     public static final String CONTRACT_CHEF_3STARS="chef_3stars";
     public static final String CONTRACT="Contract";
-    public static final String ROOMHOTELINFO_ROOMSAVAILABLE="roomsAvailable";
-    public static final String ROOMHOTELINFO_COST="cost";
-    public static final String ROOMHOTELINFO="RoomHotelInfo";
     public static final String HOTEL_HOTEL_NAME="hotel_name";
     public static final String HOTEL_HOTELAGENT="hotelAgent";
     public static final String HOTEL="Hotel";
@@ -109,8 +108,6 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     // adding Concept(s)
     ConceptSchema hotelSchema = new ConceptSchema(HOTEL);
     add(hotelSchema, hotelmania.ontology.Hotel.class);
-    ConceptSchema roomHotelInfoSchema = new ConceptSchema(ROOMHOTELINFO);
-    add(roomHotelInfoSchema, hotelmania.ontology.RoomHotelInfo.class);
     ConceptSchema contractSchema = new ConceptSchema(CONTRACT);
     add(contractSchema, hotelmania.ontology.Contract.class);
     ConceptSchema staySchema = new ConceptSchema(STAY);
@@ -169,6 +166,8 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     add(accountStatusSchema, hotelmania.ontology.AccountStatus.class);
     PredicateSchema numberOfClientsSchema = new PredicateSchema(NUMBEROFCLIENTS);
     add(numberOfClientsSchema, hotelmania.ontology.NumberOfClients.class);
+    PredicateSchema hotelStaffInfoSchema = new PredicateSchema(HOTELSTAFFINFO);
+    add(hotelStaffInfoSchema, hotelmania.ontology.HotelStaffInfo.class);
     PredicateSchema bookingOfferSchema = new PredicateSchema(BOOKINGOFFER);
     add(bookingOfferSchema, hotelmania.ontology.BookingOffer.class);
 
@@ -176,8 +175,6 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     // adding fields
     hotelSchema.add(HOTEL_HOTELAGENT, (ConceptSchema)getSchema(BasicOntology.AID), ObjectSchema.OPTIONAL);
     hotelSchema.add(HOTEL_HOTEL_NAME, (TermSchema)getSchema(BasicOntology.STRING), ObjectSchema.MANDATORY);
-    roomHotelInfoSchema.add(ROOMHOTELINFO_COST, (TermSchema)getSchema(BasicOntology.FLOAT), ObjectSchema.OPTIONAL);
-    roomHotelInfoSchema.add(ROOMHOTELINFO_ROOMSAVAILABLE, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
     contractSchema.add(CONTRACT_CHEF_3STARS, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.MANDATORY);
     contractSchema.add(CONTRACT_RECEPCIONIST_EXPERIENCED, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.MANDATORY);
     contractSchema.add(CONTRACT_DAY, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.OPTIONAL);
@@ -219,6 +216,7 @@ public class SharedAgentsOntology extends jade.content.onto.Ontology  {
     hotelInformationSchema.add(HOTELINFORMATION_HOTEL, hotelSchema, ObjectSchema.OPTIONAL);
     accountStatusSchema.add(ACCOUNTSTATUS_ACCOUNT, accountSchema, ObjectSchema.MANDATORY);
     numberOfClientsSchema.add(NUMBEROFCLIENTS_NUM_CLIENTS, (TermSchema)getSchema(BasicOntology.INTEGER), ObjectSchema.MANDATORY);
+    hotelStaffInfoSchema.add(HOTELSTAFFINFO_CONTRACT, contractSchema, ObjectSchema.MANDATORY);
     bookingOfferSchema.add(BOOKINGOFFER_ROOMPRICE, priceSchema, ObjectSchema.OPTIONAL);
 
     // adding name mappings

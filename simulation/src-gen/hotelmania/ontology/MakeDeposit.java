@@ -8,7 +8,7 @@ import jade.core.*;
 /**
 * Protege name: MakeDeposit
 * @author ontology bean generator
-* @version 2014/06/7, 20:28:10
+* @version 2014/06/8, 15:02:17
 */
 public class MakeDeposit implements AgentAction {
 

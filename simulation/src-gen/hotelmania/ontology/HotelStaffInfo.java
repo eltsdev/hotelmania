@@ -6,22 +6,11 @@ import jade.util.leap.*;
 import jade.core.*;
 
 /**
-* Protege name: SignContract
+* Protege name: HotelStaffInfo
 * @author ontology bean generator
 * @version 2014/06/8, 15:02:17
 */
-public class SignContract implements AgentAction {
-
-   /**
-* Protege name: hotel
-   */
-   private Hotel hotel;
-   public void setHotel(Hotel value) { 
-    this.hotel=value;
-   }
-   public Hotel getHotel() {
-     return this.hotel;
-   }
+public class HotelStaffInfo implements Predicate {
 
    /**
 * Protege name: contract
