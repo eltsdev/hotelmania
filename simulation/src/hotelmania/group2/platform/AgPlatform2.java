@@ -58,102 +58,7 @@ public class AgPlatform2 extends MetaAgent
 
 	}
 
-	 private final class DayTickerBehaviour extends TickerBehaviour {
-		private static final long serialVersionUID = 6616055369402031518L;
-
-		private DayTickerBehaviour(Agent a, long period) {
-			super(a, period);
-		}
-
-		@Override
-		public void stop() {
-			//stop/delete all agents
-			sendEndSimulationEventToSubscriptors();
-			//stop platform
-			super.stop();
-		}
-		
-		private void sendEndSimulationEventToSubscriptors() {
-			NotificationEndSimulation event = new NotificationEndSimulation(); 
-			
-			Logger.logDebug("*************************************************************");
-			Logger.logDebug("Simulation End");
-			Logger.logDebug("*************************************************************");
-			
-			Logger.logDebug(myName() + ": Sending end simulation order to  # subscribers: "+ endSimulationResponder.getSubscriptions().size());
-			
-			for(Object subscriptionObj : endSimulationResponder.getSubscriptions())
-			{
-				if (subscriptionObj instanceof Subscription) {
-					Subscription subscription = (Subscription) subscriptionObj;
-					notify(subscription, event);
-					Logger.logDebug(myName()+": sending end simulation event to: "+subscription.getMessage().getSender().getLocalName());
-				}
-			}
-		}
-
-		public void onTick() 
-		{
-			//Day number
-			int day = getTickCount();
-			Constants.DAY = day;
-			if (isSimulationEnd(day)) {
-				stop();
-				return;
-			}
-
-			sendDayNotificationToSubscriptors(day);
-
-			if (day >= Constants.FIRST_DAY && day >= Constants.SIMULATION_TIME_TO_START && day < Constants.SIMULATION_DAYS) {
-				generateClientsBehavior(day);
-			}
-		}
-
-		private void sendDayNotificationToSubscriptors(int day) {
-			NotificationDayEvent notificationDayEvent = new NotificationDayEvent();
-			DayEvent dayEvent = new DayEvent();
-			dayEvent.setDay(day);
-			notificationDayEvent.setDayEvent(dayEvent);
-			
-			Logger.logDebug("*************************************************************");
-			Logger.logDebug("Day = "+day);
-			Logger.logDebug("*************************************************************");
-			
-			
-			Logger.logDebug(myName() + ": Sending day notification to  # subscribers: "+ dayEventResponder.getSubscriptions().size());
-			
-			for(Object subscriptionObj : dayEventResponder.getSubscriptions())
-			{
-				if (subscriptionObj instanceof Subscription) {
-					Subscription subscription = (Subscription) subscriptionObj;
-					notify(subscription, notificationDayEvent);
-				}
-			}
-		}
-
-		private void notify(SubscriptionResponder.Subscription subscription, Predicate data) {
-			try {
-				ACLMessage notification = subscription.getMessage().createReply();
-				notification.addUserDefinedParameter(ACLMessage.IGNORE_FAILURE, "true");
-				notification.setPerformative(ACLMessage.INFORM);
-
-				getContentManager().fillContent(notification, data);
-				subscription.notify(notification);
-				log.logSendRequest(notification);
-				}
-			catch (Exception e) {
-				e.printStackTrace();
-				//FIXME: Check whether a FAILURE message should be sent back.       
-			}
-		}
-		
-		private boolean isSimulationEnd(int day) {
-			//TODO || cancelled ;
-			return day > Constants.SIMULATION_DAYS; 
-		}
-	}
-
-	public static void loadProperties() {
+	 public static void loadProperties() {
 		// create and load default properties
 		Properties defaultProps = new Properties();
 		FileInputStream in;
@@ -241,17 +146,144 @@ public class AgPlatform2 extends MetaAgent
 		}
 	}
 
-	//-----------------------------------------------------------------------
-	// Special-purpose methods - they can overlap with the agent's behaviors 
-	//-----------------------------------------------------------------------
-
-	final class CreateDayEventsBehavior extends SubscriptionResponder 
-	{
-		private static final long serialVersionUID = -7739604235932591107L;
-
-		public CreateDayEventsBehavior(Agent agent, MessageTemplate mt) {
-			super(agent, mt);
+	private final class DayTickerBehaviour extends TickerBehaviour {
+		private static final long serialVersionUID = 6616055369402031518L;
+	
+		private DayTickerBehaviour(Agent a, long period) {
+			super(a, period);
 		}
+	
+		@Override
+		public void stop() {
+			//stop/delete all agents
+			sendEndSimulationEventToSubscriptors();
+			//stop platform
+			super.stop();
+		}
+		
+		private void sendEndSimulationEventToSubscriptors() {
+			NotificationEndSimulation event = new NotificationEndSimulation(); 
+			
+			Logger.logDebug("*************************************************************");
+			Logger.logDebug("Simulation End");
+			Logger.logDebug("*************************************************************");
+			
+			Logger.logDebug(myName() + ": Sending end simulation order to  # subscribers: "+ endSimulationResponder.getSubscriptions().size());
+			
+			for(Object subscriptionObj : endSimulationResponder.getSubscriptions())
+			{
+				if (subscriptionObj instanceof Subscription) {
+					Subscription subscription = (Subscription) subscriptionObj;
+					notify(subscription, event);
+					Logger.logDebug(myName()+": sending end simulation event to: "+subscription.getMessage().getSender().getLocalName());
+				}
+			}
+		}
+	
+		public void onTick() 
+		{
+			//Day number
+			int day = getTickCount();
+			Constants.DAY = day;
+			if (isSimulationEnd(day)) {
+				stop();
+				return;
+			}
+	
+			sendDayNotificationToSubscriptors(day);
+	
+			if (day >= Constants.FIRST_DAY && day >= Constants.SIMULATION_TIME_TO_START && day < Constants.SIMULATION_DAYS) {
+				generateClientsBehavior(day);
+			}
+		}
+	
+		private void sendDayNotificationToSubscriptors(int day) {
+			NotificationDayEvent notificationDayEvent = new NotificationDayEvent();
+			DayEvent dayEvent = new DayEvent();
+			dayEvent.setDay(day);
+			notificationDayEvent.setDayEvent(dayEvent);
+			
+			Logger.logDebug("*************************************************************");
+			Logger.logDebug("Day = "+day);
+			Logger.logDebug("*************************************************************");
+			
+			
+			Logger.logDebug(myName() + ": Sending day notification to  # subscribers: "+ dayEventResponder.getSubscriptions().size());
+			
+			for(Object subscriptionObj : dayEventResponder.getSubscriptions())
+			{
+				if (subscriptionObj instanceof Subscription) {
+					Subscription subscription = (Subscription) subscriptionObj;
+					notify(subscription, notificationDayEvent);
+				}
+			}
+		}
+	
+		private void notify(SubscriptionResponder.Subscription subscription, Predicate data) {
+			try {
+				ACLMessage notification = subscription.getMessage().createReply();
+				notification.addUserDefinedParameter(ACLMessage.IGNORE_FAILURE, "true");
+				notification.setPerformative(ACLMessage.INFORM);
+	
+				getContentManager().fillContent(notification, data);
+				subscription.notify(notification);
+				log.logSendRequest(notification);
+				}
+			catch (Exception e) {
+				e.printStackTrace();
+				//FIXME: Check whether a FAILURE message should be sent back.       
+			}
+		}
+		
+		private boolean isSimulationEnd(int day) {
+			//TODO || cancelled ;
+			return day > Constants.SIMULATION_DAYS; 
+		}
+	}
+
+	/**
+	 * Generate Clients Behavior
+	 * @param day
+	 */
+	private void generateClientsBehavior(int day) 
+	{
+		ContainerController cc = getContainerController();
+		AgentController ac = null;
+		
+		// Generate clients except last day
+		for (int i = 0; i < Constants.CLIENTS_PER_DAY ; i++) {
+			try {
+				Client client = ClientGenerator.randomClient(day);
+	
+				String clientName = "Client_born_"+day+"_#_"+i;
+				ac = cc.createNewAgent(clientName, AgClient.class.getName(), new Object[]{client});
+				ac.start();
+	
+			} catch (StaleProxyException e) {
+				e.printStackTrace();
+			}
+	
+		}
+	}
+
+
+	@Override
+	public void receivedAcceptance(ACLMessage message) {
+	}
+
+
+	@Override
+	public void receivedReject(ACLMessage message) {
+	}
+
+
+	@Override
+	public void receivedNotUnderstood(ACLMessage message) {
+	}
+
+
+	@Override
+	public void receivedInform(ACLMessage message) {
 	}
 
 	private final class MySubscriptionManager implements
@@ -348,45 +380,4 @@ public class AgPlatform2 extends MetaAgent
 		 }
 
 	 }
-
-	/**
-	 * Generate Clients Behavior
-	 * @param day
-	 */
-	private void generateClientsBehavior(int day) 
-	{
-		ContainerController cc = getContainerController();
-		AgentController ac = null;
-		
-		// Generate clients except last day
-		for (int i = 0; i < Constants.CLIENTS_PER_DAY ; i++) {
-			try {
-				Client client = ClientGenerator.randomClient(day);
-
-				String clientName = "Client_born_"+day+"_#_"+i;
-				ac = cc.createNewAgent(clientName, AgClient.class.getName(), new Object[]{client});
-				ac.start();
-
-			} catch (StaleProxyException e) {
-				e.printStackTrace();
-			}
-
-		}
-	}
-
-	@Override
-	public void receivedAcceptance(ACLMessage message) {
-	}
-
-	@Override
-	public void receivedReject(ACLMessage message) {
-	}
-
-	@Override
-	public void receivedNotUnderstood(ACLMessage message) {
-	}
-
-	@Override
-	public void receivedInform(ACLMessage message) {
-	}
 }
