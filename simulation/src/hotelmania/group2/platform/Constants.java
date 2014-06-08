@@ -29,7 +29,7 @@ public class Constants {
 	public static final String CHARGEACCOUNT_ACTION = CHARGEACCOUNT_PROTOCOL;
 	
 	// Query-ref Actions
-	public static final String CONSULTHOTELSINFO_ACTION = "QueryHotelmaniaHotel";
+	public static final String CONSULTHOTELSINFO_ACTION = CONSULTHOTELSINFO_PROTOCOL;
 	public static final String CONSULTHOTELSSTAFF_ACTION = CONSULTHOTELSSTAFF_PROTOCOL;
 	public static final String CONSULTROOMPRICES_ACTION = CONSULTROOMPRICES_PROTOCOL;
 	public static final String CONSULTACCOUNTSTATUS_ACTION = CONSULTACCOUNTSTATUS_PROTOCOL;
