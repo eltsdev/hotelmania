@@ -42,7 +42,7 @@ public class AgBank extends AbstractAgent {
 		addBehaviour(new ProvideHotelAccountInfoBehavior(this));
 		
 		// Get finance report
-		addBehaviour(new GetFinanceReportBehavior(this));
+		addBehaviour(new ProvideFinanceReportBehavior(this));
 
 		registerServices(Constants.CREATEACCOUNT_ACTION,
 				Constants.CONSULTACCOUNTSTATUS_ACTION,
@@ -353,10 +353,10 @@ public class AgBank extends AbstractAgent {
 		}
 	}
 
-	private final class GetFinanceReportBehavior extends GenericServerResponseBehaviour {
+	private final class ProvideFinanceReportBehavior extends GenericServerResponseBehaviour {
 		private static final long serialVersionUID = 3826752372367438517L;
 		
-		public GetFinanceReportBehavior(AbstractAgent agBank) {
+		public ProvideFinanceReportBehavior(AbstractAgent agBank) {
 			super(agBank,Constants.CONSULTFINANCEREPORT_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
