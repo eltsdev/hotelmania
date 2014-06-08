@@ -81,7 +81,6 @@ public class AgReporter extends AbstractAgent
 					Logger.logDebug(myName() + ": Null number of hotels ratings");
 				}
 			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				Logger.logDebug("Message: " + message.getContent());
 			}
@@ -146,7 +145,6 @@ public class AgReporter extends AbstractAgent
 					Logger.logDebug(myName() + ": Null number of hotels acounts");
 				}
 			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				Logger.logDebug("Message: " + message.getContent());
 			}
@@ -238,7 +236,6 @@ public class AgReporter extends AbstractAgent
 			Logger.logDebug("SIMULATION REPORT GENERATED: "+fileName);
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			Logger.logDebug("SIMULATION REPORT FAILED TO WRITE IN: "+fileName);
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
