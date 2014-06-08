@@ -429,19 +429,23 @@ public class AgHotel2 extends MetaAgent {
 				this.currentPrice = (float) (this.currentContract.getCost());//We can not set the prices under the cost of contract 
 			}
 		} else {
-			if (this.currentPrice > this.currentContract.getCost()) {
-				if (rating > 2.5) {//If the rating is not that bad, we just decrease the quality contract
+			if (rating == 5) {//if our rating is still being 5, which is default, we lower prices in order to get first clients
+				this.currentPrice *= 0.88;
+			} else {
+				if (this.currentPrice > this.currentContract.getCost()) {
+					if (rating > 2.5) {//If the rating is not that bad, we just decrease the quality contract
+						float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
+						this.currentContract.increaseQuality(budget);
+					} else {//If the rating is too bad, we decrease quality contract and price
+						float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
+						this.currentPrice -= budget;
+						this.currentContract.increaseQuality((float) (budget*0.5));
+					}
+				} else {//If our contract cost more than we earn
 					float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
-					this.currentContract.increaseQuality(budget);
-				} else {//If the rating is too bad, we decrease quality contract and price
-					float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
-					this.currentPrice -= budget;
-					this.currentContract.increaseQuality((float) (budget*0.5));
+					this.currentContract.decreaseQuality((float) (budget));
+					this.currentPrice = (float) (this.currentContract.getCost());//We can not set the prices under the cost of contract 
 				}
-			} else {//If our contract cost more than we earn
-				float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
-				this.currentContract.decreaseQuality((float) (budget));
-				this.currentPrice = (float) (this.currentContract.getCost());//We can not set the prices under the cost of contract 
 			}
 		}
 
