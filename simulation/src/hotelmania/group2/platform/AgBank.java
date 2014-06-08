@@ -1,7 +1,5 @@
 package hotelmania.group2.platform;
 
-import java.util.ArrayList;
-
 import hotelmania.group2.dao.Account;
 import hotelmania.group2.dao.AccountDAO;
 import hotelmania.group2.dao.Hotel;
@@ -9,7 +7,6 @@ import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.AccountStatusQueryRef;
 import hotelmania.ontology.ChargeAccount;
 import hotelmania.ontology.CreateAccountRequest;
-import hotelmania.ontology.GetFinanceReport;
 import hotelmania.ontology.MakeDeposit;
 import jade.content.Concept;
 import jade.content.ContentElement;
@@ -20,6 +17,8 @@ import jade.content.onto.basic.Action;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+
+import java.util.ArrayList;
 
 public class AgBank extends MetaAgent {
 

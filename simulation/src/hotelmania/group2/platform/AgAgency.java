@@ -4,11 +4,11 @@ import hotelmania.group2.behaviours.GenericServerResponseBehaviour;
 import hotelmania.group2.dao.Contract;
 import hotelmania.group2.dao.ContractDAO;
 import hotelmania.ontology.HotelStaffQueryRef;
-import hotelmania.ontology.NumberOfClientsQueryRef;
 import hotelmania.ontology.SignContract;
 import jade.content.Concept;
 import jade.content.ContentElement;
 import jade.content.Predicate;
+import jade.content.abs.AbsContentElement;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
@@ -76,12 +76,8 @@ public class AgAgency extends AbstractAgent {
 
 						if (reply.getPerformative()==ACLMessage.AGREE) {
 							reply.setPerformative(ACLMessage.INFORM);
-							myAgent.send(reply);
-							myAgent.getLog().logSendReply(reply);
 						}else if (reply.getPerformative()==ACLMessage.REFUSE) {
 							reply.setPerformative(ACLMessage.FAILURE);
-							myAgent.send(reply);
-							myAgent.getLog().logSendReply(reply);
 						}
 						return reply;
 					}
@@ -150,17 +146,11 @@ public class AgAgency extends AbstractAgent {
 		}
 
 		@Override
-		public void action() {
-			// TODO Blank
-			block();
-
-		}
-		@Override
 		protected ACLMessage doSendResponse(ACLMessage message) {
 			
 			Predicate predicate = getPredicateFromMessage(message);
 			
-			if (predicate instanceof NumberOfClientsQueryRef) {
+			if (predicate instanceof HotelStaffQueryRef) {
 				return answerHotelStaff(message,(HotelStaffQueryRef) predicate);
 			}else {
 				ACLMessage reply = message.createReply();
@@ -197,7 +187,8 @@ public class AgAgency extends AbstractAgent {
 				Contract contractDao =contractDAO.getCurrentContractsByHotel(hotelQueryStaff.getHotel().getHotel_name(), hotelQueryStaff.getDay());
 				hotelmania.ontology.Contract contract = contractDao.getConcept();
 				reply.setPerformative(ACLMessage.INFORM);
-				sendRequest(reply.getSender(), contract, Constants.CONSULTHOTELSSTAFF_PROTOCOL, ACLMessage.REQUEST);
+//				getContentManager().fillContent(reply, (AbsContentElement) contract);
+				//sendRequest(reply.getSender(), contract, Constants.CONSULTHOTELSSTAFF_PROTOCOL, ACLMessage.REQUEST);
 			}
 			return reply;
 		}

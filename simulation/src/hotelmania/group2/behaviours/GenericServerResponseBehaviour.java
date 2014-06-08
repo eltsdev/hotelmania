@@ -12,7 +12,7 @@ public abstract class GenericServerResponseBehaviour extends MetaSimpleBehaviour
 	protected AbstractAgent myAgent;
 	protected String protocol;
 	protected MessageTemplate messageTemplate;
-	private int incomingMessagePerformative;
+	protected int incomingMessagePerformative;
 
 	public GenericServerResponseBehaviour(AbstractAgent myAgent, String protocol, int incomingMessagePerformative) {
 		super(myAgent);
