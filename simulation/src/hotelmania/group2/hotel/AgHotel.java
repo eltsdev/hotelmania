@@ -323,7 +323,7 @@ public class AgHotel extends AbstractAgent {
 		Contract hireDailyStaff(int day) {
 			Contract contract;
 			if (day == Constants.FIRST_DAY) {
-				contract = getInitialContract();
+				contract = getInitialContract(day);
 			} else {
 				contract = buildNewContract(day);
 			}
@@ -333,7 +333,7 @@ public class AgHotel extends AbstractAgent {
 
 		Contract buildNewContract(int day) {
 			if (currentContract == null) {
-				buildInitialContract();
+				buildInitialContract(day);
 			}
 			if (rating > 5) {
 				if (rating > 7.5) {//If our rating is very good, we increase prices a lot
@@ -361,26 +361,28 @@ public class AgHotel extends AbstractAgent {
 				}
 
 			}
+			currentContract.setDate(day);
 			//Logger.logDebug(myName() + ": new price: " + this.currentPrice);
 			return currentContract.getConcept();
 		}
 
 		/**
 		 * Default values for staff hiring
+		 * @param day 
 		 * 
 		 * @return
 		 */
-		Contract getInitialContract() {
-			buildInitialContract();
+		Contract getInitialContract(int day) {
+			buildInitialContract(day);
 			return currentContract.getConcept();
 		}
 		
-		public void buildInitialContract() {
+		public void buildInitialContract(int day) {
 			currentContract = new hotelmania.group2.dao.Contract();
 			currentContract.setchef3stars(1);
 			currentContract.setRecepcionistExperienced(3);
 			currentContract.setRoomService(3);
-
+			currentContract.setDate(day);
 			currentPrice = currentContract.getCost();
 		}
 		@Override
