@@ -72,15 +72,6 @@ public class AgClient extends AbstractAgent {
 
 		// Behaviors after booking - not started yet
 	}
-	
-	public void checkEnd() {
-		if (this.servicePaid && this.ratingSent) {
-			//Die
-			doDelete();
-			Logger.logDebug(myName()+": DIED");
-		}
-	}
-
 
 	private void initClient() {
 		Object[] args = getArguments();
@@ -107,7 +98,7 @@ public class AgClient extends AbstractAgent {
 		// Check checkin date deadline 
 		if ( client.getStay().getCheckIn() >= getDay() && this.client.getBookingDone()==null ) {
 			//Die
-			doDelete();
+			doDie();
 		}
 		
 		// Starts data collection while staying in the hotel
@@ -603,7 +594,9 @@ public class AgClient extends AbstractAgent {
 		protected boolean finishOrResend(int performativeReceived) {
 			if (performativeReceived==ACLMessage.INFORM) {
 				ratingSent=true;
-				checkEnd();
+				if (checkEnd()) {
+					doDie();
+				}
 				return true;
 			}else {
 				return false;
@@ -640,12 +633,38 @@ public class AgClient extends AbstractAgent {
 		protected boolean finishOrResend(int performativeReceived) {
 			if (performativeReceived==ACLMessage.INFORM) {
 				servicePaid = true;
-				checkEnd();
+				if(checkEnd()){
+					doDie();
+				}
 				return true;
 			}else {
 				return false;
 			}
 		}
 	}
+
+	public boolean checkEnd() {
+		//If all is done
+		if (this.servicePaid && this.ratingSent) {
+			return true;
+		}else if (getDay() > client.getCheckOutDate() ) {
+			//if there is chance to finish, pay and rate
+			return false;
+		} else {
+			//otherwise die...
+			return true;
+		}
+	}
+
+	@Override
+	public boolean doBeforeDie() {
+		return checkEnd();
+	}
 	
+	private void doDie() {
+		//Die
+		doDelete();
+		Logger.logDebug(myName()+": DIED");		
+	}
+
 }

@@ -99,7 +99,7 @@ public class AgPlatform2 extends MetaAgent
 	//-----------------------------------------------------------------------
 	
 	/**
-	 * Explicitly FALSE! To avoid race conditions never let it TRUE
+	 * Explicitly FALSE! To avoid sending messages to itself
 	 */
 	@Override
 	protected boolean setRegisterForDayEvents() {
@@ -107,7 +107,7 @@ public class AgPlatform2 extends MetaAgent
 	}
 	
 	/**
-	 * Explicitly FALSE! To avoid race conditions never let it TRUE
+	 * Explicitly FALSE! To avoid sending messages to itself
 	 */
 	@Override
 	protected boolean setRegisterForEndSimulation() {
