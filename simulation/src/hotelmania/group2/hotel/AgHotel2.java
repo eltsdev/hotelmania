@@ -698,13 +698,38 @@ public class AgHotel2 extends MetaAgent {
 			}
 		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
 			try {
-				HotelInformation content = (HotelInformation) getContentManager().extractContent(message);
-				this.rating = content.getRating();
+				ContentElement content = getContentManager().extractContent(message);
+				if (content != null) {
+					if (content instanceof ContentElementList) {
+						ContentElementList list = (ContentElementList) content;
+						this.processListOfHotels(list);
+					} else if (content instanceof HotelInformation) {
+						HotelInformation hotelInformation = (HotelInformation) content;
+						if (hotelInformation.getHotel().getHotel_name().equals(myName())) {
+							this.rating = hotelInformation.getRating();
+						}
+					}
+				} else {
+					Logger.logDebug(myName() + ": Null number of hotels");
+				}
 				Logger.logDebug(myName() + ": My current rating is: " + this.rating);
 
 			} catch (CodecException | OntologyException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	private void processListOfHotels(ContentElementList list) {
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i) instanceof HotelInformation) {
+				HotelInformation hotelInformation = (HotelInformation) list.get(i);
+				if (hotelInformation.getHotel().getHotel_name().equals(myName())) {
+					this.rating = hotelInformation.getRating();
+				}
+				break;
+			}
+
 		}
 	}
 }
