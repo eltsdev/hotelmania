@@ -9,6 +9,7 @@ import hotelmania.ontology.BookRoom;
 import hotelmania.ontology.Contract;
 import hotelmania.ontology.Hotel;
 import hotelmania.ontology.HotelInformation;
+import hotelmania.ontology.HotelStaffInfo;
 import hotelmania.ontology.HotelStaffQueryRef;
 import hotelmania.ontology.MakeDeposit;
 import hotelmania.ontology.NumberOfClients;
@@ -457,7 +458,8 @@ public class AgClient extends AbstractAgent {
 		
 		private boolean handleConsultStaff(ACLMessage message) {
 			try {
-				Contract content = (Contract) getContentManager().extractContent(message);  
+				HotelStaffInfo hotelStaff = (HotelStaffInfo) getContentManager().extractContent(message);
+				Contract content = hotelStaff.getContract();  
 				if (content != null) {
 					Logger.logDebug(myName() + ": hotel staff : " + content.toString());
 					client.addStaffForRating(day, content);

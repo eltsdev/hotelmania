@@ -3,6 +3,7 @@ package hotelmania.group2.platform;
 import hotelmania.group2.behaviours.GenericServerResponseBehaviour;
 import hotelmania.group2.dao.Contract;
 import hotelmania.group2.dao.ContractDAO;
+import hotelmania.ontology.HotelStaffInfo;
 import hotelmania.ontology.HotelStaffQueryRef;
 import hotelmania.ontology.SignContract;
 import jade.content.Concept;
@@ -183,18 +184,22 @@ public class AgAgency extends AbstractAgent {
 
 			} else {
 				//request is valid
-				
-				Contract contractDao =contractDAO.getCurrentContractsByHotel(hotelQueryStaff.getHotel().getHotel_name(), hotelQueryStaff.getDay());
-				hotelmania.ontology.Contract contract = contractDao.getConcept();
-				reply.setPerformative(ACLMessage.INFORM);
-//				getContentManager().fillContent(reply, (AbsContentElement) contract);
-				//sendRequest(reply.getSender(), contract, Constants.CONSULTHOTELSSTAFF_PROTOCOL, ACLMessage.REQUEST);
+					
+				try {
+					Contract contractDao =contractDAO.getCurrentContractsByHotel(hotelQueryStaff.getHotel().getHotel_name(), hotelQueryStaff.getDay());
+					hotelmania.ontology.Contract contract = contractDao.getConcept();
+					HotelStaffInfo hotelStaff = new HotelStaffInfo();
+					hotelStaff.setContract(contract);
+					reply.setPerformative(ACLMessage.INFORM);
+					myAgent.getContentManager().fillContent(reply, hotelStaff);
+				} catch (CodecException | OntologyException e) {
+					Logger.logError(myName() + ": Message: " + message.getContent());
+					e.printStackTrace();
+				}
+			
 			}
 			return reply;
 		}
-
-		
-
-		}
+	}
 
 }
