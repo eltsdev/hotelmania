@@ -37,5 +37,17 @@ public class HotelDAO {
 		listHotel.add(hotelRecord);
 		return true;
 	}
+	
+	public void updateRating(String hotelname, float rating) {
+		for (HotelInformation h : this.listHotel) {
+			if (h.getHotel().getName().equals(hotelname)) {
+				h.setRating(rating);
+				return;
+			}
+		}
+		
+	}
+	
+	
 
 }

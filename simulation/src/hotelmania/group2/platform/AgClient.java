@@ -104,8 +104,7 @@ public class AgClient extends AbstractAgent {
 		
 		// Starts data collection while staying in the hotel
 		if (client.getBookingDone()!=null && client.getCheckInDate() >= getDay()  &&  getDay() < client.getCheckOutDate() ) {
-			addBehaviour(new ConsultHotelNumberOfClientsBehavior(this));
-			addBehaviour(new ConsultHotelStaffBehavior(this));
+			startStancy();
 		}
 
 		// After the staying
@@ -121,6 +120,11 @@ public class AgClient extends AbstractAgent {
 				Logger.logError(myName()+": Can not rate hotel (isDataForRatingComplete)");
 			}
 		}
+	}
+
+	private void startStancy() {
+		addBehaviour(new ConsultHotelNumberOfClientsBehavior(this));
+		addBehaviour(new ConsultHotelStaffBehavior(this));
 	}
 
 	// --------------------------------------------------------
@@ -354,6 +358,8 @@ public class AgClient extends AbstractAgent {
 			
 			client.setBookingDone(booking);
 			client.setHotelOfBookingDone(offerChosen.getHotelInformation());
+			
+			startStancy();
 		}
 		
 		// Restart the whole BOOKING process if there is no success

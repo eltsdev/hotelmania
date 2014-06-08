@@ -15,27 +15,18 @@ public class RatingDAO {
 	 * @param ratings
 	 * @return
 	 */
-	public boolean addRating(String hotel, float cleanliness, float chefs, float price, float roomStaff) {
-		boolean ratingFound = false;
-		for (Rating rating : this.rates) {
-			if (rating.getHotel().equals(hotel)) {
-				rating.addRating(cleanliness, chefs, price, roomStaff);
-				ratingFound = true;
-			}
-		}
-		if (!ratingFound) {
-			Rating rate = new Rating(hotel, cleanliness, chefs, price, roomStaff);
-			rates.add(rate);
-		}
-		return true;
+	public void addRating(String hotel, float cleanliness, float chefs, float price, float roomStaff) {
+		Rating rating = new Rating(hotel, cleanliness, chefs, price, roomStaff);
+		this.rates.add(rating);
 	}
 	
-	public Rating getRatingOfHotel(String hotel) {
+	public ArrayList<Rating> getRatingsOfHotel(String hotel) {
+		ArrayList<Rating> list = new ArrayList<>();
 		for (Rating rating : this.rates) {
 			if (rating.getHotel().equals(hotel)) {
-				return rating;
+				list.add(rating);
 			}
 		}
-		return null;//TODO return empty or default rating?
+		return list;
 	}
 }

@@ -1,6 +1,7 @@
 package hotelmania.group2.platform;
 
 import hotelmania.group2.dao.HotelDAO;
+import hotelmania.group2.dao.Rating;
 import hotelmania.group2.dao.RatingDAO;
 import hotelmania.ontology.Hotel;
 import hotelmania.ontology.RateHotel;
@@ -280,21 +281,7 @@ public class AgHotelmania extends MetaAgent
 			}
 			return reply;
 		}
-		
-
-		/**
-		 * Register a new rating and update the ratings for each hotel.
-		 * @param ratingData
-		 * @return
-		 */
-		private boolean registerNewRating(RateHotel ratingData) {
-			return ratingDAO .addRating(ratingData.getHotel()
-					.getHotel_name(), ratingData.getRatings()
-					.getCleanliness_rating(), ratingData.getRatings()
-					.getChef_rating(), ratingData.getRatings()
-					.getPrice_rating(), ratingData.getRatings()
-					.getRoom_staff_rating()); //TODO use a method to convert the object...
-		}
+	
 	}
 	
 
@@ -314,6 +301,46 @@ public class AgHotelmania extends MetaAgent
 		}
 
 		return contentList;
+	}
+	
+
+	/**
+	 * Register a new rating and update the ratings for each hotel.
+	 * @param ratingData
+	 * @return
+	 */
+	private boolean registerNewRating(RateHotel ratingData) {
+		String hotelName = ratingData.getHotel().getHotel_name();
+		
+		ratingDAO.addRating(hotelName, 
+				ratingData.getRatings().getCleanliness_rating(), 
+				ratingData.getRatings().getChef_rating(), 
+				ratingData.getRatings().getPrice_rating(), 
+				ratingData.getRatings().getRoom_staff_rating()); 
+		
+		ArrayList<Rating> historicalHotelRatings = ratingDAO.getRatingsOfHotel(hotelName);
+		float finalRating = computeAverageRating(historicalHotelRatings);
+		hotelDAO.updateRating(hotelName, finalRating);
+		return true;
+	}
+	
+
+	private float computeAverageRating(ArrayList<Rating> ratings) {
+		float cleanliness = 0, chefs = 0, price = 0, roomStaff = 0;
+		for (Rating rating : ratings) {
+			cleanliness += rating.getCleanliness_rating();
+			chefs += rating.getChef_rating();
+			price+= rating.getPrice_rating();
+			roomStaff += rating.getRoom_staff_rating();
+		}
+		
+		cleanliness /= ratings.size();
+		chefs /= ratings.size();
+		price /= ratings.size();
+		roomStaff /= ratings.size();
+		
+		float total = price*0.4f + cleanliness*0.2f + chefs*0.2f + roomStaff*0.2f;
+		return total;
 	}
 
 	@Override

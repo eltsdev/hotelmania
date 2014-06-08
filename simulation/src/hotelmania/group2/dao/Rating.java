@@ -74,12 +74,5 @@ public class Rating {
 	public void setChef_rating(float chef_rating) {
 		this.chefRating = chef_rating;
 	}
-	
-	public void addRating(float cleanliness, float chefs, float price, float roomStaff) {
-		this.cleanlinessRating = (cleanliness + this.cleanlinessRating)/2;
-		this.chefRating = (chefs + this.chefRating)/2;
-		this.priceRating = (price + this.priceRating)/2;
-		this.roomStaffRating = (roomStaff + this.roomStaffRating)/2;
-	}
 
 }
