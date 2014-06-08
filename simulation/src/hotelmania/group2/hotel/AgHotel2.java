@@ -416,12 +416,12 @@ public class AgHotel2 extends MetaAgent {
 		}
 		if (rating > 5) {
 			if (rating > 7.5) {//If our rating is very good, we increase prices a lot
-				float increment = (float) (this.currentPrice*0.5);
-				this.currentPrice += increment;//increase price 50%
+				float increment = (float) (this.currentPrice*0.2);
+				this.currentPrice += increment;//increase price 20%
 				this.currentContract.decreaseQuality((float) (increment*0.5));
 			} else {//If our rating is good but not that good, we increase prices but also increase quality of contract
-				float increment = (float) (this.currentPrice*0.25);
-				this.currentPrice += increment;//increase price 25%
+				float increment = (float) (this.currentPrice*0.1);
+				this.currentPrice += increment;//increase price 10%
 				this.currentContract.decreaseQuality((float) (increment*0.5));//Increase contract quality with half of price raise
 			}
 		} else {
@@ -430,12 +430,13 @@ public class AgHotel2 extends MetaAgent {
 				this.currentPrice -= decrease;
 			} else {
 				if (rating > 2.5) {//If the rating is not that bad, we just decrease the quality contract
-					float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
-					this.currentContract.increaseQuality(budget);
+					float decrease = (float) (this.currentPrice*0.1);
+					this.currentPrice -= decrease;
+					this.currentContract.increaseQuality((float) (decrease*0.5));
 				} else {//If the rating is too bad, we decrease quality contract and price
-					float budget = (float) ((this.currentPrice - this.currentContract.getCost())*0.5);
-					this.currentPrice -= budget;
-					this.currentContract.increaseQuality((float) (budget*0.5));
+					float decrease = (float) (this.currentPrice*0.2);
+					this.currentPrice -= decrease;
+					this.currentContract.increaseQuality((float) (decrease*0.5));
 				}
 			}
 
