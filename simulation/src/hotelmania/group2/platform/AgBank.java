@@ -15,9 +15,7 @@ import jade.content.ContentElementList;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
-import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
 
 import java.util.ArrayList;
 
@@ -210,6 +208,7 @@ public class AgBank extends AbstractAgent {
 					reply.setPerformative(ACLMessage.INFORM);
 					myAgent.getContentManager().fillContent(reply, accountStatus);
 				} catch (CodecException | OntologyException e) {
+					Logger.logDebug(myName() + ": Message: " + msg.getContent());
 					e.printStackTrace();
 				}
 			}

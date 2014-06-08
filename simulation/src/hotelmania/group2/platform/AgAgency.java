@@ -12,7 +12,6 @@ import hotelmania.ontology.SignContract;
 import jade.content.Concept;
 import jade.content.ContentElement;
 import jade.content.Predicate;
-import jade.content.abs.AbsContentElement;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
@@ -34,7 +33,6 @@ public class AgAgency extends AbstractAgent {
 
 		addBehaviour(new SignStaffContractWithHotelBehavior(this));
 		addBehaviour(new ProvideHotelStaffInfoToClientBehavior(this));
-		//TODO charge hotel account
 	}
 
 	/**
@@ -74,25 +72,26 @@ public class AgAgency extends AbstractAgent {
 					// If the action is Registration Request...
 					if (conc instanceof SignContract){
 						//execute request
-						ACLMessage reply = answerContractRequest(msg, (SignContract) conc);
-						myAgent.send(reply);
-						myAgent.getLog().logSendReply(reply);
+						SignContract signContract = (SignContract) conc;
+						if (signContract!=null) {
+							ACLMessage reply = answerContractRequest(msg, signContract);
+							myAgent.send(reply);
+							myAgent.getLog().logSendReply(reply);
 
-						if (reply.getPerformative()==ACLMessage.AGREE) {
-							reply.setPerformative(ACLMessage.INFORM);
-							Hotel hotel = new Hotel();
-//							hotel.setHotel_name(reply.get);
-//							addBehaviour(new ChargeBankBehavior(this,price,reply.getSender()));
-						}else if (reply.getPerformative()==ACLMessage.REFUSE) {
-							reply.setPerformative(ACLMessage.FAILURE);
+							if (reply.getPerformative()==ACLMessage.AGREE) {
+								reply.setPerformative(ACLMessage.INFORM);
+								addBehaviour(new ChargeBankBehavior(myAgent,price, signContract.getHotel()));
+							}else if (reply.getPerformative()==ACLMessage.REFUSE) {
+								reply.setPerformative(ACLMessage.FAILURE);
+							}
+							return reply;
 						}
-						return reply;
 					}
 					
 				}
 				
 			} catch (CodecException | OntologyException e) {
-				Logger.logError(myName() + " Not receive contract");
+				Logger.logDebug(myName() + ": Message: " + msg.getContent());
 				e.printStackTrace();
 			}
 			ACLMessage reply = msg.createReply();
@@ -229,11 +228,12 @@ public class AgAgency extends AbstractAgent {
 			ChargeAccount chargeAccount = new ChargeAccount();
 			chargeAccount.setHotel(actualHotel);
 			chargeAccount.setMoney(priceToPay);
-			super.doSend();
 		}
 		@Override
 		protected boolean finishOrResend(int performativeReceived) {
-			// TODO Auto-generated method stub
+			if(performativeReceived==ACLMessage.INFORM){
+				return true;
+			}
 			return false;
 		}
 	}
