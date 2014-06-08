@@ -115,6 +115,7 @@ public class Contract {
 		contract.setRecepcionist_experienced(this.recepcionistExperienced);
 		contract.setRecepcionist_novice(this.recepcionistNovice);
 		contract.setRoom_service_staff(this.roomService);
+		contract.setDay(this.date);
 		return contract;
 	}
 
