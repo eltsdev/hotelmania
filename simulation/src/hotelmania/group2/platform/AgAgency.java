@@ -25,7 +25,7 @@ public class AgAgency extends AbstractAgent {
 		super.setup();
 		
 		// Creates its own description
-		registerServices(Constants.SIGNCONTRACT_ACTION);
+		registerServices(Constants.SIGNCONTRACT_ACTION, Constants.CONSULTHOTELSSTAFF_ACTION);
 				
 		// Behaviors
 
@@ -150,6 +150,7 @@ public class AgAgency extends AbstractAgent {
 		protected ACLMessage doSendResponse(ACLMessage message) {
 			
 			Predicate predicate = getPredicateFromMessage(message);
+			System.out.println(myName() + "Estoy acá");
 			
 			if (predicate instanceof HotelStaffQueryRef) {
 				return answerHotelStaff(message,(HotelStaffQueryRef) predicate);
