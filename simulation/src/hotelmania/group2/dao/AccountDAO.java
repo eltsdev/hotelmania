@@ -1,5 +1,7 @@
 package hotelmania.group2.dao;
 
+import jade.core.AID;
+
 import java.util.ArrayList;
 
 public class AccountDAO {
@@ -47,13 +49,13 @@ public class AccountDAO {
 	}
 
 	/**
-	 * @param hotel_name
+	 * @param hotelName
 	 * @param quantity
 	 * @return
 	 */
-	public boolean chargeMoney(String hotel_name, float quantity) {
+	public boolean chargeMoney(String hotelName, float quantity) {
 		for (Account account : this.listAccount) {
-			if (account.getHotel().getName().equals(hotel_name)) {
+			if (account.getHotel().getName().equals(hotelName)) {
 				account.charge(quantity);
 				return true;
 			}
@@ -64,6 +66,15 @@ public class AccountDAO {
 	public Account getAcountWithId(int accountId) {
 		for (hotelmania.group2.dao.Account account : this.listAccount) {
 			if (account.getId() == accountId) {
+				return account;
+			}
+		}
+		return null;
+	}
+	
+	public Account getAcountByAID(AID owner) {
+		for (hotelmania.group2.dao.Account account : this.listAccount) {
+			if (account.getHotel().getAgent().equals(owner)) {
 				return account;
 			}
 		}
