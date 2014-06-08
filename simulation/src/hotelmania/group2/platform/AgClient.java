@@ -26,7 +26,6 @@ import jade.content.onto.OntologyException;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
-import jade.core.behaviours.ParallelBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -36,9 +35,14 @@ import java.util.HashMap;
 public class AgClient extends AbstractAgent {
 
 	private static final long serialVersionUID = 6748170421157254696L;
+	//Internal state
 	private Client client;
+	
 	private SequentialBehaviour stepsForBooking;
-	private ParallelBehaviour stepsAfterBooking;
+	
+	//Flags to check end of life
+	private boolean servicePaid;
+	private boolean ratingSent;
 	
 	// -------------------------------------------------
 	// Setup
@@ -67,21 +71,16 @@ public class AgClient extends AbstractAgent {
 		addBehaviour(stepsForBooking);
 
 		// Behaviors after booking - not started yet
-		stepsAfterBooking = new ParallelBehaviour() {
-			private static final long serialVersionUID = 7599237954637997373L;
-			@Override
-			public int onEnd() {
-				//Die
-				doDelete();
-				Logger.logDebug(myName()+": DIED");
-				return super.onEnd();
-			}
-		};
-		stepsAfterBooking.addSubBehaviour(new RateHotelInHotelmaniaBehavior(this));
-		stepsAfterBooking.addSubBehaviour(new MakeDepositBehavior(this));
-		
 	}
 	
+	public void checkEnd() {
+		if (this.servicePaid && this.ratingSent) {
+			//Die
+			doDelete();
+			Logger.logDebug(myName()+": DIED");
+		}
+	}
+
 
 	private void initClient() {
 		Object[] args = getArguments();
@@ -119,7 +118,8 @@ public class AgClient extends AbstractAgent {
 
 		// After the staying
 		else if (getDay() > client.getCheckOutDate() && client.isDataForRatingComplete()) {
-			addBehaviour(stepsAfterBooking);			
+			addBehaviour(new RateHotelInHotelmaniaBehavior(this));
+			addBehaviour(new MakeDepositBehavior(this));
 		}
 			
 	}
@@ -602,10 +602,13 @@ public class AgClient extends AbstractAgent {
 		@Override
 		protected boolean finishOrResend(int performativeReceived) {
 			if (performativeReceived==ACLMessage.INFORM) {
+				ratingSent=true;
+				checkEnd();
 				return true;
 			}else {
 				return false;
 			}
+			
 		}
 	}
 
@@ -636,6 +639,8 @@ public class AgClient extends AbstractAgent {
 		@Override
 		protected boolean finishOrResend(int performativeReceived) {
 			if (performativeReceived==ACLMessage.INFORM) {
+				servicePaid = true;
+				checkEnd();
 				return true;
 			}else {
 				return false;
