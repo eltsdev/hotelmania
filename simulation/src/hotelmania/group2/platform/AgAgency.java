@@ -91,7 +91,7 @@ public class AgAgency extends AbstractAgent {
 				}
 				
 			} catch (CodecException | OntologyException e) {
-				Logger.logDebug(myName() + ": Message: " + msg.getContent());
+				Logger.logError(myName() + ": Message: " + msg.getContent());
 				e.printStackTrace();
 			}
 			ACLMessage reply = msg.createReply();

@@ -1,5 +1,6 @@
 package hotelmania.group2.platform;
 
+import hotelmania.group2.behaviours.GenericServerResponseBehaviour;
 import hotelmania.group2.dao.HotelDAO;
 import hotelmania.group2.dao.Rating;
 import hotelmania.group2.dao.RatingDAO;
@@ -13,14 +14,11 @@ import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
 import jade.core.AID;
-import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
 
 import java.util.ArrayList;
 
-public class AgHotelmania extends MetaAgent 
-{
+public class AgHotelmania extends AbstractAgent {
 	static final long serialVersionUID = -7762674314086577059L;
 	private HotelDAO hotelDAO = new HotelDAO();
 	private RatingDAO ratingDAO = new RatingDAO();
@@ -56,32 +54,16 @@ public class AgHotelmania extends MetaAgent
 	 * 
 	 * @author elts
 	 */
-	private final class ReceiveRegisterRequestBehavior extends MetaCyclicBehaviour {
+	private final class ReceiveRegisterRequestBehavior extends GenericServerResponseBehaviour {
 		private static final long serialVersionUID = 8713963422079295068L;
 
-		public ReceiveRegisterRequestBehavior(Agent a) {
-			super(a);
+		public ReceiveRegisterRequestBehavior(AbstractAgent agHotelMania) {
+			super(agHotelMania,Constants.REGISTRATION_PROTOCOL, ACLMessage.REQUEST);
 		}
 
-		public void action() {
-			/*
-			 * Look for messages
-			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.REGISTRATION_PROTOCOL)),
-					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
-
-			/*
-			 * If no message arrives
-			 */
-			if (msg == null) {
-				block();
-				return;
-			}
-			
-			log.logReceivedMsg(msg);
+		
+		@Override
+		protected ACLMessage doSendResponse(ACLMessage msg) {
 
 			/*
 			 * The ContentManager transforms the message content (string) in
@@ -100,19 +82,18 @@ public class AgHotelmania extends MetaAgent
 
 						// send reply
 						ACLMessage reply = answerRegistrationRequest(msg, (RegistrationRequest) conc);
-
-						myAgent.send(reply);
-						log.logSendReply(reply);
+						return reply;
 					}
 				}
 
 			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
+				Logger.logError(myName() +": Message: " + msg.getContent());
 				e.printStackTrace();
 			}
 
+			return null;
 		}
-
+		
 		/**
 		 * Creates the response to registration request
 		 * 
@@ -145,39 +126,28 @@ public class AgHotelmania extends MetaAgent
 			
 			return hotelDAO .registerNewHotel(hotel.getHotel_name(), sender );
 		}
+
+		
 	}
 
-	private final class ProvideHotelInfoBehavior extends MetaCyclicBehaviour {
+	private final class ProvideHotelInfoBehavior extends GenericServerResponseBehaviour {
 		private static final long serialVersionUID = 2449653047078980935L;
 
-		public ProvideHotelInfoBehavior(Agent a) {
-			super(a);
+		public ProvideHotelInfoBehavior(AbstractAgent agHotelMania) {
+			super(agHotelMania,Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
 		}
-
+		
 		@Override
-		public void action() {
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.CONSULTHOTELSINFO_PROTOCOL)),
-					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
-
-			// If no message arrives
-			if (msg == null) {
-				block();
-				return;
-			}
-			
-			log.logReceivedMsg(msg);
-			
+		protected ACLMessage doSendResponse(ACLMessage msg) {
 			// execute request
 			ContentElementList hotels = getAllHotels();
 			
 			// Send reply
-			sendResponseOfHotelRecords(msg, hotels);
+			ACLMessage reply = sendResponseOfHotelRecords(msg, hotels);
+			return reply;
 		}
-
-		private void sendResponseOfHotelRecords(ACLMessage msg, ContentElementList hotels) {
+		
+		private ACLMessage sendResponseOfHotelRecords(ACLMessage msg, ContentElementList hotels) {
 			ACLMessage reply = msg.createReply();
 			
 			if (hotels != null && !hotels.isEmpty()) {
@@ -186,7 +156,7 @@ public class AgHotelmania extends MetaAgent
 				try {
 					myAgent.getContentManager().fillContent(reply, hotels);
 				} catch (CodecException | OntologyException e) {
-					// TODO Auto-generated catch block
+					Logger.logError(myName() +":Message: " + msg.getContent());
 					e.printStackTrace();
 				}				
 				
@@ -197,46 +167,27 @@ public class AgHotelmania extends MetaAgent
 			//..there is no option of NOT UNDERSTOOD
 			
 			//Send
-			myAgent.send(reply);
-			log.logSendReply(reply);
+			return reply;
 		}
 
 		private ContentElementList getAllHotels() {
 			ArrayList<hotelmania.group2.dao.HotelInformation> list = hotelDAO.getHotelsRegistered();
 			return toContentElementList(list); 
 		}
+		
 	}
 
-	private final class UpdateHotelRatingBehavior extends MetaCyclicBehaviour {
+	private final class UpdateHotelRatingBehavior extends GenericServerResponseBehaviour {
 
 		private static final long serialVersionUID = 7586132058023771627L;
 
 		
-		public UpdateHotelRatingBehavior(Agent a) {
-			super(a);
+		public UpdateHotelRatingBehavior(AbstractAgent agHotelMania) {
+			super(agHotelMania, Constants.RATEHOTEL_PROTOCOL, ACLMessage.REQUEST);
 		}
 
 		@Override
-		public void action() {
-			/*
-			 * Look for messages
-			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.RATEHOTEL_PROTOCOL)),
-					MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
-
-			/*
-			 * If no message arrives
-			 */
-			if (msg == null) {
-				block();
-				return;
-			}
-
-			log.logReceivedMsg(msg);
-			
+		protected ACLMessage doSendResponse(ACLMessage msg) {
 			/*
 			 * The ContentManager transforms the message content (string) in a java object
 			 */
@@ -253,18 +204,20 @@ public class AgHotelmania extends MetaAgent
 						// execute request
 						ACLMessage reply = rateHotel(msg, (RateHotel) conc);
 						// send reply
-						myAgent.send(reply);
-						log.logSendReply(reply);
+						return reply;
 					}
 				}
 
 			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
+				Logger.logError(myName()+ ": Message: " + msg.getContent());
 				e.printStackTrace();
 			}
+			ACLMessage reply = msg.createReply();
+			reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+			reply.setContent("No sending the right Ontology");
+			return reply;
+
 		}
-
-
 		private ACLMessage rateHotel(ACLMessage msg, RateHotel ratingData) {
 			ACLMessage reply = msg.createReply();
 
@@ -273,23 +226,16 @@ public class AgHotelmania extends MetaAgent
 					reply.setPerformative(ACLMessage.AGREE);
 				} else {
 					reply.setPerformative(ACLMessage.REFUSE);
-					//TODO reply.setContent("");
 				}
 			} else {
 				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
-				//TODO 	reply.setContent("");
 			}
 			return reply;
 		}
-	
-	}
-	
 
-	@Override
-	public void receivedAcceptance(ACLMessage message) {
-		// TODO Auto-generated method stub
-		
+	
 	}
+	
 
 	public ContentElementList toContentElementList(
 			ArrayList<hotelmania.group2.dao.HotelInformation> list) {
@@ -343,34 +289,6 @@ public class AgHotelmania extends MetaAgent
 		return total;
 	}
 
-	@Override
-	public void receivedReject(ACLMessage message) {
-		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
-
-		} else if (message.getProtocol().equals(Constants.RATEHOTEL_PROTOCOL)) {
-		
-		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
-
-
-		}
-	}
-
-	@Override
-	public void receivedNotUnderstood(ACLMessage message) {
-		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
-
-		} else if (message.getProtocol().equals(Constants.RATEHOTEL_PROTOCOL)) {
-
-		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {
-
-		}
-	}
-
-	@Override
-	public void receivedInform(ACLMessage message) {
-		
-	}
-	
 	@Override
 	public boolean doBeforeDie() {
 		return false;

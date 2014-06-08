@@ -1,10 +1,8 @@
 package hotelmania.group2.hotel;
 
-import hotelmania.group2.behaviours.SendReceiveBehaviour;
 import hotelmania.group2.dao.BookingDAO;
 import hotelmania.group2.dao.Price;
 import hotelmania.group2.dao.Stay;
-import hotelmania.group2.platform.AbstractAgent;
 import hotelmania.group2.platform.AgentState.State;
 import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.Logger;
@@ -176,7 +174,7 @@ public class AgHotel2 extends MetaAgent {
 
 
 			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
+				Logger.logError(myName() +": Message: " + msg.getContent());
 				e.printStackTrace();
 			}
 
@@ -366,7 +364,7 @@ public class AgHotel2 extends MetaAgent {
 
 		private void consultHotelAccountInfo() {
 			AccountStatusQueryRef request = new AccountStatusQueryRef();
-			request.setId_account(id_account);// TODO set real account id
+			request.setId_account(id_account);
 
 			sendRequest(agBank, request, Constants.CONSULTACCOUNTSTATUS_PROTOCOL, ACLMessage.QUERY_REF);
 
@@ -386,7 +384,6 @@ public class AgHotel2 extends MetaAgent {
 		request.setHotel(identity);
 
 		try {
-			//TODO Contract must be dynamic
 			request.setContract(hireDailyStaff(getDay()+1));
 			this.sendRequest(agAgency, request, Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
 		} catch (Exception e) {//this never happens
@@ -499,60 +496,7 @@ public class AgHotel2 extends MetaAgent {
 
 	}
 
-	private final class GetHotelsFromHotelmaniaBehavior extends SendReceiveBehaviour {
-		private static final long serialVersionUID = 287171972374945182L;
-
-		public GetHotelsFromHotelmaniaBehavior(AbstractAgent agClient) {
-			super(agClient, Constants.CONSULTHOTELSINFO_PROTOCOL, Constants.CONSULTHOTELSINFO_ACTION, ACLMessage.QUERY_REF);
-		}
-
-		/**
-		 * Save list of hotels received
-		 */
-		@Override
-		protected void receiveInform(ACLMessage message) {
-			try {
-				ContentElement content = getContentManager().extractContent(message);
-				if (content != null) {
-					if (content instanceof ContentElementList) {
-						ContentElementList list = (ContentElementList) content;
-						this.processListOfHotels(list);
-						Logger.logDebug(myName() + ": Number of hotels: " + list.size());
-
-					} else if (content instanceof HotelInformation) {
-						HotelInformation hotelInformation = (HotelInformation) content;
-						if (hotelInformation.getHotel().getHotel_name().equals(myName())) {
-							rating = hotelInformation.getRating();
-						}
-						Logger.logDebug(myName() + ": Number of hotels: 1 = " + hotelInformation.getHotel().getHotel_name());
-					}
-				} else {
-					Logger.logDebug(myName() + ": Null number of hotels");
-				}
-			} catch (CodecException | OntologyException e) {
-				Logger.logError(myName()+": " + message.getContent());
-				e.printStackTrace();
-			}
-		}
-		private void processListOfHotels(ContentElementList list) {
-			for (int i = 0; i < list.size(); i++) {
-				if (list.get(i) instanceof HotelInformation) {
-					HotelInformation hotelInformation = (HotelInformation) list.get(i);
-					if (hotelInformation.getHotel().getHotel_name().equals(myName())) {
-						rating = hotelInformation.getRating();
-					}
-					break;
-				}
-
-			}
-		}
-
-		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			return performativeReceived==ACLMessage.INFORM;
-		}
-	}
-
+	
 	private final class ProvideHotelNumberOfClientsBehavior extends
 	MetaCyclicBehaviour {
 
@@ -622,6 +566,7 @@ public class AgHotel2 extends MetaAgent {
 					reply.setPerformative(ACLMessage.INFORM);
 					myAgent.getContentManager().fillContent(reply, numberOfClients);
 				} catch (CodecException | OntologyException e) {
+					Logger.logError(myName()+ ": Message: " + msg.getContent());
 					e.printStackTrace();
 				}
 			}
@@ -658,10 +603,6 @@ public class AgHotel2 extends MetaAgent {
 		} else if (message.getProtocol().equals(Constants.BOOKROOM_PROTOCOL)){
 
 		}
-		/*
-		 * TODO include cases for: MakeRoomBookingBehavior
-		 * ProvideRoomInfoBehavior Consult account status
-		 */
 	}
 
 	@Override
@@ -692,7 +633,7 @@ public class AgHotel2 extends MetaAgent {
 
 				state.check(State.ACCOUNT_CREATED);
 			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
+				Logger.logError(myName()+ ": Message: " + message.getContent());
 				e.printStackTrace();
 			}
 
@@ -701,7 +642,7 @@ public class AgHotel2 extends MetaAgent {
 				AccountStatus accountStatus = (AccountStatus) getContentManager().extractContent(message);
 				Logger.logDebug("Account Balance:" + accountStatus.getAccount().getBalance());
 			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
+				Logger.logError(myName() +": Message: Accountstatus is null" );
 				e.printStackTrace();
 			}
 		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSINFO_PROTOCOL)) {

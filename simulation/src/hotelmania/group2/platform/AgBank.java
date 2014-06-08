@@ -105,10 +105,14 @@ public class AgBank extends AbstractAgent {
 				}
 
 			} catch (CodecException | OntologyException e) {
+				Logger.logError(myName() +": Message: " + msg.getContent());
 				e.printStackTrace();
 			}
 
-			return null;
+			ACLMessage reply = msg.createReply();
+			reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+			reply.setContent("No sending the right Ontology");
+			return reply;
 			
 		}
 
@@ -126,7 +130,7 @@ public class AgBank extends AbstractAgent {
 					inform.setPerformative(ACLMessage.INFORM);
 					getContentManager().fillContent(inform, predicate_account);
 				} catch (CodecException | OntologyException e) {
-					Logger.logDebug(myName() + ": Message: " + request.getContent());
+					Logger.logError(myName() + ": Message: " + request.getContent());
 					e.printStackTrace();
 				}
 			}
@@ -208,7 +212,7 @@ public class AgBank extends AbstractAgent {
 					reply.setPerformative(ACLMessage.INFORM);
 					myAgent.getContentManager().fillContent(reply, accountStatus);
 				} catch (CodecException | OntologyException e) {
-					Logger.logDebug(myName() + ": Message: " + msg.getContent());
+					Logger.logError(myName() + ": Message: " + msg.getContent());
 					e.printStackTrace();
 				}
 			}
@@ -258,7 +262,7 @@ public class AgBank extends AbstractAgent {
 				}
 
 			} catch (CodecException | OntologyException e) {
-				Logger.logDebug(myName() + ": Message: " + msg.getContent());
+				Logger.logError(myName() + ": Message: " + msg.getContent());
 				e.printStackTrace();
 				
 			}
@@ -321,6 +325,7 @@ public class AgBank extends AbstractAgent {
 				}
 
 			} catch (CodecException | OntologyException e) {
+				Logger.logError(myName() +": Message: " + msg.getContent());
 				e.printStackTrace();
 			}
 			
@@ -337,7 +342,6 @@ public class AgBank extends AbstractAgent {
 			if (deposit != null && deposit.getHotel() != null) {
 				if (registerNewDeposit(deposit)) {
 					reply.setPerformative(ACLMessage.AGREE);
-					// TODO attach the hotels info!!!
 				} else {
 					reply.setPerformative(ACLMessage.REFUSE);
 				}
@@ -376,6 +380,7 @@ public class AgBank extends AbstractAgent {
 				try {
 					myAgent.getContentManager().fillContent(reply, accounts);
 				} catch (CodecException | OntologyException e) {
+					Logger.logError(myName()+ ": Message: " + msg.getContent());
 					e.printStackTrace();
 				}				
 

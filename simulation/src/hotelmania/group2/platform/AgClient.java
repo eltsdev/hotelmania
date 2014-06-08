@@ -161,7 +161,7 @@ public class AgClient extends AbstractAgent {
 					Logger.logDebug(myName() + ": Null number of hotels");
 				}
 			} catch (CodecException | OntologyException e) {
-				Logger.logError(myName()+": " + message.getContent());
+				Logger.logError(myName()+": Message: " + message.getContent());
 				e.printStackTrace();
 			}
 		}
@@ -243,7 +243,7 @@ public class AgClient extends AbstractAgent {
 				}
 			} catch (CodecException | OntologyException e) {
 				e.printStackTrace();
-				Logger.logDebug(myName() + ": Message: " + message.getContent());
+				Logger.logError(myName() + ": Message: " + message.getContent());
 			}
 
 			return false;
@@ -420,7 +420,7 @@ public class AgClient extends AbstractAgent {
 					Logger.logDebug(myName() + ": Number of clients: Not found (null)");
 				}
 			} catch (CodecException | OntologyException e) {
-				Logger.logDebug(myName() + ": Message: " + message.getContent());
+				Logger.logError(myName() + ": Message: " + message.getContent());
 				e.printStackTrace();
 			}
 		}
@@ -471,7 +471,7 @@ public class AgClient extends AbstractAgent {
 					Logger.logDebug(myName() + ": Staff for day: Not found (null)");
 				}
 			} catch (CodecException | OntologyException e) {
-				Logger.logDebug(myName() + ": Message: " + message.getContent());
+				Logger.logError(myName() + ": Message: " + message.getContent());
 				e.printStackTrace();
 			}
 			return false;
