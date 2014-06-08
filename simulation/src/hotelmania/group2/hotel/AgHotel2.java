@@ -424,7 +424,12 @@ public class AgHotel2 extends MetaAgent {
 					this.currentPrice += increment;//increase price 20%
 					this.currentContract.decreaseQuality((float) (increment*0.5));
 				} else {//If our rating is good but not that good, we increase prices but also increase quality of contract
-					float increment = (float) (this.currentPrice*0.1);
+					float increment;
+					if (rating == 5) {
+						increment = (float) (this.currentPrice*0.05);
+					} else {
+						increment = (float) (this.currentPrice*0.1);
+					}
 					this.currentPrice += increment;//increase price 10%
 					this.currentContract.decreaseQuality((float) (increment*0.5));//Increase contract quality with half of price raise
 				}
