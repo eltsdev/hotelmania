@@ -414,21 +414,22 @@ public class AgHotel2 extends MetaAgent {
 		if (this.currentContract == null) {
 			buildInitialContract(day);
 		}
-		if (rating > 5) {
-			if (rating > 7.5) {//If our rating is very good, we increase prices a lot
-				float increment = (float) (this.currentPrice*0.2);
-				this.currentPrice += increment;//increase price 20%
-				this.currentContract.decreaseQuality((float) (increment*0.5));
-			} else {//If our rating is good but not that good, we increase prices but also increase quality of contract
-				float increment = (float) (this.currentPrice*0.1);
-				this.currentPrice += increment;//increase price 10%
-				this.currentContract.decreaseQuality((float) (increment*0.5));//Increase contract quality with half of price raise
-			}
+		if (!this.bookDAO.isThereAnyBooking()) {
+			float decrease = (float) (this.currentPrice*0.5);
+			this.currentPrice -= decrease;
 		} else {
-			if (!this.bookDAO.isThereAnyBooking()) {
-				float decrease = (float) (this.currentPrice*0.5);
-				this.currentPrice -= decrease;
+			if (rating >= 5) {
+				if (rating > 7.5) {//If our rating is very good, we increase prices a lot
+					float increment = (float) (this.currentPrice*0.2);
+					this.currentPrice += increment;//increase price 20%
+					this.currentContract.decreaseQuality((float) (increment*0.5));
+				} else {//If our rating is good but not that good, we increase prices but also increase quality of contract
+					float increment = (float) (this.currentPrice*0.1);
+					this.currentPrice += increment;//increase price 10%
+					this.currentContract.decreaseQuality((float) (increment*0.5));//Increase contract quality with half of price raise
+				}
 			} else {
+
 				if (rating > 2.5) {//If the rating is not that bad, we just decrease the quality contract
 					float decrease = (float) (this.currentPrice*0.1);
 					this.currentPrice -= decrease;
@@ -438,10 +439,11 @@ public class AgHotel2 extends MetaAgent {
 					this.currentPrice -= decrease;
 					this.currentContract.increaseQuality((float) (decrease*0.5));
 				}
-			}
 
+			}
 		}
-		
+
+
 		this.currentContract.setDate(day);
 		Logger.logDebug(myName() + ": new price: " + this.currentPrice);
 		return this.currentContract.getConcept();
@@ -720,7 +722,7 @@ public class AgHotel2 extends MetaAgent {
 			}
 		}
 	}
-	
+
 	private void processListOfHotels(ContentElementList list) {
 		for (int i = 0; i < list.size(); i++) {
 			if (list.get(i) instanceof HotelInformation) {
@@ -729,7 +731,7 @@ public class AgHotel2 extends MetaAgent {
 					this.rating = hotelInformation.getRating();
 					break;
 				}
-				
+
 			}
 
 		}
