@@ -4,9 +4,8 @@ import hotelmania.group2.behaviours.SendReceiveBehaviour;
 import hotelmania.group2.dao.BookingDAO;
 import hotelmania.group2.dao.Price;
 import hotelmania.group2.dao.Stay;
-import hotelmania.group2.platform.AgPlatform2;
-import hotelmania.group2.platform.AgentState.State;
 import hotelmania.group2.platform.AbstractAgent;
+import hotelmania.group2.platform.AgentState.State;
 import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.Logger;
 import hotelmania.group2.platform.MetaAgent;
@@ -342,8 +341,7 @@ public class AgHotel2 extends MetaAgent {
 
 	}
 
-	private final class ConsultBankAccountInfoBehavior extends
-	MetaSimpleBehaviour {
+	private final class ConsultBankAccountInfoBehavior extends MetaSimpleBehaviour {
 
 		private static final long serialVersionUID = 1955222376582492939L;
 

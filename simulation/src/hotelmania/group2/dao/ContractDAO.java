@@ -11,14 +11,18 @@ public class ContractDAO {
 		this.contracts.add(contract);
 	}
 
-	public List<Contract> getCurrentContractsByHotel(String hotelName, int day) {
-		List<Contract> result = new ArrayList<Contract>();
+	/**
+	 * @param hotelName
+	 * @param day
+	 * @return Return the actual contract for the day asking for
+	 */
+	public Contract getCurrentContractsByHotel(String hotelName, int day) {
 		for (Contract contract : contracts) {
 			if (contract.getHotelName().equals(hotelName) && contract.getDate() == day) {
-				result.add(contract);
+				return contract;
 			}
 		}
-		return result;
+		return null;
 	}
 
 	public List<Contract> getAllContractsByHotel(String hotelName) {

@@ -46,7 +46,9 @@ public class AgHotel extends AbstractAgent {
 	private final Hotel hotelIdentity = new Hotel();
 	private BookingDAO bookDAO = new BookingDAO();
 	private float actualBalance;
-	private float myRating;
+	private float rating=5;
+	private hotelmania.group2.dao.Contract currentContract;
+	private float currentPrice = 0;
 	private Integer idAccount;
 
 	@Override
@@ -330,16 +332,37 @@ public class AgHotel extends AbstractAgent {
 		}
 
 		Contract buildNewContract(int day) {
-			//TODO dynamic
-			Contract c = new Contract();
-			c.setDay(day);
-			c.setChef_1stars(1);
-			c.setChef_2stars(0);
-			c.setChef_3stars(0);
-			c.setRecepcionist_experienced(2);
-			c.setRecepcionist_novice(2);
-			c.setRoom_service_staff(20);
-			return c;
+			if (currentContract == null) {
+				buildInitialContract();
+			}
+			if (rating > 5) {
+				if (rating > 7.5) {//If our rating is very good, we increase prices a lot
+					float increment = (float) (currentPrice*0.5);
+					currentPrice += increment;//increase price 50%
+					currentContract.decreaseQuality((float) (increment*0.5));
+				} else {//If our rating is good but not that good, we increase prices but also increase quality of contract
+					float increment = (float) (currentPrice*0.25);
+					currentPrice += increment;//increase price 25%
+					currentContract.decreaseQuality((float) (increment*0.5));//Increase contract quality with half of price raise
+				}
+			} else {
+				if (!bookDAO.isThereAnyBooking()) {
+					float decrease = (float) (currentPrice*0.5);
+					currentPrice -= decrease;
+				} else {
+					if (rating > 2.5) {//If the rating is not that bad, we just decrease the quality contract
+						float budget = (float) ((currentPrice - currentContract.getCost())*0.5);
+						currentContract.increaseQuality(budget);
+					} else {//If the rating is too bad, we decrease quality contract and price
+						float budget = (float) ((currentPrice - currentContract.getCost())*0.5);
+						currentPrice -= budget;
+						currentContract.increaseQuality((float) (budget*0.5));
+					}
+				}
+
+			}
+			//Logger.logDebug(myName() + ": new price: " + this.currentPrice);
+			return currentContract.getConcept();
 		}
 
 		/**
@@ -348,17 +371,18 @@ public class AgHotel extends AbstractAgent {
 		 * @return
 		 */
 		Contract getInitialContract() {
-			Contract c = new Contract();
-			c.setDay(1);
-			c.setChef_1stars(1);
-			c.setChef_2stars(0);
-			c.setChef_3stars(0);
-			c.setRecepcionist_experienced(2);
-			c.setRecepcionist_novice(2);
-			c.setRoom_service_staff(20);
-			return c;
+			buildInitialContract();
+			return currentContract.getConcept();
 		}
 		
+		public void buildInitialContract() {
+			currentContract = new hotelmania.group2.dao.Contract();
+			currentContract.setchef3stars(1);
+			currentContract.setRecepcionistExperienced(3);
+			currentContract.setRoomService(3);
+
+			currentPrice = currentContract.getCost();
+		}
 		@Override
 		protected boolean finishOrResend(int performativeReceived) {
 			if (performativeReceived==ACLMessage.INFORM) {
@@ -511,11 +535,8 @@ public class AgHotel extends AbstractAgent {
 		 * @param stay
 		 */
 		private float calculatePrice(int totalDays) {
-			float price = 50;
-			//TODO Calculate price Properly
-			//price = bookDAO.getActualPrice()*totalDays;
-			
-			return price;
+					
+			return currentPrice*totalDays;
 		}
 
 
@@ -594,7 +615,7 @@ public class AgHotel extends AbstractAgent {
 					} else if (content instanceof HotelInformation) {
 						HotelInformation hotelInformation = (HotelInformation) content;
 						hotelmania.group2.dao.BookingOffer bookingOffer = new hotelmania.group2.dao.BookingOffer(new hotelmania.group2.dao.HotelInformation(hotelInformation));
-						myRating=bookingOffer.getHotelInformation().getRating();
+						rating=bookingOffer.getHotelInformation().getRating();
 						Logger.logDebug(myName() + ": Number of hotels: 1 = " + hotelInformation.getHotel().getHotel_name());
 					}
 				} else {
@@ -612,7 +633,7 @@ public class AgHotel extends AbstractAgent {
 					HotelInformation hotelInformation = (HotelInformation) list.get(i);
 					hotelmania.group2.dao.BookingOffer offer = new hotelmania.group2.dao.BookingOffer(new hotelmania.group2.dao.HotelInformation(hotelInformation));
 					if (myAgent.getAID()==offer.getHotelInformation().getHotel().getAgent()){
-						myRating=offer.getHotelInformation().getRating();
+						rating=offer.getHotelInformation().getRating();
 					}
 				}
 

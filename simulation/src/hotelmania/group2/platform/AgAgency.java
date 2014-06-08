@@ -1,28 +1,23 @@
 package hotelmania.group2.platform;
 
+import hotelmania.group2.behaviours.GenericServerResponseBehaviour;
 import hotelmania.group2.dao.Contract;
 import hotelmania.group2.dao.ContractDAO;
+import hotelmania.ontology.HotelStaffQueryRef;
+import hotelmania.ontology.NumberOfClientsQueryRef;
 import hotelmania.ontology.SignContract;
 import jade.content.Concept;
 import jade.content.ContentElement;
+import jade.content.Predicate;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
-import jade.core.AID;
-import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
 
-public class AgAgency extends MetaAgent 
-{
+public class AgAgency extends AbstractAgent {
 	private static final long serialVersionUID = 2893904717857535232L;
+	private ContractDAO contractDAO = new ContractDAO();
 	
-	//------------------------------------------------- 
-	// Agent Attributes
-	//-------------------------------------------------
-	
-	AID agHotel;
-	AID agReporter;
 
 	@Override
 	protected void setup() {
@@ -50,75 +45,66 @@ public class AgAgency extends MetaAgent
 	// BEHAVIOURS
 	// --------------------------------------------------------
 
-	private final class SignStaffContractWithHotelBehavior extends MetaCyclicBehaviour 
+	private final class SignStaffContractWithHotelBehavior extends GenericServerResponseBehaviour 
 	{
 		private static final long serialVersionUID = 7390814510706022198L;
-		private ContractDAO contractDAO = new ContractDAO();
+		
 
-		public SignStaffContractWithHotelBehavior(Agent a) {
-			super(a);
+		public SignStaffContractWithHotelBehavior(AbstractAgent agAgency) {
+			super(agAgency,Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
 		}
 
 		@Override
-		public void action() {
-			// Look for messages
-			ACLMessage msg = receive(
-					MessageTemplate.and(
-							MessageTemplate.and(
-									MessageTemplate.and(
-									MessageTemplate.MatchLanguage(codec.getName()), 
-									MessageTemplate.MatchOntology(ontology.getName())),
-									MessageTemplate.MatchProtocol(Constants.SIGNCONTRACT_PROTOCOL)),
-									MessageTemplate.MatchPerformative(ACLMessage.REQUEST))
-					);
-	
-			// If no message arrives
-			if (msg == null) 
-			{
-				block();
-				return;
-			}
+		protected ACLMessage doSendResponse(ACLMessage msg) {
+			myAgent.getLog().logReceivedMsg(msg);
 			
-			log.logReceivedMsg(msg);
-	
 			// The ContentManager transforms the message content (string) in java objects
 			try {
 				ContentElement ce = getContentManager().extractContent(msg);
 				
 				// We expect an action inside the message
-				if (ce instanceof Action)
-				{
+				if (ce instanceof Action){
 					Action agAction = (Action) ce;
 					Concept conc = agAction.getAction();
 					
 					// If the action is Registration Request...
-					if (conc instanceof SignContract)
-					{
+					if (conc instanceof SignContract){
 						//execute request
 						ACLMessage reply = answerContractRequest(msg, (SignContract) conc);
 						myAgent.send(reply);
-						log.logSendReply(reply);
+						myAgent.getLog().logSendReply(reply);
 
 						if (reply.getPerformative()==ACLMessage.AGREE) {
 							reply.setPerformative(ACLMessage.INFORM);
 							myAgent.send(reply);
-							log.logSendReply(reply);
+							myAgent.getLog().logSendReply(reply);
 						}else if (reply.getPerformative()==ACLMessage.REFUSE) {
 							reply.setPerformative(ACLMessage.FAILURE);
 							myAgent.send(reply);
-							log.logSendReply(reply);
+							myAgent.getLog().logSendReply(reply);
 						}
+						return reply;
 					}
+					
 				}
 				
 			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
+				Logger.logError(myName() + " Not receive contract");
 				e.printStackTrace();
 			}
+			ACLMessage reply = msg.createReply();
+			reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+			reply.setContent("No sending the right Ontology");
+			return reply;
 			
 			
 		}
 
+		/**
+		 * @param msg
+		 * @param action
+		 * @return
+		 */
 		private ACLMessage answerContractRequest(ACLMessage msg, SignContract action)
 		{
 			ACLMessage reply = msg.createReply();
@@ -152,14 +138,15 @@ public class AgAgency extends MetaAgent
 			return true;
 		}
 
+	
 	}
 
-	private final class ProvideHotelStaffInfoToClientBehavior extends MetaCyclicBehaviour 
+	private final class ProvideHotelStaffInfoToClientBehavior extends GenericServerResponseBehaviour 
 	{
 		private static final long serialVersionUID = -4414753731149819352L;
 
-		public ProvideHotelStaffInfoToClientBehavior(AgAgency me) {
-			super(me);
+		public ProvideHotelStaffInfoToClientBehavior(AbstractAgent agAgency) {
+			super(agAgency, Constants.CONSULTHOTELSSTAFF_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
 		@Override
@@ -168,38 +155,55 @@ public class AgAgency extends MetaAgent
 			block();
 
 		}
-	}
-
-	
-	@Override
-	public void receivedAcceptance(ACLMessage message) {
-		//TODO switch by message.getProtocol()
-	}
-
-	@Override
-	public void receivedReject(ACLMessage message) {
-		// TODO Auto-generated method stub
-		if (message.getProtocol().equals(Constants.SIGNCONTRACT_PROTOCOL)) {
-		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSSTAFF_PROTOCOL)) {
+		@Override
+		protected ACLMessage doSendResponse(ACLMessage message) {
+			
+			Predicate predicate = getPredicateFromMessage(message);
+			
+			if (predicate instanceof NumberOfClientsQueryRef) {
+				return answerHotelStaff(message,(HotelStaffQueryRef) predicate);
+			}else {
+				ACLMessage reply = message.createReply();
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				reply.setContent("No sending the right Ontology");
+				return reply;
+				
+			}
 		}
-	}
 
-	@Override
-	public void receivedNotUnderstood(ACLMessage message) {
-		// TODO Auto-generated method stub
-		if (message.getProtocol().equals(Constants.SIGNCONTRACT_PROTOCOL)) {
-		} else if (message.getProtocol().equals(Constants.CONSULTHOTELSSTAFF_PROTOCOL)) {
-		}	
-	}
+		/**
+		 * @param message
+		 * @param predicate
+		 * @return
+		 */
+		private ACLMessage answerHotelStaff(ACLMessage message,	HotelStaffQueryRef hotelQueryStaff) {
+			ACLMessage reply = message.createReply();
 
-	/* (non-Javadoc)
-	 * @see hotelmania.group2.platform.MetaAgent#receiveInform()
-	 */
-	@Override
-	public void receivedInform(ACLMessage message) {
-		// TODO Auto-generated method stub
+			//missing parameters?
+			if (hotelQueryStaff == null) {
+				
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				reply.setContent("There are missing parameters: NumberOfClientsQueryRef action or hotel name");
+
+			} else if (hotelQueryStaff.getHotel()==null) {
+				//invalid day in request?
+				reply.setPerformative(ACLMessage.REFUSE);
+				reply.setContent("There is no hotel");
+				
+
+			} else {
+				//request is valid
+				
+				Contract contractDao =contractDAO.getCurrentContractsByHotel(hotelQueryStaff.getHotel().getHotel_name(), hotelQueryStaff.getDay());
+				hotelmania.ontology.Contract contract = contractDao.getConcept();
+				reply.setPerformative(ACLMessage.INFORM);
+				sendRequest(reply.getSender(), contract, Constants.CONSULTHOTELSSTAFF_PROTOCOL, ACLMessage.REQUEST);
+			}
+			return reply;
+		}
+
 		
-	}
 
+		}
 
 }
