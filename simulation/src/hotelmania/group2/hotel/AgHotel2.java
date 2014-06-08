@@ -415,22 +415,22 @@ public class AgHotel2 extends MetaAgent {
 			buildInitialContract(day);
 		}
 		if (!this.bookDAO.isThereAnyBooking()) {
-			float decrease = (float) (this.currentPrice*0.5);
+			float decrease = (float) (this.currentPrice*0.2);
 			this.currentPrice -= decrease;
 		} else {
 			if (rating >= 5) {
 				if (rating > 7.5) {//If our rating is very good, we increase prices a lot
-					float increment = (float) (this.currentPrice*0.2);
-					this.currentPrice += increment;//increase price 20%
+					float increment = (float) (this.currentPrice*0.35);
+					this.currentPrice += increment;//increase price 35%
 					this.currentContract.decreaseQuality((float) (increment*0.5));
 				} else {//If our rating is good but not that good, we increase prices but also increase quality of contract
 					float increment;
 					if (rating == 5) {
-						increment = (float) (this.currentPrice*0.05);
-					} else {
 						increment = (float) (this.currentPrice*0.1);
+					} else {
+						increment = (float) (this.currentPrice*0.2);
 					}
-					this.currentPrice += increment;//increase price 10%
+					this.currentPrice += increment;//increase price 20%
 					this.currentContract.decreaseQuality((float) (increment*0.5));//Increase contract quality with half of price raise
 				}
 			} else {
@@ -456,11 +456,11 @@ public class AgHotel2 extends MetaAgent {
 
 	public void buildInitialContract(int day) {
 		this.currentContract = new hotelmania.group2.dao.Contract();
-		this.currentContract.setchef3stars(1);
-		this.currentContract.setRecepcionistExperienced(3);
-		this.currentContract.setRoomService(3);
+		this.currentContract.setchef2stars(1);
+		this.currentContract.setRecepcionistExperienced(1);
+		this.currentContract.setRoomService(2);
 		this.currentContract.setDate(day);
-		this.currentPrice = this.currentContract.getCost();
+		this.currentPrice = this.currentContract.getCost()/2;
 	}
 
 	/**
