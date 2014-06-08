@@ -8,13 +8,20 @@ import java.util.ArrayList;
 public class BookingDAO {
 	private ArrayList<hotelmania.group2.dao.BookRoom> bookings = new ArrayList<hotelmania.group2.dao.BookRoom>();
 	private int roomsAvailable = Constants.ROOMS_PER_HOTEL;
+	private boolean isThereAnyBooking = false;
 	
 	public BookingDAO() {
+	}
+
+	
+	public boolean isThereAnyBooking() {
+		return isThereAnyBooking;
 	}
 
 	public boolean book(hotelmania.group2.dao.BookRoom bookRoom) {
 		if (this.isThereRoomAvailableAtDays(bookRoom.getStay().getCheckIn(), bookRoom.getStay().getCheckOut())) {
 			this.bookings.add(bookRoom);
+			this.isThereAnyBooking = true;
 			return true;
 		}
 		return false;

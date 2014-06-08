@@ -33,7 +33,7 @@ public class HotelDAO {
 		HotelInformation hotelRecord = new HotelInformation();
 		Hotel hotel = new Hotel(name, hotelAgent);
 		hotelRecord.setHotel(hotel);
-		hotelRecord.setRating(0);
+		hotelRecord.setRating(5);
 		listHotel.add(hotelRecord);
 		return true;
 	}

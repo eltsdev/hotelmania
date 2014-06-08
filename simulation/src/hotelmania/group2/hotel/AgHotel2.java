@@ -1,10 +1,12 @@
 package hotelmania.group2.hotel;
 
+import hotelmania.group2.behaviours.SendReceiveBehaviour;
 import hotelmania.group2.dao.BookingDAO;
 import hotelmania.group2.dao.Price;
 import hotelmania.group2.dao.Stay;
 import hotelmania.group2.platform.AgPlatform2;
 import hotelmania.group2.platform.AgentState.State;
+import hotelmania.group2.platform.AbstractAgent;
 import hotelmania.group2.platform.Constants;
 import hotelmania.group2.platform.Logger;
 import hotelmania.group2.platform.MetaAgent;
@@ -24,6 +26,7 @@ import hotelmania.ontology.RegistrationRequest;
 import hotelmania.ontology.SignContract;
 import jade.content.Concept;
 import jade.content.ContentElement;
+import jade.content.ContentElementList;
 import jade.content.Predicate;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
@@ -300,7 +303,7 @@ public class AgHotel2 extends MetaAgent {
 		 * @param stay
 		 */
 		private float calculatePrice(int totalDays) {
-			return currentPrice;
+			return currentPrice*totalDays;
 		}
 
 	}
@@ -429,8 +432,9 @@ public class AgHotel2 extends MetaAgent {
 				this.currentPrice = (float) (this.currentContract.getCost());//We can not set the prices under the cost of contract 
 			}
 		} else {
-			if (rating == 5) {//if our rating is still being 5, which is default, we lower prices in order to get first clients
-				this.currentPrice *= 0.88;
+			if (!this.bookDAO.isThereAnyBooking()) {
+				float decrease = (float) (this.currentPrice*0.5);
+				this.currentPrice -= decrease;
 			} else {
 				if (this.currentPrice > this.currentContract.getCost()) {
 					if (rating > 2.5) {//If the rating is not that bad, we just decrease the quality contract
@@ -447,6 +451,7 @@ public class AgHotel2 extends MetaAgent {
 					this.currentPrice = (float) (this.currentContract.getCost());//We can not set the prices under the cost of contract 
 				}
 			}
+
 		}
 
 		return this.currentContract.getConcept();
@@ -457,8 +462,10 @@ public class AgHotel2 extends MetaAgent {
 		this.currentContract.setchef3stars(1);
 		this.currentContract.setRecepcionistExperienced(3);
 		this.currentContract.setRoomService(3);
+
+		this.currentPrice = this.currentContract.getCost();
 	}
-	
+
 	/**
 	 * Default values for staff hiring
 	 * 
@@ -492,6 +499,60 @@ public class AgHotel2 extends MetaAgent {
 			sendRequestEmpty(hotelmania, Constants.CONSULTHOTELSINFO_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
+	}
+	
+	private final class GetHotelsFromHotelmaniaBehavior extends SendReceiveBehaviour {
+		private static final long serialVersionUID = 287171972374945182L;
+
+		public GetHotelsFromHotelmaniaBehavior(AbstractAgent agClient) {
+			super(agClient, Constants.CONSULTHOTELSINFO_PROTOCOL, Constants.CONSULTHOTELSINFO_ACTION, ACLMessage.QUERY_REF);
+		}
+
+		/**
+		 * Save list of hotels received
+		 */
+		@Override
+		protected void receiveInform(ACLMessage message) {
+			try {
+				ContentElement content = getContentManager().extractContent(message);
+				if (content != null) {
+					if (content instanceof ContentElementList) {
+						ContentElementList list = (ContentElementList) content;
+						this.processListOfHotels(list);
+						Logger.logDebug(myName() + ": Number of hotels: " + list.size());
+
+					} else if (content instanceof HotelInformation) {
+						HotelInformation hotelInformation = (HotelInformation) content;
+						if (hotelInformation.getHotel().getHotel_name().equals(myName())) {
+							rating = hotelInformation.getRating();
+						}
+						Logger.logDebug(myName() + ": Number of hotels: 1 = " + hotelInformation.getHotel().getHotel_name());
+					}
+				} else {
+					Logger.logDebug(myName() + ": Null number of hotels");
+				}
+			} catch (CodecException | OntologyException e) {
+				Logger.logError(myName()+": " + message.getContent());
+				e.printStackTrace();
+			}
+		}
+		private void processListOfHotels(ContentElementList list) {
+			for (int i = 0; i < list.size(); i++) {
+				if (list.get(i) instanceof HotelInformation) {
+					HotelInformation hotelInformation = (HotelInformation) list.get(i);
+					if (hotelInformation.getHotel().getHotel_name().equals(myName())) {
+						rating = hotelInformation.getRating();
+					}
+					break;
+				}
+
+			}
+		}
+
+		@Override
+		protected boolean finishOrResend(int performativeReceived) {
+			return performativeReceived==ACLMessage.INFORM;
+		}
 	}
 
 	private final class ProvideHotelNumberOfClientsBehavior extends
@@ -583,8 +644,8 @@ public class AgHotel2 extends MetaAgent {
 	public void receivedAcceptance(ACLMessage message) {
 		if (message.getProtocol().equals(Constants.REGISTRATION_PROTOCOL)) {
 			state.check(State.REGISTERED_HOTELMANIA);
-//		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
-//			state.check(State.ACCOUNT_CREATED);
+			//		} else if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
+			//			state.check(State.ACCOUNT_CREATED);
 		}
 	}
 
@@ -649,6 +710,8 @@ public class AgHotel2 extends MetaAgent {
 			try {
 				HotelInformation content = (HotelInformation) getContentManager().extractContent(message);
 				this.rating = content.getRating();
+				Logger.logDebug(myName() + ": My current rating is: " + this.rating);
+
 			} catch (CodecException | OntologyException e) {
 				e.printStackTrace();
 			}
