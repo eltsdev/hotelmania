@@ -230,7 +230,6 @@ public class AgClient extends AbstractAgent {
 					Logger.logDebug(myName() + ": Content was null. Trying to receive room price from Hotel: " + message.getSender().getLocalName());
 				}
 			} catch (CodecException | OntologyException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				Logger.logDebug(myName() + ": Message: " + message.getContent());
 			}
@@ -537,7 +536,7 @@ public class AgClient extends AbstractAgent {
 				Hotel hotel = client.getHotelOfBookingDone().getHotel().getConcept();
 				action_rating.setHotel(hotel);
 
-				sendRequest(hotelMania, action_rating, Constants.RATEHOTEL_PROTOCOL, ACLMessage.REQUEST);
+				sendRequest(this.server, action_rating, this.protocol, this.sendPerformative);
 			}
 			
 		}
