@@ -50,6 +50,7 @@ public class AgReporter extends AbstractAgent
 	// --------------------------------------------------------
 	
 	private final class GetHotelsFromHotelmaniaBehavior extends SendReceiveBehaviour {
+		private static final long serialVersionUID = -3455121495945698416L;
 
 		public GetHotelsFromHotelmaniaBehavior(AbstractAgent agClient) {
 			super(agClient, Constants.CONSULTHOTELSINFO_PROTOCOL, Constants.CONSULTHOTELSINFO_ACTION, ACLMessage.QUERY_REF);
@@ -112,6 +113,7 @@ public class AgReporter extends AbstractAgent
 	}
 	
 	private final class GetFinanceReportBehavior extends SendReceiveBehaviour {
+		private static final long serialVersionUID = -897415302551294781L;
 
 		public GetFinanceReportBehavior(AbstractAgent agClient) {
 			super(agClient, Constants.CONSULTFINANCEREPORT_PROTOCOL, Constants.CONSULTFINANCEREPORT_ACTION, ACLMessage.QUERY_REF);
@@ -182,7 +184,6 @@ public class AgReporter extends AbstractAgent
 			printToFile(reportText, Constants.REPORT_FILE);
 			System.out.println(reportText);
 			
-			
 			Logger.printFile();
 			
 			//Die!
@@ -197,14 +198,16 @@ public class AgReporter extends AbstractAgent
 		r.append(Constants.SIMULATION_DAYS);
 		r.append("\n");
 		r.append("Number of clients generated: ");
-		r.append(Constants.CLIENTS_PER_DAY*Constants.SIMULATION_DAYS);
+		r.append(Constants.CLIENTS_GENERATED);
 		r.append("\n");
 		r.append("Clients budget range: ");
 		r.append(Constants.CLIENTS_BUDGET-Constants.CLIENTS_BUDGET_VARIANCE);
 		r.append(" - ");
 		r.append(Constants.CLIENTS_BUDGET+Constants.CLIENTS_BUDGET_VARIANCE);
 		r.append(" (EUR)\n");
-		r.append("Participants: "+this.report.size()); //FIXME this is wrong!
+		r.append("Participants: "+this.report.size());
+		r.append("\n");
+		r.append("Simulation days: ");
 		r.append(Constants.SIMULATION_DAYS);
 		r.append("\n\n");
 		
@@ -226,7 +229,6 @@ public class AgReporter extends AbstractAgent
 			Logger.logDebug("SIMULATION REPORT GENERATED: "+fileName);
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			Logger.logDebug("SIMULATION REPORT FAILED TO WRITE IN: "+fileName);
-
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

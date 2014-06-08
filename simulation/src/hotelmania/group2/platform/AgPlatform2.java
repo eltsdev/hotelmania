@@ -259,6 +259,9 @@ public class AgPlatform2 extends MetaAgent
 				ac = cc.createNewAgent(clientName, AgClient.class.getName(), new Object[]{client});
 				ac.start();
 	
+				synchronized (this) {
+					Constants.CLIENTS_GENERATED++;
+				}
 			} catch (StaleProxyException e) {
 				e.printStackTrace();
 			}

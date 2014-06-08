@@ -4,6 +4,8 @@ public class ReportRecord {
 	String hotel;
 	double rating;
 	double balance;
+	private int customers;
+	
 	public String getHotel() {
 		return hotel;
 	}
@@ -23,9 +25,14 @@ public class ReportRecord {
 		this.balance = balance;
 	}
 	
-
 	@Override
 	public String toString() {
 		return hotel+"\t\t\t"+rating+"\t\t\t$ "+balance;
+	}
+	public int getCustomers() {
+		return customers;
+	}
+	public void setCustomers(int customers) {
+		this.customers = customers;
 	}
 }
