@@ -1,8 +1,11 @@
 package hotelmania.group2.platform;
 
 import hotelmania.group2.behaviours.GenericServerResponseBehaviour;
+import hotelmania.group2.behaviours.SendReceiveBehaviour;
 import hotelmania.group2.dao.Contract;
 import hotelmania.group2.dao.ContractDAO;
+import hotelmania.ontology.ChargeAccount;
+import hotelmania.ontology.Hotel;
 import hotelmania.ontology.HotelStaffInfo;
 import hotelmania.ontology.HotelStaffQueryRef;
 import hotelmania.ontology.SignContract;
@@ -49,7 +52,7 @@ public class AgAgency extends AbstractAgent {
 	private final class SignStaffContractWithHotelBehavior extends GenericServerResponseBehaviour 
 	{
 		private static final long serialVersionUID = 7390814510706022198L;
-		
+		private float price;
 
 		public SignStaffContractWithHotelBehavior(AbstractAgent agAgency) {
 			super(agAgency,Constants.SIGNCONTRACT_PROTOCOL, ACLMessage.REQUEST);
@@ -77,6 +80,9 @@ public class AgAgency extends AbstractAgent {
 
 						if (reply.getPerformative()==ACLMessage.AGREE) {
 							reply.setPerformative(ACLMessage.INFORM);
+							Hotel hotel = new Hotel();
+//							hotel.setHotel_name(reply.get);
+//							addBehaviour(new ChargeBankBehavior(this,price,reply.getSender()));
 						}else if (reply.getPerformative()==ACLMessage.REFUSE) {
 							reply.setPerformative(ACLMessage.FAILURE);
 						}
@@ -130,11 +136,14 @@ public class AgAgency extends AbstractAgent {
 					intent.getContract().getRecepcionist_experienced(),
 					intent.getContract().getRecepcionist_novice(),
 					intent.getContract().getRoom_service_staff());
+			
+			price = newContract.getCost();
 			contractDAO .createContract(newContract );
 			
 			return true;
 		}
 
+		
 	
 	}
 
@@ -202,5 +211,32 @@ public class AgAgency extends AbstractAgent {
 			return reply;
 		}
 	}
+	private final class ChargeBankBehavior extends SendReceiveBehaviour{
+
+		
+		private static final long serialVersionUID = -1874381127133980873L;
+		private float priceToPay;
+		private Hotel actualHotel;
+
+		public ChargeBankBehavior(AbstractAgent agAgent, float price, Hotel hotel) {
+			super(agAgent, Constants.CHARGEACCOUNT_PROTOCOL, Constants.CHARGEACCOUNT_ACTION, ACLMessage.REQUEST);
+			priceToPay = price;
+			actualHotel = hotel;
+		}
+		
+		@Override
+		protected void doSend() {
+			ChargeAccount chargeAccount = new ChargeAccount();
+			chargeAccount.setHotel(actualHotel);
+			chargeAccount.setMoney(priceToPay);
+			super.doSend();
+		}
+		@Override
+		protected boolean finishOrResend(int performativeReceived) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	}
+	
 
 }

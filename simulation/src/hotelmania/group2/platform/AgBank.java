@@ -1,5 +1,6 @@
 package hotelmania.group2.platform;
 
+import hotelmania.group2.behaviours.GenericServerResponseBehaviour;
 import hotelmania.group2.dao.Account;
 import hotelmania.group2.dao.AccountDAO;
 import hotelmania.group2.dao.Hotel;
@@ -20,7 +21,7 @@ import jade.lang.acl.MessageTemplate;
 
 import java.util.ArrayList;
 
-public class AgBank extends MetaAgent {
+public class AgBank extends AbstractAgent {
 
 	private static final long serialVersionUID = 2893904717857535232L;
 
@@ -64,35 +65,17 @@ public class AgBank extends MetaAgent {
 	// BEHAVIOURS
 	// --------------------------------------------------------
 
-	private final class CreateAccountBehavior extends MetaCyclicBehaviour {
+	private final class CreateAccountBehavior extends GenericServerResponseBehaviour {
 
 		private static final long serialVersionUID = 7390814510706022198L;
 
-		public CreateAccountBehavior(Agent a) {
-			super(a);
+		public CreateAccountBehavior(AbstractAgent agBank) {
+			super(agBank, Constants.CREATEACCOUNT_PROTOCOL, ACLMessage.REQUEST);
 		}
 
+		
 		@Override
-		public void action() {
-			/*
-			 * Look for messages
-			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-							MessageTemplate.MatchLanguage(codec.getName()),
-							MessageTemplate.MatchOntology(ontology.getName())),
-							MessageTemplate.MatchProtocol(Constants.CREATEACCOUNT_PROTOCOL)),
-							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
-
-			/*
-			 * If no message arrives
-			 */
-			if (msg == null) {
-				block();
-				return;
-			}
-			
-			log.logReceivedMsg(msg);
-			
+		protected ACLMessage doSendResponse(ACLMessage msg) {
 			/*
 			 * The ContentManager transforms the message content (string) in
 			 */
@@ -118,16 +101,20 @@ public class AgBank extends MetaAgent {
 						/*
 						 * Inform Account Status
 						 */
-						sendResponse(msg, account);
+						ACLMessage reply = createAccount(msg, account);
+						return reply;
 					}
 				}
 
 			} catch (CodecException | OntologyException e) {
 				e.printStackTrace();
 			}
+
+			return null;
+			
 		}
 
-		private void sendResponse(ACLMessage request,hotelmania.ontology.Account accountOnto) {
+		private ACLMessage createAccount(ACLMessage request,hotelmania.ontology.Account accountOnto) {
 
 			ACLMessage inform = request.createReply();
 			// Create predicate Account Status
@@ -141,11 +128,11 @@ public class AgBank extends MetaAgent {
 					inform.setPerformative(ACLMessage.INFORM);
 					getContentManager().fillContent(inform, predicate_account);
 				} catch (CodecException | OntologyException e) {
+					Logger.logDebug(myName() + ": Message: " + request.getContent());
 					e.printStackTrace();
 				}
 			}
-			send(inform);
-			log.logSendReply(inform);
+			return inform;
 		}
 
 		/**
@@ -163,7 +150,7 @@ public class AgBank extends MetaAgent {
 			}
 
 			myAgent.send(reply);
-			log.logSendReply(reply);
+			myAgent.getLog().logSendReply(reply);
 		}
 
 		/**
@@ -176,40 +163,24 @@ public class AgBank extends MetaAgent {
 			return newAccount.getConcept();
 
 		}
+
+	
 	}
 
-	private final class ProvideHotelAccountInfoBehavior extends  MetaCyclicBehaviour {
+	private final class ProvideHotelAccountInfoBehavior extends  GenericServerResponseBehaviour {
 
 		private static final long serialVersionUID = -4414753731149819352L;
 
-		public ProvideHotelAccountInfoBehavior(Agent a) {
-			super(a);
+		public ProvideHotelAccountInfoBehavior(AbstractAgent agBank) {
+			super(agBank,Constants.CONSULTACCOUNTSTATUS_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
+		
 		@Override
-		public void action() {
-			/*
-			 * Look for messages
-			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)),
-					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
-
-			/*
-			 * If no message arrives
-			 */
-			if (msg == null) {
-				block();
-				return;
-			}
-			
-			Concept conc = this.getConceptFromMessage(msg);
+		protected ACLMessage doSendResponse(ACLMessage msg) {
+			Concept conc = getConceptFromMessage(msg);
 
 			if (conc instanceof AccountStatusQueryRef) {
-				//TODO manage NOT_UNDERSTOOD
-				
 				// Search the account
 				AccountStatusQueryRef action = (AccountStatusQueryRef) conc;
 				int idToRequest = action.getId_account();
@@ -217,8 +188,12 @@ public class AgBank extends MetaAgent {
 				
 				// send reply
 				ACLMessage reply = answerGetInfoAccount(msg, account);
-				myAgent.send(reply);
-				log.logSendReply(reply);
+				return reply;
+			}else{
+				ACLMessage reply = msg.createReply();
+				reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+				reply.setContent("No sending the right Ontology");
+				return reply;
 			}
 		}
 
@@ -240,39 +215,20 @@ public class AgBank extends MetaAgent {
 			}
 			return reply;
 		}
+
+		
 	}
 
-	private final class ChargeAccountBehavior extends MetaCyclicBehaviour {
+	private final class ChargeAccountBehavior extends GenericServerResponseBehaviour {
 
 		private static final long serialVersionUID = 5591566038041266929L;
 
-		public ChargeAccountBehavior(Agent a) {
-			super(a);
+		public ChargeAccountBehavior(AbstractAgent agBank) {
+			super(agBank, Constants.CHARGEACCOUNT_PROTOCOL, ACLMessage.REQUEST);
 		}
 
 		@Override
-		public void action() {
-			/*
-			 * Look for messages
-			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.and(
-							MessageTemplate.MatchLanguage(codec.getName()),
-							MessageTemplate.MatchOntology(ontology.getName())),
-							MessageTemplate
-							.MatchProtocol(Constants.CHARGEACCOUNT_PROTOCOL)),
-							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
-
-			/*
-			 * If no message arrives
-			 */
-			if (msg == null) {
-				block();
-				return;
-			}
-
-			log.logReceivedMsg(msg);
-			
+		protected ACLMessage doSendResponse(ACLMessage msg) {
 			/*
 			 * The ContentManager transforms the message content (string) in
 			 */
@@ -289,24 +245,28 @@ public class AgBank extends MetaAgent {
 						// execute request
 						ACLMessage reply = chargeAccount(msg,(ChargeAccount) conc);
 						myAgent.send(reply);
-						log.logSendReply(reply);
+						myAgent.getLog().logSendReply(reply);
 						
 						if (reply.getPerformative()==ACLMessage.AGREE) {
 							reply.setPerformative(ACLMessage.INFORM);
-							myAgent.send(reply);
-							log.logSendReply(reply);
 						}else if (reply.getPerformative()==ACLMessage.REFUSE) {
 							reply.setPerformative(ACLMessage.FAILURE);
-							myAgent.send(reply);
-							log.logSendReply(reply);
 						}
+						return reply;
 						
 					}
+					
 				}
 
 			} catch (CodecException | OntologyException e) {
+				Logger.logDebug(myName() + ": Message: " + msg.getContent());
 				e.printStackTrace();
+				
 			}
+			ACLMessage reply = msg.createReply();
+			reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+			reply.setContent("No sending the right Ontology");
+			return reply;
 		}
 
 		private ACLMessage chargeAccount(ACLMessage msg, ChargeAccount money) {
@@ -330,40 +290,19 @@ public class AgBank extends MetaAgent {
 					money.getMoney());
 		}
 
+	
 	}
 
-	private final class ReceiveClientDepositBehavior extends MetaCyclicBehaviour {
+	private final class ReceiveClientDepositBehavior extends GenericServerResponseBehaviour {
 
 		private static final long serialVersionUID = 5591566038041266929L;
 
-		public ReceiveClientDepositBehavior(Agent a) {
-			super(a);
+		public ReceiveClientDepositBehavior(AbstractAgent agBank) {
+			super(agBank,Constants.MAKEDEPOSIT_PROTOCOL, ACLMessage.REQUEST);
 		}
-
+		
 		@Override
-		public void action() {
-
-			/*
-			 * Look for messages
-			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.and(
-							MessageTemplate.MatchLanguage(codec.getName()),
-							MessageTemplate.MatchOntology(ontology.getName())),
-							MessageTemplate
-							.MatchProtocol(Constants.MAKEDEPOSIT_PROTOCOL)),
-							MessageTemplate.MatchPerformative(ACLMessage.REQUEST)));
-
-			/*
-			 * If no message arrives
-			 */
-			if (msg == null) {
-				block();
-				return;
-			}
-
-			log.logReceivedMsg(msg);
-			
+		protected ACLMessage doSendResponse(ACLMessage msg) {
 			/*
 			 * The ContentManager transforms the message content (string) in
 			 */
@@ -379,14 +318,18 @@ public class AgBank extends MetaAgent {
 					if (conc instanceof MakeDeposit) {
 						// execute request
 						ACLMessage reply = makeDeposit(msg, (MakeDeposit) conc);
-						myAgent.send(reply);
-						log.logSendReply(reply);
+						return reply;
 					}
 				}
 
 			} catch (CodecException | OntologyException e) {
 				e.printStackTrace();
 			}
+			
+			ACLMessage reply = msg.createReply();
+			reply.setPerformative(ACLMessage.NOT_UNDERSTOOD);
+			reply.setContent("No sending the right Ontology");
+			return reply;
 
 		}
 
@@ -409,42 +352,24 @@ public class AgBank extends MetaAgent {
 		private boolean registerNewDeposit(MakeDeposit deposit) {
 			return accountDAO.registerNewDeposit(deposit.getHotel().getHotel_name(), deposit.getMoney());
 		}
-
 	}
 
-	private final class GetFinanceReportBehavior extends MetaSimpleBehaviour {
+	private final class GetFinanceReportBehavior extends GenericServerResponseBehaviour {
 		private static final long serialVersionUID = 3826752372367438517L;
 		
-		public GetFinanceReportBehavior(Agent a) {
-			super(a);
+		public GetFinanceReportBehavior(AbstractAgent agBank) {
+			super(agBank,Constants.CONSULTFINANCEREPORT_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
+		
 		@Override
-		public void action() {
-			/*
-			 * Look for messages
-			 */
-			ACLMessage msg = receive(MessageTemplate.and(MessageTemplate.and(MessageTemplate.and(
-					MessageTemplate.MatchLanguage(codec.getName()),
-					MessageTemplate.MatchOntology(ontology.getName())),
-					MessageTemplate.MatchProtocol(Constants.CONSULTFINANCEREPORT_ACTION)),
-					MessageTemplate.MatchPerformative(ACLMessage.QUERY_REF)));
-
-			/*
-			 * If no message arrives
-			 */
-			if (msg == null) {
-				block();
-				return;
-			}
-
-			log.logReceivedMsg(msg);
-
+		protected ACLMessage doSendResponse(ACLMessage msg) {
 			ContentElementList data = buildFinanceReport();
-			sendResponse(msg, data);
+			ACLMessage reply = sendResponse(msg, data);
+			return reply;
 		}
-
-		private void sendResponse(ACLMessage msg, ContentElementList accounts) {
+	
+		private ACLMessage sendResponse(ACLMessage msg, ContentElementList accounts) {
 			ACLMessage reply = msg.createReply();
 
 			if (accounts != null && !accounts.isEmpty()) {
@@ -453,7 +378,6 @@ public class AgBank extends MetaAgent {
 				try {
 					myAgent.getContentManager().fillContent(reply, accounts);
 				} catch (CodecException | OntologyException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}				
 
@@ -464,8 +388,7 @@ public class AgBank extends MetaAgent {
 			//..there is no option of NOT UNDERSTOOD
 
 			//Send
-			myAgent.send(reply);
-			log.logSendReply(reply);
+			return reply;
 		}
 
 		private ContentElementList buildFinanceReport() {
@@ -483,44 +406,7 @@ public class AgBank extends MetaAgent {
 			
 			return status;
 		}
-	}
 	
-	@Override
-	public void receivedAcceptance(ACLMessage message) {
-		// TODO switch by message.getProtocol()
-	}
-
-	@Override
-	public void receivedReject(ACLMessage message) {
-		// TODO Auto-generated method stub
-		if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
-		} else if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)) {
-		} else if (message.getProtocol().equals(Constants.CHARGEACCOUNT_PROTOCOL)) {
-		} else if (message.getProtocol().equals(Constants.MAKEDEPOSIT_PROTOCOL)) {
-		}
-	}
-
-	@Override
-	public void receivedNotUnderstood(ACLMessage message) {
-		// TODO Auto-generated method stub
-		if (message.getProtocol().equals(Constants.CREATEACCOUNT_PROTOCOL)) {
-			
-		} else if (message.getProtocol().equals(Constants.CONSULTACCOUNTSTATUS_PROTOCOL)) {
-			
-		} else if (message.getProtocol().equals(Constants.CHARGEACCOUNT_PROTOCOL)) {
-			
-		} else if (message.getProtocol().equals(Constants.MAKEDEPOSIT_PROTOCOL)) {
-			
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see hotelmania.group2.platform.MetaAgent#receiveInform()
-	 */
-	@Override
-	public void receivedInform(ACLMessage message) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override
