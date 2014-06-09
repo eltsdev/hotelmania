@@ -65,21 +65,35 @@ public class Client {
 	}
 	
 	public BookingOffer computeBestRoomPrice() {
-		float minimunPrice = 0;
-		BookingOffer lowestPriceBooking = null;
+		double minimunOverallValuation = 0;
+		BookingOffer lowestOverallValuation = null;
+		
+		double priceValuation = 0;
+		double ratingValuation = 0;
+		double overallValuation = 0;
 		
 		for (BookingOffer bookingOffer : offers) {
-			float actual_price = bookingOffer.getPrice();
-			if (actual_price != -1) {
-				if (minimunPrice < actual_price) {
-					minimunPrice = actual_price;
-					lowestPriceBooking = bookingOffer;
-				}
+			priceValuation = getPriceValuation(bookingOffer.getPrice());
+			ratingValuation = getRatingValuation(bookingOffer.getHotelInformation().getRating());
+			
+			overallValuation = priceValuation*.5 + ratingValuation*.5;
+			if (minimunOverallValuation < overallValuation) {
+				minimunOverallValuation = overallValuation;
+				lowestOverallValuation = bookingOffer;
 			}
 		}
-		return lowestPriceBooking;
+		return lowestOverallValuation;
 	}
 	
+	private double getRatingValuation(float rating) {
+		return rating;
+	}
+	private float getPriceValuation(float price) {
+		if (price > 0 && price < budget) {
+			return (float) ((budget-price)/5.0);
+		}
+		return 0;
+	}
 	public boolean acceptOffer(BookingOffer offer) {
 		if (offer.getPrice() <= getMaximumPrice()) {
 			return true;
