@@ -45,6 +45,7 @@ public class AgBank extends AbstractAgent {
 		addBehaviour(new ProvideFinanceReportBehavior(this));
 
 		registerServices(Constants.CREATEACCOUNT_ACTION,
+				Constants.CHARGEACCOUNT_ACTION,
 				Constants.CONSULTACCOUNTSTATUS_ACTION,
 				Constants.CONSULTFINANCEREPORT_ACTION, 
 				Constants.MAKEDEPOSIT_ACTION);

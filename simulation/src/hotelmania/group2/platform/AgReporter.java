@@ -1,7 +1,6 @@
 package hotelmania.group2.platform;
 
 import hotelmania.group2.behaviours.SendReceiveBehaviour;
-import hotelmania.group2.dao.RatingInput;
 import hotelmania.group2.dao.ReportRecord;
 import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.HotelInformation;
