@@ -39,7 +39,7 @@ public class AgBank extends AbstractAgent {
 		addBehaviour(new ReceiveClientDepositBehavior(this));
 
 		// Provide info account to hotel
-		addBehaviour(new ProvideHotelAccountInfoBehavior(this));
+		addBehaviour(new ProvideAccountInformationBehavior(this));
 		
 		// Get finance report
 		addBehaviour(new ProvideFinanceReportBehavior(this));
@@ -169,11 +169,11 @@ public class AgBank extends AbstractAgent {
 	
 	}
 
-	private final class ProvideHotelAccountInfoBehavior extends  GenericServerResponseBehaviour {
+	private final class ProvideAccountInformationBehavior extends  GenericServerResponseBehaviour {
 
 		private static final long serialVersionUID = -4414753731149819352L;
 
-		public ProvideHotelAccountInfoBehavior(AbstractAgent agBank) {
+		public ProvideAccountInformationBehavior(AbstractAgent agBank) {
 			super(agBank,Constants.CONSULTACCOUNTSTATUS_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 

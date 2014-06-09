@@ -32,7 +32,7 @@ public class AgAgency extends AbstractAgent {
 		// Behaviors
 
 		addBehaviour(new SignStaffContractWithHotelBehavior(this));
-		addBehaviour(new ProvideHotelStaffInfoToClientBehavior(this));
+		addBehaviour(new ProvideHotelStaffInformationToClientBehavior(this));
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class AgAgency extends AbstractAgent {
 
 							if (reply.getPerformative()==ACLMessage.AGREE) {
 								reply.setPerformative(ACLMessage.INFORM);
-								addBehaviour(new ChargeBankBehavior(myAgent,price, signContract.getHotel()));
+								addBehaviour(new ChargeHotelAccountBehavior(myAgent,price, signContract.getHotel()));
 							}else if (reply.getPerformative()==ACLMessage.REFUSE) {
 								reply.setPerformative(ACLMessage.FAILURE);
 							}
@@ -146,11 +146,11 @@ public class AgAgency extends AbstractAgent {
 	
 	}
 
-	private final class ProvideHotelStaffInfoToClientBehavior extends GenericServerResponseBehaviour 
+	private final class ProvideHotelStaffInformationToClientBehavior extends GenericServerResponseBehaviour 
 	{
 		private static final long serialVersionUID = -4414753731149819352L;
 
-		public ProvideHotelStaffInfoToClientBehavior(AbstractAgent agAgency) {
+		public ProvideHotelStaffInformationToClientBehavior(AbstractAgent agAgency) {
 			super(agAgency, Constants.CONSULTHOTELSSTAFF_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
@@ -209,14 +209,14 @@ public class AgAgency extends AbstractAgent {
 			return reply;
 		}
 	}
-	private final class ChargeBankBehavior extends SendReceiveBehaviour{
+	private final class ChargeHotelAccountBehavior extends SendReceiveBehaviour{
 
 		
 		private static final long serialVersionUID = -1874381127133980873L;
 		private float priceToPay;
 		private Hotel actualHotel;
 
-		public ChargeBankBehavior(AbstractAgent agAgent, float price, Hotel hotel) {
+		public ChargeHotelAccountBehavior(AbstractAgent agAgent, float price, Hotel hotel) {
 			super(agAgent, Constants.CHARGEACCOUNT_PROTOCOL, Constants.CHARGEACCOUNT_ACTION, ACLMessage.REQUEST);
 			priceToPay = price;
 			actualHotel = hotel;

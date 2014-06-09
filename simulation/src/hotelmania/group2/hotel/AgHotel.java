@@ -31,6 +31,7 @@ import jade.content.Predicate;
 import jade.content.lang.Codec.CodecException;
 import jade.content.onto.OntologyException;
 import jade.content.onto.basic.Action;
+import jade.core.behaviours.ParallelBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.lang.acl.ACLMessage;
 
@@ -46,10 +47,10 @@ public class AgHotel extends AbstractAgent {
 	private BookingDAO bookDAO = new BookingDAO();
 	private final Hotel hotelIdentity = new Hotel();
 	private hotelmania.group2.dao.Contract currentContract;
-	private float actualBalance;
 	private float rating=5;
 	private float currentPrice = 0;
 	private Integer idAccount;
+	private float actualBalance;
 
 	@Override
 	public String myName() {
@@ -62,11 +63,15 @@ public class AgHotel extends AbstractAgent {
 		super.doOnNewDay();
 		
 		//Behaviors for price and staff strategy
-		addBehaviour(new ConsultAccountStatusBehavior(AgHotel.this));
-		addBehaviour(new ConsultMyRatingBehavior(AgHotel.this));
-
-		addBehaviour(new HireDailyStaffBehavior(this));
+		SequentialBehaviour stepsForPriceAndStaffStrategy = new SequentialBehaviour();
+		ParallelBehaviour refreshDataBehaviour = new ParallelBehaviour();
+		refreshDataBehaviour.addSubBehaviour(new ConsultAccountStatusBehavior(AgHotel.this));
+		refreshDataBehaviour.addSubBehaviour(new ConsultMyRatingBehavior(AgHotel.this));
+		
+		stepsForPriceAndStaffStrategy.addSubBehaviour(refreshDataBehaviour);
+		stepsForPriceAndStaffStrategy.addSubBehaviour(new HireDailyStaffBehavior(this));
 	}
+	
 	@Override
 	protected void setup() {
 		super.setup();
@@ -573,7 +578,7 @@ public class AgHotel extends AbstractAgent {
 				accountStatus = (AccountStatus) getContentManager().extractContent(message);
 				actualBalance = accountStatus.getAccount().getBalance();
 	
-				Logger.logDebug("Account Balance:" + accountStatus.getAccount().getBalance());
+				Logger.logDebug("Account Balance:" + actualBalance);
 			} catch (CodecException  | OntologyException e) {
 				Logger.logError(myName()+": " + message.getContent());
 				e.printStackTrace();

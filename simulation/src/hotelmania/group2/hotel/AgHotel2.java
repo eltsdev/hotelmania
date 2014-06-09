@@ -63,8 +63,6 @@ public class AgHotel2 extends MetaAgent {
 		addBehaviour(new ProvideHotelNumberOfClientsBehavior(this));
 		addBehaviour(new MakeRoomBookingBehavior(this));
 		addBehaviour(new ProvideRoomInfoBehavior(this));
-		// addBehaviour(new ConsultHotelInfoBehavior(this));
-		// TODO Consult account status
 
 		state.setLogEnabled(Constants.LOG_DEBUG);
 	}
