@@ -257,7 +257,6 @@ public class AgHotelmania extends AbstractAgent {
 	 */
 	private boolean registerNewRating(RateHotel ratingData) {
 		String hotelName = ratingData.getHotel().getHotel_name();
-		System.out.println(myName() +": Hotel Name that is rating: " + ratingData.getHotel().getHotel_name());
 		ratingDAO.addRating(hotelName, 
 				ratingData.getRatings().getCleanliness_rating(), 
 				ratingData.getRatings().getChef_rating(), 

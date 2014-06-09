@@ -80,7 +80,6 @@ public class AgAgency extends AbstractAgent {
 
 							if (reply.getPerformative()==ACLMessage.AGREE) {
 								reply.setPerformative(ACLMessage.INFORM);
-								System.out.println(myName() + " I'm here");
 								myAgent.addBehaviour(new ChargeHotelAccountBehavior(myAgent,price, signContract.getHotel()));
 							}else if (reply.getPerformative()==ACLMessage.REFUSE) {
 								reply.setPerformative(ACLMessage.FAILURE);
@@ -225,7 +224,6 @@ public class AgAgency extends AbstractAgent {
 		
 		@Override
 		protected void doSend() {
-			System.out.println(myName() + " I'm charging");
 			ChargeAccount chargeAccount = new ChargeAccount();
 			chargeAccount.setHotel(actualHotel);
 			chargeAccount.setMoney(priceToPay);
