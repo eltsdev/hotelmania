@@ -154,33 +154,6 @@ public class AgPlatform2 extends MetaAgent
 			super(a, period);
 		}
 	
-		@Override
-		public void stop() {
-			//stop/delete all agents
-			sendEndSimulationEventToSubscriptors();
-			//stop platform
-			super.stop();
-		}
-		
-		private void sendEndSimulationEventToSubscriptors() {
-			NotificationEndSimulation event = new NotificationEndSimulation(); 
-			
-			Logger.logDebug("*************************************************************");
-			Logger.logDebug("Simulation End");
-			Logger.logDebug("*************************************************************");
-			
-			Logger.logDebug(myName() + ": Sending end simulation order to  # subscribers: "+ endSimulationResponder.getSubscriptions().size());
-			
-			for(Object subscriptionObj : endSimulationResponder.getSubscriptions())
-			{
-				if (subscriptionObj instanceof Subscription) {
-					Subscription subscription = (Subscription) subscriptionObj;
-					notify(subscription, event);
-					Logger.logDebug(myName()+": sending end simulation event to: "+subscription.getMessage().getSender().getLocalName());
-				}
-			}
-		}
-	
 		public void onTick() 
 		{
 			//Day number
@@ -190,14 +163,22 @@ public class AgPlatform2 extends MetaAgent
 				stop();
 				return;
 			}
-	
+		
 			sendDayNotificationToSubscriptors(day);
-	
+		
 			if (day >= Constants.FIRST_DAY && day >= Constants.SIMULATION_TIME_TO_START && day < Constants.SIMULATION_DAYS) {
 				generateClientsBehavior(day);
 			}
 		}
-	
+
+		@Override
+		public void stop() {
+			//stop/delete all agents
+			sendEndSimulationEventToSubscriptors();
+			//stop platform
+			super.stop();
+		}
+		
 		private void sendDayNotificationToSubscriptors(int day) {
 			NotificationDayEvent notificationDayEvent = new NotificationDayEvent();
 			DayEvent dayEvent = new DayEvent();
@@ -239,6 +220,25 @@ public class AgPlatform2 extends MetaAgent
 		private boolean isSimulationEnd(int day) {
 			//TODO || cancelled ;
 			return day > Constants.SIMULATION_DAYS + 1; 
+		}
+
+		private void sendEndSimulationEventToSubscriptors() {
+			NotificationEndSimulation event = new NotificationEndSimulation(); 
+			
+			Logger.logDebug("*************************************************************");
+			Logger.logDebug("Simulation End");
+			Logger.logDebug("*************************************************************");
+			
+			Logger.logDebug(myName() + ": Sending end simulation order to  # subscribers: "+ endSimulationResponder.getSubscriptions().size());
+			
+			for(Object subscriptionObj : endSimulationResponder.getSubscriptions())
+			{
+				if (subscriptionObj instanceof Subscription) {
+					Subscription subscription = (Subscription) subscriptionObj;
+					notify(subscription, event);
+					Logger.logDebug(myName()+": sending end simulation event to: "+subscription.getMessage().getSender().getLocalName());
+				}
+			}
 		}
 	}
 
