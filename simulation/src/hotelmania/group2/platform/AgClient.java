@@ -91,18 +91,22 @@ public class AgClient extends AbstractAgent {
 		return true;
 	}
 	
+	// --------------------------------------------------------
+	// Behaviors
+	// --------------------------------------------------------
+
 	@Override
 	protected void doOnNewDay() {
 		super.doOnNewDay();
 		
-		// Check checkin date deadline 
+		// Before the stay: check checkin deadline 
 		if ( client.getStay().getCheckIn() >= getDay() && this.client.getBookingDone()==null ) {
 			//Die
 			doDelete();
 			return;
 		}
 		
-		// Starts data collection while staying in the hotel
+		// During the stay: starts data collection
 		if (client.getBookingDone()!=null && client.getCheckInDate() >= getDay()  &&  getDay() < client.getCheckOutDate() ) {
 			startStancy();
 		}
@@ -117,7 +121,7 @@ public class AgClient extends AbstractAgent {
 			if (!this.ratingSent && client.isDataForRatingComplete()) {
 				addBehaviour(new RateHotelInHotelmaniaBehavior(this));
 			}else {
-				Logger.logError(myName()+": Can not rate hotel (isDataForRatingComplete)");
+				Logger.logError(myName()+": Cannot rate hotel (isDataForRatingComplete)");
 			}
 		}
 	}
@@ -126,11 +130,6 @@ public class AgClient extends AbstractAgent {
 		addBehaviour(new ConsultHotelNumberOfClientsBehavior(this));
 		addBehaviour(new ConsultHotelStaffBehavior(this));
 	}
-
-	// --------------------------------------------------------
-	// Behaviors
-	// --------------------------------------------------------
-
 	private final class GetHotelsFromHotelmaniaBehavior extends SendReceiveBehaviour {
 		private static final long serialVersionUID = 287171972374945182L;
 
@@ -465,10 +464,9 @@ public class AgClient extends AbstractAgent {
 				HotelStaffInfo hotelStaff = (HotelStaffInfo) getContentManager().extractContent(message);
 				Contract content = hotelStaff.getContract();  
 				if (content != null) {
-					Logger.logDebug(myName() + ": hotel staff : " + content.toString());
 					client.addStaffForRating(day, content);
 				} else {
-					Logger.logDebug(myName() + ": Staff for day: Not found (null)");
+					Logger.logDebug(myName() + ": Staff for day="+day+" not found (null)");
 				}
 			} catch (CodecException | OntologyException e) {
 				Logger.logError(myName() + ": Message: " + message.getContent());
@@ -624,7 +622,6 @@ public class AgClient extends AbstractAgent {
 
 		@Override
 		protected void doSend() {
-			Logger.logDebug(myAgent.myName()+": starting MakeDepositBehavior");
 			makeDeposit(this.server);
 		}	
 		

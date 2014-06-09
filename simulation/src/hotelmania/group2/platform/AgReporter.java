@@ -199,10 +199,12 @@ public class AgReporter extends AbstractAgent
 	}
 
 	public String generateSimulationReport() {
+		double simulationTime = Constants.DAY*Constants.DAY_IN_MILLISECONDS/1000.0/60.0;
+		
 		StringBuilder r = new StringBuilder();
 		r.append("SIMULATION RESULTS\n\n");
-		r.append("Simulation period: ");
-		r.append(Constants.SIMULATION_DAYS);
+		r.append("Simulation period (minutes): ");
+		r.append(simulationTime);
 		r.append("\n");
 		r.append("Number of clients generated: ");
 		r.append(Constants.CLIENTS_GENERATED);
