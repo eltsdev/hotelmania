@@ -40,14 +40,14 @@ import jade.lang.acl.ACLMessage;
  */
 public class AgHotel extends AbstractAgent {
 
-	private SequentialBehaviour stepsForCreationHotel;
-	private SequentialBehaviour stepsForRoomPrice;
 	private static final long serialVersionUID = 6197364680986347122L;
-	private final Hotel hotelIdentity = new Hotel();
+	
+	private SequentialBehaviour stepsForCreationHotel;
 	private BookingDAO bookDAO = new BookingDAO();
+	private final Hotel hotelIdentity = new Hotel();
+	private hotelmania.group2.dao.Contract currentContract;
 	private float actualBalance;
 	private float rating=5;
-	private hotelmania.group2.dao.Contract currentContract;
 	private float currentPrice = 0;
 	private Integer idAccount;
 
@@ -60,8 +60,12 @@ public class AgHotel extends AbstractAgent {
 	@Override
 	protected void doOnNewDay() {
 		super.doOnNewDay();
-		Logger.logDebug("HOTEL: DAY IS "+ getDay() + " =========================================================================");
-		addBehaviour(new SignContractBehavior(this));
+		
+		//Behaviors for price and staff strategy
+		addBehaviour(new ConsultAccountStatusBehavior(AgHotel.this));
+		addBehaviour(new ConsultMyRatingBehavior(AgHotel.this));
+
+		addBehaviour(new HireDailyStaffBehavior(this));
 	}
 	@Override
 	protected void setup() {
@@ -73,24 +77,15 @@ public class AgHotel extends AbstractAgent {
 		// Behaviors for configuration Hotel
 		this.stepsForCreationHotel = new SequentialBehaviour(this) {
 			private static final long serialVersionUID = 7546466232205586064L;
-
 			@Override
 			public int onEnd() {
 				//Behaviors that are responsible for responding to requests
-				myAgent.addBehaviour(new ProvideRoomInfoBehavior(AgHotel.this));
+				myAgent.addBehaviour(new ProvideRoomPriceBehavior(AgHotel.this));
 				myAgent.addBehaviour(new MakeRoomBookingBehavior(AgHotel.this));
-				myAgent.addBehaviour(new ProvideHotelNumberOfClientsBehavior(AgHotel.this));
-				
-				//Behaviors to calculate room prices and provide it to Client
-				stepsForRoomPrice = new SequentialBehaviour(AgHotel.this);
-				stepsForRoomPrice.addSubBehaviour(new ConsultBankAccountInfoBehavior(AgHotel.this));
-				stepsForRoomPrice.addSubBehaviour(new ConsultMyRatingBehavior(AgHotel.this));
-				//TODO decide when to start this behaviors addBehaviour(stepsForRoomPrice);
-
+				myAgent.addBehaviour(new ProvideOccupancyOfRoomsBehavior(AgHotel.this));
 				return super.onEnd();
 			}
 		};
-		
 		this.stepsForCreationHotel.addSubBehaviour(new RegisterInHotelmaniaBehavior(this));
 		this.stepsForCreationHotel.addSubBehaviour(new CreateBankAccountBehavior(this));
 		addBehaviour(stepsForCreationHotel);
@@ -293,7 +288,7 @@ public class AgHotel extends AbstractAgent {
 	}
 	
 	
-	private final class SignContractBehavior extends SendReceiveBehaviour {
+	private final class HireDailyStaffBehavior extends SendReceiveBehaviour {
 
 		private static final long serialVersionUID = -1320828325347509541L;
 		
@@ -303,7 +298,7 @@ public class AgHotel extends AbstractAgent {
 		 * @param serviceToLookUp
 		 * @param sendPerformative
 		 */
-		public SignContractBehavior(AbstractAgent agHotel) {
+		public HireDailyStaffBehavior(AbstractAgent agHotel) {
 			super(agHotel, Constants.SIGNCONTRACT_PROTOCOL, Constants.SIGNCONTRACT_ACTION, ACLMessage.REQUEST);
 		}
 		@Override
@@ -396,11 +391,11 @@ public class AgHotel extends AbstractAgent {
 	}
 	
 	
-	private final class ProvideHotelNumberOfClientsBehavior extends GenericServerResponseBehaviour {
+	private final class ProvideOccupancyOfRoomsBehavior extends GenericServerResponseBehaviour {
 
 		private static final long serialVersionUID = -4414753731149819352L;
 
-		public ProvideHotelNumberOfClientsBehavior(AbstractAgent agHotel) {
+		public ProvideOccupancyOfRoomsBehavior(AbstractAgent agHotel) {
 			super(agHotel,Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 		
@@ -464,11 +459,11 @@ public class AgHotel extends AbstractAgent {
 		}
 	}
 		
-	private final class ProvideRoomInfoBehavior extends GenericServerResponseBehaviour {
+	private final class ProvideRoomPriceBehavior extends GenericServerResponseBehaviour {
 
 		private static final long serialVersionUID = 1955222376582492939L;
 
-		public ProvideRoomInfoBehavior(AbstractAgent agHotel) {
+		public ProvideRoomPriceBehavior(AbstractAgent agHotel) {
 			super(agHotel, Constants.CONSULTROOMPRICES_PROTOCOL, ACLMessage.QUERY_REF);
 		}
 
@@ -546,11 +541,11 @@ public class AgHotel extends AbstractAgent {
 
 	}
 	
-	private final class ConsultBankAccountInfoBehavior extends SendReceiveBehaviour {
+	private final class ConsultAccountStatusBehavior extends SendReceiveBehaviour {
 
 		private static final long serialVersionUID = 1955222376582492939L;
 
-		public ConsultBankAccountInfoBehavior(AbstractAgent agHotel) {
+		public ConsultAccountStatusBehavior(AbstractAgent agHotel) {
 			super(agHotel, Constants.CONSULTACCOUNTSTATUS_PROTOCOL, Constants.CONSULTACCOUNTSTATUS_ACTION, ACLMessage.QUERY_REF);
 		}
 		
