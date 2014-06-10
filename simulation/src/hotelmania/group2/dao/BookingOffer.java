@@ -10,6 +10,8 @@ package hotelmania.group2.dao;
 public class BookingOffer {
 	private HotelInformation hotelInformation;
 	private float price=-1;
+	private double clientValuation=-1;
+	
 	/**
 	 * @param hotelInformation
 	 */
@@ -34,6 +36,13 @@ public class BookingOffer {
 	 */
 	public HotelInformation getHotelInformation() {
 		return hotelInformation;
+	}
+	
+	public double getClientValuation() {
+		return clientValuation;
+	}
+	public void setClientValuation(double clientValuation) {
+		this.clientValuation = clientValuation;
 	}
 	
 	

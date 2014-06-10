@@ -1,6 +1,7 @@
 package hotelmania.group2.dao;
 
 import hotelmania.group2.platform.Logger;
+import hotelmania.group2.platform.NormUtil;
 import hotelmania.ontology.Contract;
 import jade.core.AID;
 
@@ -55,66 +56,104 @@ public class Client {
 		return this.stay.getCheckOut();
 	}
 	
+	public HotelInformation getHotelOfBookingDone() {
+		return hotelOfBookingDone;
+	}
+	
+	public void setHotelOfBookingDone(HotelInformation hotelOfBookingDone) {
+		this.hotelOfBookingDone = hotelOfBookingDone;
+	}
+	
 	public void setOfferPrice(AID hotel, float roomPrice) {
 		//Seek the Hotel in BookingOffers and updates the price
 		for (BookingOffer bookingOffer : offers) {
 			if (bookingOffer.getHotelInformation().getHotel().getAgent().equals(hotel)) {
 				bookingOffer.setPrice(roomPrice);
+				//updates all previous offers of the hotel...
 			}
 		}
 	}
 	
-	public BookingOffer computeBestRoomPrice() {
-		double minimunOverallValuation = 0;
-		BookingOffer lowestOverallValuation = null;
+	//
+	// Client Strategy for Selecting Hotels
+	//
+	
+	public BookingOffer computeBestBookingOffer() {
+		if (offers == null || offers.size() == 0) {
+			return null;
+		}
 		
-		double priceValuation = 0;
-		double ratingValuation = 0;
-		double overallValuation = 0;
+		double maxValuation = 0;
+		BookingOffer bestOffer = null;
+		
+		double priceValuation = 0, ratingValuation = 0, totalValuation = 0;
 		
 		for (BookingOffer bookingOffer : offers) {
 			priceValuation = getPriceValuation(bookingOffer.getPrice());
-			ratingValuation = getRatingValuation(bookingOffer.getHotelInformation().getRating());
+			ratingValuation = bookingOffer.getHotelInformation().getRating();
 			
-			overallValuation = priceValuation*.5 + ratingValuation*.5;
-			if (minimunOverallValuation < overallValuation) {
-				minimunOverallValuation = overallValuation;
-				lowestOverallValuation = bookingOffer;
+			totalValuation = (priceValuation + ratingValuation)/2.0;
+			if (totalValuation > maxValuation) {
+				maxValuation = totalValuation;
+				bestOffer = bookingOffer;
 			}
+			
+			//keep the value
+			bookingOffer.setClientValuation(totalValuation);
 		}
-		return lowestOverallValuation;
+		
+		//return the lowest
+		return bestOffer;
 	}
 	
-	private double getRatingValuation(float rating) {
-		return rating;
+	private void getMaxAndMinPrice(ArrayList<BookingOffer> data,double[] minMaxPrice) {
+		double max=data.get(0).getPrice();
+		double min=max;
+		
+		for (BookingOffer offer : data) {
+			double current = offer.getPrice();
+			
+			if( current < min) min = current;
+			
+			if( current > max) max = current;
+		} 
+	
+		minMaxPrice[0] = min;
+		minMaxPrice[1] = max;
 	}
-	private float getPriceValuation(float price) {
+	
+	private void getMaxAndMinRating(ArrayList<BookingOffer> data,double[] minMaxRating) {
+		double max=data.get(0).getHotelInformation().getRating();
+		double min=max;
+		for (BookingOffer offer : data) {
+			double current = offer.getHotelInformation().getRating();
+			
+			if( current < min) min = current;
+			
+			if( current > max) max = current;
+		} 
+	
+		minMaxRating[0] = min;
+		minMaxRating[1] = max;
+	}
+	
+	private double getRatingValuation(float rating, double[] minMaxRating) {
+		double valuation = NormUtil.normalize(rating, minMaxRating[0], minMaxRating[1]);
+		return valuation;
+	}
+	
+	private double getPriceValuation(float price) {
+		double valuation = 0;
 		if (price > 0 && price < budget) {
-			return (float) ((budget-price)/5.0);
+			valuation = (budget-price)/5.0;
 		}
-		return 0;
-	}
-	public boolean acceptOffer(BookingOffer offer) {
-		if (offer.getPrice() <= getMaximumPrice()) {
-			return true;
-		}
-		return false;
+		return valuation;
 	}
 	
-	/**
-	 * The maximum able to pay
-	 */
-	//TODO refine strategy
-	private float getMaximumPrice(){
-		return (float) this.budget;
-	}
+	//
+	// Client methodology for rating new hotels
+	//
 
-	public HotelInformation getHotelOfBookingDone() {
-		return hotelOfBookingDone;
-	}
-	public void setHotelOfBookingDone(HotelInformation hotelOfBookingDone) {
-		this.hotelOfBookingDone = hotelOfBookingDone;
-	}
 	public boolean isDataForRatingComplete() {
 		return this.ratingData.size() == this.stay.getDays();
 	}

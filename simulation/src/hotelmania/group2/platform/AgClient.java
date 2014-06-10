@@ -1,9 +1,11 @@
 package hotelmania.group2.platform;
 
+import hotelmania.group2.behaviours.ClientStep;
 import hotelmania.group2.behaviours.GenericSendReceiveBehaviour;
 import hotelmania.group2.behaviours.SendReceiveBehaviour;
 import hotelmania.group2.dao.BookingOffer;
 import hotelmania.group2.dao.Client;
+import hotelmania.group2.dao.ClientsServedStats;
 import hotelmania.group2.dao.RatingInput;
 import hotelmania.ontology.BookRoom;
 import hotelmania.ontology.Contract;
@@ -39,10 +41,14 @@ public class AgClient extends AbstractAgent {
 	private Client client;
 	
 	private SequentialBehaviour stepsForBooking;
+	private SequentialBehaviour stepsForRating;
+	private boolean stepsForRatingStarted;
+	private boolean paymentStarted;
+	
 	
 	//Flags to check end of life
-	private boolean servicePaid;
-	private boolean ratingSent;
+	private boolean ratingDone;
+	private boolean paymentDone;
 	
 	// -------------------------------------------------
 	// Setup
@@ -67,10 +73,14 @@ public class AgClient extends AbstractAgent {
 		};
 		stepsForBooking.addSubBehaviour(new GetHotelsFromHotelmaniaBehavior(this));
 		stepsForBooking.addSubBehaviour(new CallForOffersBehavior(this));
-		stepsForBooking.addSubBehaviour(new RequestBookingInHotelBehavior(this));
+		stepsForBooking.addSubBehaviour(new ChooseBestOfferBehavior(this));
 		addBehaviour(stepsForBooking);
 
 		// Behaviors after booking - not started yet
+		stepsForRating = new SequentialBehaviour();
+		stepsForRating.addSubBehaviour(new ConsultHotelStaffBehavior(this));
+		stepsForRating.addSubBehaviour(new ConsultHotelNumberOfClientsBehavior(this));
+		stepsForRating.addSubBehaviour(new RateHotelInHotelmaniaBehavior(this));
 	}
 
 	private void initClient() {
@@ -100,35 +110,36 @@ public class AgClient extends AbstractAgent {
 		super.doOnNewDay();
 		
 		// Before the stay: check checkin deadline 
-		if ( client.getStay().getCheckIn() >= getDay() && this.client.getBookingDone()==null ) {
+		if ( getDay() >= client.getStay().getCheckIn() && this.client.getBookingDone()==null ) {
 			//Die
 			doDelete();
 			return;
 		}
 		
-		// During the stay: starts data collection
-		if (client.getBookingDone()!=null && client.getCheckInDate() >= getDay()  &&  getDay() < client.getCheckOutDate() ) {
-			startStancy();
-		}
+//		// During the stay: starts data collection
+//		if (client.getBookingDone()!=null && client.getCheckInDate() >= getDay()  &&  getDay() < client.getCheckOutDate() ) {
+//			startStancy();
+//		}
 
 		// After the staying
 		if (getDay() >= client.getCheckOutDate()) {
 			
-			if (!this.servicePaid) {
+			if (!this.paymentStarted) {
 				addBehaviour(new MakeDepositBehavior(this));
+				this.paymentStarted = true;
 			}
 			
-			if (!this.ratingSent && client.isDataForRatingComplete()) {
-				addBehaviour(new RateHotelInHotelmaniaBehavior(this));
-			}else {
-				Logger.logError(myName()+": Cannot rate hotel (isDataForRatingComplete)");
+			if (!this.stepsForRatingStarted) {
+				addBehaviour(stepsForRating);
+				this.stepsForRatingStarted = true;
 			}
 		}
 	}
 
 	private void startStancy() {
-		addBehaviour(new ConsultHotelNumberOfClientsBehavior(this));
-		addBehaviour(new ConsultHotelStaffBehavior(this));
+		Logger.logDebug(myName()+": Stay in hotel started. I enjoy this hotel!");
+//		addBehaviour(new ConsultHotelNumberOfClientsBehavior(this));
+//		addBehaviour(new ConsultHotelStaffBehavior(this));
 	}
 	private final class GetHotelsFromHotelmaniaBehavior extends SendReceiveBehaviour {
 		private static final long serialVersionUID = 287171972374945182L;
@@ -175,10 +186,13 @@ public class AgClient extends AbstractAgent {
 
 			}
 		}
-
+		
 		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			return performativeReceived==ACLMessage.INFORM;
+		protected ClientStep finishOrResend(int performativeReceived) {
+			if(performativeReceived==ACLMessage.INFORM || performativeReceived==ACLMessage.AGREE){
+				return ClientStep.DONE;
+			}
+			return ClientStep.RESEND;
 		}
 	}
 
@@ -249,38 +263,43 @@ public class AgClient extends AbstractAgent {
 		}
 
 		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			if (performativeReceived==ACLMessage.INFORM) {
+		protected ClientStep finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.INFORM || performativeReceived==ACLMessage.AGREE) {
 				informs++;
 			}
 			
 			if (informs == numberOfMessages ) {
-				return true;
+				return ClientStep.DONE;
 			}
-			return false;
+			return ClientStep.RECEIVE_RESPONSES;
 		}
 	}
 	
-	class ChooseBestOffer extends OneShotBehaviour {
+	class ChooseBestOfferBehavior extends OneShotBehaviour {
 		private static final long serialVersionUID = 1L;
 
-		public ChooseBestOffer(Agent a) {
+		public ChooseBestOfferBehavior(Agent a) {
 			super(a);
 		}
 		
 		@Override
 		public void action() {
-			BookingOffer bestOffer = client.computeBestRoomPrice();
+			
+			BookingOffer bestOffer = client.computeBestBookingOffer();
 			boolean accepted = false;
+			
 			if (bestOffer == null) {
 				Logger.logDebug(getLocalName()+ ": No minimum offers achieved. Total: " + client.getOffers().size());
 				accepted = false;
-			} else if(client.acceptOffer(bestOffer)){
-				Logger.logDebug(getLocalName() + ": Best offer ACCEPTED :" + bestOffer.getHotelInformation().getHotel().getName() + " Price: " + bestOffer.getPrice());
+				
+			} else if(bestOffer.getClientValuation() > 0 ){
+				Logger.logDebug(getLocalName() + ": Best offer ACCEPTED :" + bestOffer.getHotelInformation().getHotel().getName() + "; Price: " + bestOffer.getPrice() + "; Rating: " + bestOffer.getHotelInformation().getRating() + "; Valuation: "+bestOffer.getClientValuation());
 				accepted = true;
-			} else if (getDay() == client.getCheckInDate()) { //TODO == or == -1 day
+				
+			} else if (getDay() == client.getCheckInDate()) {
 				Logger.logDebug(getLocalName() + ": Best offer ACCEPTED, although it is beyond the budget:" + bestOffer.getHotelInformation().getHotel().getName() + " Price: " + bestOffer.getPrice() + " because of the deadline!");
 				accepted = true;
+				
 			} else {
 				Logger.logDebug(getLocalName() + ": Best offer REJECTED because it is beyond the budget:" + bestOffer.getHotelInformation().getHotel().getName() + " Price: " + bestOffer.getPrice());
 				accepted = false;
@@ -290,23 +309,29 @@ public class AgClient extends AbstractAgent {
 				//Start the WHOLE process again! 
 				stepsForBooking.reset();
 			}
+			else {
+				stepsForBooking.addSubBehaviour(new RequestBookingInHotelBehavior(AgClient.this, bestOffer));
+			}
 		}
 	}
 	
 	class RequestBookingInHotelBehavior extends GenericSendReceiveBehaviour {
 		private static final long serialVersionUID = 1790087472549757374L;
 		private BookingOffer offerChosen;
+		private hotelmania.group2.dao.HotelInformation hotel;
 
-		private RequestBookingInHotelBehavior(AbstractAgent myAgent) {
+		private RequestBookingInHotelBehavior(AbstractAgent myAgent, BookingOffer offerChosen) {
 			super(myAgent, Constants.BOOKROOM_PROTOCOL);
+			this.offerChosen = offerChosen;  
 		}
 		
 		@Override
 		protected boolean doPrepare() {
-			offerChosen = client.computeBestRoomPrice();
 			if (offerChosen == null) {
 				//No offer chosen to make the booking
+				this.setDone(true);
 				stepsForBooking.reset();
+				return false;
 			}
 			return true;
 		}
@@ -322,7 +347,7 @@ public class AgClient extends AbstractAgent {
 		}
 
 		private void bookRoom(BookingOffer bookingOffer) {
-			AID agHotel = bookingOffer.getHotelInformation().getHotel().getAgent();
+			hotel = bookingOffer.getHotelInformation();
 			int checkin = client.getStay().getCheckIn();
 			int checkout = client.getStay().getCheckOut();
 			BookRoom action_booking = new BookRoom();
@@ -337,7 +362,7 @@ public class AgClient extends AbstractAgent {
 			
 			Logger.logDebug(myName()+": Sending request for booking. Checkin and Checkout: "+checkin+"  -  "+checkout + " TODAY = " + getDay());
 			
-			sendRequest(agHotel, action_booking, Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
+			sendRequest(hotel.getHotel().getAgent(), action_booking, Constants.BOOKROOM_PROTOCOL, ACLMessage.REQUEST);
 		}
 
 		@Override
@@ -351,13 +376,20 @@ public class AgClient extends AbstractAgent {
 		}
 
 		private void saveConfirmationOfBooking() {
+			//Save
 			hotelmania.group2.dao.Price price = new hotelmania.group2.dao.Price();
 			price.setPrice(offerChosen.getPrice());
 			hotelmania.group2.dao.BookRoom booking = new hotelmania.group2.dao.BookRoom(client.getStay(), price);
 			
-			client.setBookingDone(booking);
-			client.setHotelOfBookingDone(offerChosen.getHotelInformation());
+			offerChosen.getHotelInformation().getHotel();
 			
+			client.setBookingDone(booking);
+			client.setHotelOfBookingDone(this.hotel);
+			
+			//Update counter of bookings
+			ClientsServedStats.notifyNewService(offerChosen.getHotelInformation().getHotel().getName()); 
+			
+			//Start stancy
 			startStancy();
 		}
 		
@@ -379,29 +411,29 @@ public class AgClient extends AbstractAgent {
 		}
 
 		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			if (performativeReceived==ACLMessage.INFORM) {
-				return true;
-			}
-			return false;
+		protected ClientStep finishOrResend(int performativeReceived) {
+			return ClientStep.DONE;
 		}
 	}
 
 	class ConsultHotelNumberOfClientsBehavior extends GenericSendReceiveBehaviour {
 
 		private static final long serialVersionUID = 1L;
-	
-		private AID hotel = client.getHotelOfBookingDone().getHotel().getAgent();
-		private int day = getDay();
+		private int dateOfStay;
 
 		private ConsultHotelNumberOfClientsBehavior(AbstractAgent myAgent) {
 			super(myAgent,Constants.CONSULTHOTELNUMBEROFCLIENTS_PROTOCOL);
 		}
 		@Override
 		protected void doSend() {
-			NumberOfClientsQueryRef request = new NumberOfClientsQueryRef();
-			request.setDay(day);
-			sendRequest(hotel, request, this.protocol, ACLMessage.QUERY_REF);
+			AID  hotel = client.getHotelOfBookingDone().getHotel().getAgent();
+			this.dateOfStay = client.getStay().getCheckIn();
+			
+			for (int queryDay = client.getStay().getCheckIn(); queryDay <= client.getCheckOutDate(); queryDay++) {
+				NumberOfClientsQueryRef request = new NumberOfClientsQueryRef();
+				request.setDay(queryDay);
+				sendRequest(hotel, request, this.protocol, ACLMessage.QUERY_REF);
+			}
 		}
 
 		@Override
@@ -414,7 +446,7 @@ public class AgClient extends AbstractAgent {
 				NumberOfClients content = (NumberOfClients) getContentManager().extractContent(message);
 				if (content != null) {
 					Logger.logDebug(myName() + ": Number of clients: " + content.getNum_clients());
-					client.addOccupancyForRating(day, content.getNum_clients());
+					client.addOccupancyForRating(this.dateOfStay, content.getNum_clients());
 				} else {
 					Logger.logDebug(myName() + ": Number of clients: Not found (null)");
 				}
@@ -427,20 +459,19 @@ public class AgClient extends AbstractAgent {
 		// ignores refuse, not understood, failure.
 		
 		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			if (performativeReceived==ACLMessage.INFORM) {
-				return true;
-			}else {
-				return false;
+		protected ClientStep finishOrResend(int performativeReceived) {
+			if (this.dateOfStay == client.getStay().getCheckOut()) {
+				return ClientStep.DONE;
 			}
+			this.dateOfStay++;
+			return ClientStep.RECEIVE_RESPONSES;
 		}
 	}
 
 	class ConsultHotelStaffBehavior extends	SendReceiveBehaviour {
 		
 		private static final long serialVersionUID = -6581059230472887190L;
-		private int day = getDay();
-		private Hotel hotel = client.getHotelOfBookingDone().getHotel().getConcept();
+		private int dateOfStay;
 
 		public ConsultHotelStaffBehavior(AbstractAgent myAgent) {
 			super(myAgent,Constants.CONSULTHOTELSSTAFF_PROTOCOL, Constants.CONSULTHOTELSSTAFF_ACTION,ACLMessage.QUERY_REF);
@@ -448,10 +479,15 @@ public class AgClient extends AbstractAgent {
 		
 		@Override
 		protected void doSend() {
-			HotelStaffQueryRef request = new HotelStaffQueryRef();
-			request.setDay(day);
-			request.setHotel(hotel);
-			sendRequest(this.server, request, this.protocol, ACLMessage.QUERY_REF);
+			Hotel hotel = client.getHotelOfBookingDone().getHotel().getConcept();
+			this.dateOfStay = client.getStay().getCheckIn();
+			
+			for (int queryDay = client.getStay().getCheckIn(); queryDay <= client.getCheckOutDate(); queryDay++) {
+				HotelStaffQueryRef request = new HotelStaffQueryRef();
+				request.setDay(queryDay);
+				request.setHotel(hotel);
+				sendRequest(this.server, request, this.protocol, ACLMessage.QUERY_REF);
+			}
 		}
 		
 		@Override
@@ -464,9 +500,9 @@ public class AgClient extends AbstractAgent {
 				HotelStaffInfo hotelStaff = (HotelStaffInfo) getContentManager().extractContent(message);
 				Contract content = hotelStaff.getContract();  
 				if (content != null) {
-					client.addStaffForRating(day, content);
+					client.addStaffForRating(this.dateOfStay, content);
 				} else {
-					Logger.logDebug(myName() + ": Staff for day="+day+" not found (null)");
+					Logger.logDebug(myName() + ": Staff for day="+dateOfStay+" not found (null)");
 				}
 			} catch (CodecException | OntologyException e) {
 				Logger.logError(myName() + ": Message: " + message.getContent());
@@ -479,12 +515,12 @@ public class AgClient extends AbstractAgent {
 		// ignores refuse, not understood, failure.
 		
 		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			if (performativeReceived==ACLMessage.INFORM) {
-				return true;
-			}else {
-				return false;
+		protected ClientStep finishOrResend(int performativeReceived) {
+			if (this.dateOfStay == client.getStay().getCheckOut()) {
+				return ClientStep.DONE;
 			}
+			this.dateOfStay++;
+			return ClientStep.RECEIVE_RESPONSES;
 		}
 	}
 
@@ -503,11 +539,9 @@ public class AgClient extends AbstractAgent {
 			rateHotel(this.server);
 		}
 	
-		// TODO This part must be dynamic
 		private void rateHotel(AID hotelMania) {
 
 			//Calculate average ratings
-			
 			float cleanliness = 0;
 			float kitchen = 0;
 			float staff = 0;
@@ -517,7 +551,8 @@ public class AgClient extends AbstractAgent {
 			for (RatingInput ratingInput : data.values()) {
 				Logger.logDebug("computing rating for one day ...."+ratingInput.toString());
 				//skip if its not complete
-				if (ratingInput.getStaff() == null || ratingInput.getOccupancy() == null) {
+				if (ratingInput.getStaff() == null || ratingInput.getOccupancy() == null || ratingInput.getOccupancy() == 0) {
+					// if zero: it is inconsistent! at least the client that is asking was in the hotel.
 					continue;
 				}
 				
@@ -601,14 +636,9 @@ public class AgClient extends AbstractAgent {
 		//ignore responses
 		
 		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			if (performativeReceived==ACLMessage.INFORM) {
-				ratingSent=true;
-				return true;
-			}else {
-				return false;
-			}
-			
+		protected ClientStep finishOrResend(int performativeReceived) {
+			ratingDone=true;
+			return ClientStep.DONE;
 		}
 	}
 
@@ -622,33 +652,29 @@ public class AgClient extends AbstractAgent {
 
 		@Override
 		protected void doSend() {
-			makeDeposit(this.server);
+			makeDeposit();
 		}	
 		
-		private void makeDeposit(AID bank) {
+		private void makeDeposit() {
 			MakeDeposit action_deposit = new MakeDeposit();
 			action_deposit.setHotel(client.getHotelOfBookingDone().getHotel().getConcept());
 			action_deposit.setMoney(client.getBookingDone().getRoomPrice().getPrice());
 
-			sendRequest(bank, action_deposit, Constants.MAKEDEPOSIT_PROTOCOL, ACLMessage.REQUEST);
+			sendRequest(this.server, action_deposit, this.protocol, this.sendPerformative);
 		}
 		
 		// ignore failure, and other responses.
 		
 		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			if (performativeReceived==ACLMessage.INFORM) {
-				servicePaid = true;
-				return true;
-			}else {
-				return false;
-			}
+		protected ClientStep finishOrResend(int performativeReceived) {
+			paymentDone = true;
+			return ClientStep.DONE;
 		}
 	}
 
 	public boolean checkEnd() {
 		//If all is done
-		if (this.servicePaid && this.ratingSent) {
+		if (this.paymentDone && this.ratingDone ) {
 			return true;
 		}else if (getDay() > client.getCheckOutDate() ) {
 			//if there is chance to finish, pay and rate
