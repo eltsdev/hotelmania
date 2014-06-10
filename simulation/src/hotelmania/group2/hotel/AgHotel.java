@@ -3,6 +3,7 @@
  */
 package hotelmania.group2.hotel;
 
+import hotelmania.group2.behaviours.ClientStep;
 import hotelmania.group2.behaviours.GenericServerResponseBehaviour;
 import hotelmania.group2.behaviours.SendReceiveBehaviour;
 import hotelmania.group2.dao.BookingDAO;
@@ -141,11 +142,11 @@ public class AgHotel extends AbstractAgent {
 		// ignore responses.
 		
 		@Override
-		protected boolean finishOrResend(int performativeReceived) {
+		protected ClientStep finishOrResend(int performativeReceived) {
 			if (performativeReceived==ACLMessage.AGREE) {
-				return true;
+				return ClientStep.DONE;
 			}else {
-				return false;
+				return ClientStep.RESEND;
 			}
 		}
 	}
@@ -199,11 +200,11 @@ public class AgHotel extends AbstractAgent {
 		}
 
 		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			if (performativeReceived==ACLMessage.INFORM) {
-				return true;
+		protected ClientStep finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.AGREE) {
+				return ClientStep.DONE;
 			}else {
-				return false;
+				return ClientStep.RESEND;
 			}
 		}
 	}
@@ -385,11 +386,11 @@ public class AgHotel extends AbstractAgent {
 			currentPrice = currentContract.getCost();
 		}
 		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			if (performativeReceived==ACLMessage.INFORM) {
-				return true;
+		protected ClientStep finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.AGREE) {
+				return ClientStep.DONE;
 			}else {
-				return false;
+				return ClientStep.RESEND;
 			}
 		}
 		
@@ -585,11 +586,6 @@ public class AgHotel extends AbstractAgent {
 			}
 			
 		}
-		
-		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			return true;
-		}
 	}
 	
 	private final class ConsultMyRatingBehavior extends SendReceiveBehaviour {
@@ -639,11 +635,6 @@ public class AgHotel extends AbstractAgent {
 				}
 
 			}
-		}
-		
-		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			return true;
 		}
 	}		
 

@@ -1,5 +1,6 @@
 package hotelmania.group2.platform;
 
+import hotelmania.group2.behaviours.ClientStep;
 import hotelmania.group2.behaviours.SendReceiveBehaviour;
 import hotelmania.group2.dao.ClientsServedStats;
 import hotelmania.group2.dao.ReportRecord;
@@ -14,6 +15,7 @@ import jade.lang.acl.ACLMessage;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.HashMap;
 
 public class AgReporter extends AbstractAgent
@@ -107,9 +109,14 @@ public class AgReporter extends AbstractAgent
 		}
 
 		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			return performativeReceived==ACLMessage.INFORM;
+		protected ClientStep finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.AGREE) {
+				return ClientStep.DONE;
+			}else {
+				return ClientStep.RESEND;
+			}
 		}
+		
 	}
 	
 	private final class GetFinanceReportBehavior extends SendReceiveBehaviour {
@@ -169,10 +176,13 @@ public class AgReporter extends AbstractAgent
 			record.setBalance(balance);
 			report.put(hotelName, record);
 		}
-
 		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			return performativeReceived==ACLMessage.INFORM;
+		protected ClientStep finishOrResend(int performativeReceived) {
+			if (performativeReceived==ACLMessage.AGREE) {
+				return ClientStep.DONE;
+			}else {
+				return ClientStep.RESEND;
+			}
 		}
 	}
 	
@@ -206,6 +216,9 @@ public class AgReporter extends AbstractAgent
 		
 		StringBuilder r = new StringBuilder();
 		r.append("SIMULATION RESULTS\n\n");
+		r.append("Date: ");
+		r.append(new Date());
+		r.append("\n\n");
 		r.append("Simulation period (minutes): ");
 		r.append(String.format("%.1f",simulationTime));
 		r.append("\n");

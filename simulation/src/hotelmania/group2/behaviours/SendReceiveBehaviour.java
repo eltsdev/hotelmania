@@ -31,4 +31,5 @@ public abstract class SendReceiveBehaviour extends GenericSendReceiveBehaviour {
 	protected void doSend() {
 			myAgent.sendRequest(server, this.protocol, sendPerformative);
 	}
+	
 }

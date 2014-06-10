@@ -1,5 +1,6 @@
 package hotelmania.group2.platform;
 
+import hotelmania.group2.behaviours.ClientStep;
 import hotelmania.group2.behaviours.GenericServerResponseBehaviour;
 import hotelmania.group2.behaviours.SendReceiveBehaviour;
 import hotelmania.group2.dao.Contract;
@@ -191,18 +192,25 @@ public class AgAgency extends AbstractAgent {
 				
 
 			} else {
-				//request is valid
-					
-				try {
-					Contract contractDao =contractDAO.getCurrentContractsByHotel(hotelQueryStaff.getHotel().getHotel_name(), hotelQueryStaff.getDay());
-					hotelmania.ontology.Contract contract = contractDao.getConcept();
-					HotelStaffInfo hotelStaff = new HotelStaffInfo();
-					hotelStaff.setContract(contract);
-					reply.setPerformative(ACLMessage.INFORM);
-					myAgent.getContentManager().fillContent(reply, hotelStaff);
-				} catch (CodecException | OntologyException e) {
-					Logger.logError(myName() + ": Message: " + message.getContent());
-					e.printStackTrace();
+				
+				Contract contractDao =contractDAO.getCurrentContractsByHotel(hotelQueryStaff.getHotel().getHotel_name(), hotelQueryStaff.getDay());
+				if (contractDao == null) {
+					reply.setPerformative(ACLMessage.REFUSE);
+					reply.setContent("There is no contract");
+				}else
+				{
+					//request is valid
+
+					try {
+						hotelmania.ontology.Contract contract = contractDao.getConcept();
+						HotelStaffInfo hotelStaff = new HotelStaffInfo();
+						hotelStaff.setContract(contract);
+						reply.setPerformative(ACLMessage.INFORM);
+						myAgent.getContentManager().fillContent(reply, hotelStaff);
+					} catch (CodecException | OntologyException e) {
+						Logger.logError(myName() + ": Message: " + message.getContent());
+						e.printStackTrace();
+					}
 				}
 			
 			}
@@ -230,11 +238,11 @@ public class AgAgency extends AbstractAgent {
 			sendRequest(this.server, chargeAccount, this.protocol, this.sendPerformative);
 		}
 		@Override
-		protected boolean finishOrResend(int performativeReceived) {
-			if(performativeReceived==ACLMessage.INFORM){
-				return true;
+		protected ClientStep finishOrResend(int performativeReceived) {
+			if(performativeReceived==ACLMessage.INFORM || performativeReceived==ACLMessage.AGREE){
+				return ClientStep.DONE;
 			}
-			return false;
+			return ClientStep.RESEND;
 		}
 	}
 	

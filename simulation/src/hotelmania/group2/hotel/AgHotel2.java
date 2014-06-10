@@ -555,7 +555,7 @@ public class AgHotel2 extends MetaAgent {
 			} else if (!(numberOfClientsQueryRef.getDay() >= Constants.FIRST_DAY && numberOfClientsQueryRef.getDay() <= getDay() )) {
 				//invalid day in request?
 				reply.setPerformative(ACLMessage.REFUSE);
-				reply.setContent("Day is in the future or before day 1.");
+				reply.setContent("Day is in the future or before first day 1 : "+numberOfClientsQueryRef.getDay());
 
 			} else {
 				//request is valid

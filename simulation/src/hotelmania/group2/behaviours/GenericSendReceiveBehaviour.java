@@ -7,13 +7,12 @@ import jade.lang.acl.MessageTemplate;
 
 
 public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
-	
+
 	protected static final long serialVersionUID = -4878507137076376248L;
 	protected ClientStep step;
 	protected AbstractAgent myAgent;
 	protected String protocol;
 	protected MessageTemplate messageTemplate;
-	int MAX_RESPONSES = 0 ;
 
 	public GenericSendReceiveBehaviour(AbstractAgent myAgent, String protocol) {
 		super(myAgent);
@@ -39,6 +38,7 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 			}
 		break;
 				
+		case RESEND:
 		case SEND:
 			doSend();
 			step = ClientStep.RECEIVE_RESPONSES;
@@ -85,9 +85,7 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 					break;
 				}
 
-				if (finishOrResend(msg.getPerformative())) {
-					step = ClientStep.DONE;
-				}
+				step = finishOrResend(msg.getPerformative());
 			}
 			break;
 		
@@ -100,7 +98,7 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 	
 	/**
 	 * Placeholder for locating the target agent, and so on. 
-	 * @return 
+	 * @return true if it must continue. False: to retry doPrepare.
 	 */
 	protected boolean doPrepare() {
 		return true;
@@ -156,7 +154,9 @@ public abstract class GenericSendReceiveBehaviour extends MetaSimpleBehaviour {
 	/**
 	 * Termination condition
 	 * @param performativeReceived 
-	 * @return condition if true, the behavior finishes. If false, it reset the behavior to send the message again.
+	 * @return next step: finish, reset, etc
 	 */
-	protected abstract boolean finishOrResend(int performativeReceived);	
+	protected ClientStep finishOrResend(int performativeReceived){
+		return ClientStep.DONE;
+	}	
 }

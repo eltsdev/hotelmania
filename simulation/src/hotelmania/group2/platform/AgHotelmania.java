@@ -266,6 +266,7 @@ public class AgHotelmania extends AbstractAgent {
 		ArrayList<Rating> historicalHotelRatings = ratingDAO.getRatingsOfHotel(hotelName);
 		float finalRating = computeAverageRating(historicalHotelRatings);
 		hotelDAO.updateRating(hotelName, finalRating);
+		Logger.logDebug(myName()+": NEW HOTEL RATING: "+hotelName + " = "+finalRating);
 		return true;
 	}
 	
