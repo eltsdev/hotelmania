@@ -1,9 +1,10 @@
 package hotelmania.group2.dao;
 
 public class ReportRecord {
-	String hotel;
-	double rating;
-	double balance;
+	
+	private String hotel;
+	private double rating;
+	private double balance;
 	private int customers;
 	
 	public String getHotel() {
@@ -27,7 +28,10 @@ public class ReportRecord {
 	
 	@Override
 	public String toString() {
-		return hotel+"\t\t\t"+rating+"\t\t\t$ "+balance;
+		String balanceStr = String.format("%.1f", balance);
+		String ratingStr = String.format("%.1f", rating);
+
+		return hotel + "\t\t" + ratingStr + "\t\t" + balanceStr + "\t\t"+ customers;
 	}
 	public int getCustomers() {
 		return customers;

@@ -1,6 +1,7 @@
 package hotelmania.group2.platform;
 
 import hotelmania.group2.behaviours.SendReceiveBehaviour;
+import hotelmania.group2.dao.ClientsServedStats;
 import hotelmania.group2.dao.ReportRecord;
 import hotelmania.ontology.AccountStatus;
 import hotelmania.ontology.HotelInformation;
@@ -191,10 +192,13 @@ public class AgReporter extends AbstractAgent
 	}
 	
 	private void addCustomersToReport() {
-		for (String hotel : this.report.keySet()) {
-			//TODO Get clients from each hotel.
-		}
+		//Get counter of bookings
+		HashMap<String,Integer> clientsStats = new ClientsServedStats().getStats();
 		
+		for (String hotel : clientsStats.keySet()) {
+			ReportRecord reportRecord = this.report.get(hotel);
+			reportRecord.setCustomers(clientsStats.get(hotel));
+		}
 	}
 
 	public String generateSimulationReport() {
@@ -203,7 +207,7 @@ public class AgReporter extends AbstractAgent
 		StringBuilder r = new StringBuilder();
 		r.append("SIMULATION RESULTS\n\n");
 		r.append("Simulation period (minutes): ");
-		r.append(simulationTime);
+		r.append(String.format("%.1f",simulationTime));
 		r.append("\n");
 		r.append("Number of clients generated: ");
 		r.append(Constants.CLIENTS_GENERATED);
@@ -219,8 +223,8 @@ public class AgReporter extends AbstractAgent
 		r.append(Constants.SIMULATION_DAYS);
 		r.append("\n\n");
 		
-		r.append("Hotel\t\t\tRating\t\tBalance\t\t# Clients\n"+
-				 "------\t\t\t------\t\t--------\t\t----------\n");
+		r.append("Hotel\t\tRating\t\tBalance\t\tClients\n"+
+				 "------\t\t------\t\t------\t\t-------\n");
 		for (ReportRecord record : this.report.values()) {
 			r.append(record.toString());
 			r.append("\n");
