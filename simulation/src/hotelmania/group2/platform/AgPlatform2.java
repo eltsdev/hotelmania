@@ -256,7 +256,8 @@ public class AgPlatform2 extends MetaAgent
 			try {
 				Client client = ClientGenerator.randomClient(day);
 	
-				String clientName = "Client_born_"+day+"_#_"+i;
+				int serial = Constants.CLIENTS_GENERATED + 1;
+				String clientName = "Client_born_"+day+"_#_" + serial ;
 				ac = cc.createNewAgent(clientName, AgClient.class.getName(), new Object[]{client});
 				ac.start();
 	

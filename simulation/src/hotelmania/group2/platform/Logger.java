@@ -77,7 +77,19 @@ public class Logger{
 	//General
 	
 	public void logReceivedMsg(ACLMessage message) {
-		String out = ("[INFO]"+ SEP + me.myName() + SEP  + "Received"+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: " + message.getProtocol() + SEP + "CID: "+message.getInReplyTo() + SEP + "From: " + message.getSender().getLocalName());
+		String cause = "";
+		
+		switch (message.getPerformative()) {
+			case ACLMessage.REFUSE:
+			case ACLMessage.FAILURE:
+			case ACLMessage.REJECT_PROPOSAL:
+			case ACLMessage.NOT_UNDERSTOOD:
+				cause = message.getContent()==null? "unknown": message.getContent();
+				cause = SEP + "Cause: "+cause;
+			break;
+		}
+
+		String out = ("[INFO]"+ SEP + me.myName() + SEP  + "Received"+ SEP + ACLMessage.getPerformative(message.getPerformative()) + SEP + "Protocol: " + message.getProtocol() + SEP + "CID: "+message.getInReplyTo() + SEP + "From: " + message.getSender().getLocalName() + cause);
 		System.out.println(out);
 		output.append(out + "\n");
 	}
